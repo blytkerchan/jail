@@ -44,9 +44,6 @@ typedef struct _rw_spinlock_t
 {
 	volatile int32_t next;	/* next available ticket */
 	volatile int32_t curr;	/* current request */
-
-	volatile int32_t excl;	/* exclusive */
-	volatile int32_t shar;	/* shared */
 } rw_spinlock_t;
 
 rw_spinlock_t * rw_spinlock_new(void);

@@ -1,4 +1,6 @@
 2004-08-11	blytkerchan
+	* rw_spinlock.h [rw_spinlock_t]: remove excl and shar fields
+
 	* barrier.h: use uint32_t in stead of unsigned int throughout
 	* barrier.c: ditto
 	(barrier_wait): use compare_and_exchange_int in stead of obsolete
