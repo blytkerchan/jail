@@ -13,6 +13,7 @@
 %token ALIAS_TK 		/* "alias" */
 %token BOOL_LITERAL_TK 		/* "true"|"false" */
 %token CLASS_TK 		/* "class" */
+%token SINGLETON_TK		/* "singleton" */
 %token CHAR_LITERAL_TK 		/* . */
 %token STRING_LITERAL_TK 	/* \"[^\"]*\" */
 %token BEGIN_BLOCK_TK 		/* '{' */
@@ -42,7 +43,7 @@ translation_unit :
 	;
 
 /** 
- & Literals
+ * Literals
  */
 /* literals can be numbers (int or floating point), booleans (true or false),
  * single characters in single quites (e.g. 'c') or strings (e.g. "hello"). 
@@ -80,6 +81,7 @@ declaration :
  * and the class name, followed by an end-of-statement token */
 class_declaration :
 	CLASS_TK class_name EOS_TK
+	SINGLETON_TK class_name EOS_TK
 	;
 
 /* a namespace declaration is the namespace token, followed by its name, 
@@ -134,8 +136,8 @@ definition :
  * name, the super (parent) classes it extends, and the body of the class,
  * in that order. The class name may be fully qualified */
 class_definition :
-	class_scope_modifiers CLASS_TK class_name class_super class_body
-	| class_scope_modifiers CLASS_TK fully_qualified_class_name class_super class_body
+	CLASS_TK class_name class_attrs class_body
+	| SINGLETON_TK class_name class_attrs class_body
 	;
 
 /* A function definition is the function token, followed by the name of the

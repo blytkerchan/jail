@@ -1,4 +1,11 @@
 2004-08-15	blytkerchan
+	* parse.y [SINGLETON_TK]: new token
+	(class_declaration): allow a class declaration with the singleton
+	token
+	(class_definition): follow the same definition style as functions and
+	variables - i.e. don't put the scope modifier before the class or
+	singleton token
+
 	* parse.y (translation_unit): remove initialization and finilization
 	sections
 
