@@ -65,5 +65,6 @@ release-libthread -a libthread-config libthread-libthread libthread-arch libthre
 libarch-config -d libarch config 
 libarch-arch-i486 -d libarch/libarch arch/i486
 libarch-arch-include -d libarch/arch arch/include
-i486-libarch -a libarch-config libarch-arch-i486 libarch-arch-include
+libarch-libreplace -d libarch/libreplace libreplace
+i486-libarch -a libarch-config libarch-arch-i486 libarch-arch-include libarch-libreplace
 
