@@ -29,6 +29,7 @@ libcontain-arch -d libcontain/arch arch
 libcontain-libreplace -d libcontain/libreplace libreplace
 libcontain-libmemory -d libcontain/libmemory libmemory
 libcontain-libcontain -d libcontain/libcontain libcontain
+libcontain-libthread -d libcontain/libthread libthread
 release-libcontain -a libcontain-config libcontain-libcontain libcontain-arch libcontain-libreplace libcontain-libmemory
 
 libmemory-arch -d libmemory/arch arch

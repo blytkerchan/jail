@@ -1,3 +1,6 @@
+2004-08-10	blytkerchan
+	* modules: add libthread to libcontain
+
 2004-07-28	blytkerchan
 	* avail: allow casucegrave access to htdocs and cgi-bin
 
