@@ -1,4 +1,4 @@
-/* $Id: NocaseStringHash.cc,v 1.4 2004/04/08 15:02:30 blytkerchan Exp $ */
+/* $Id: NocaseStringHash.cc,v 1.5 2004/05/07 16:28:21 blytkerchan Exp $ */
 /* Jail: Just Another Interpreted Language
  * Copyright (c) 2003-2004, Ronald Landheer-Cieslak
  * All rights reserved
@@ -32,7 +32,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-/*** 
+/***
 // Includes */
 #if !defined(_WIN32) || defined (__CYGWIN__)
 #include <config.h>
@@ -60,42 +60,51 @@
 #include "libreplace/strlwr.h"
 #endif
 
-/*** 
+/***
 // Constructors */
-NocaseStringHash::NocaseStringHash() : StringHash() {} // NocaseStringHash()
-NocaseStringHash::NocaseStringHash(ulong _u) : StringHash(_u) {} // NocaseStringHash()
-NocaseStringHash::NocaseStringHash(StringHash *sh) : StringHash(*sh) {} // NocaseStringHash()
-/*** 
+NocaseStringHash::NocaseStringHash() : StringHash()
+{} // NocaseStringHash()
+NocaseStringHash::NocaseStringHash(unsigned int _u) : StringHash(_u)
+{} // NocaseStringHash()
+NocaseStringHash::NocaseStringHash(StringHash *sh) : StringHash(*sh)
+{} // NocaseStringHash()
+/***
 // Destructors */
-NocaseStringHash::~NocaseStringHash() {} // ~StringHash()
+NocaseStringHash::~NocaseStringHash()
+{} // ~StringHash()
 
-/*** 
+/***
 // Class functions */
-/** 
+/**
 // cmp_keys(): compare two keys, return 0 if they're the same, nonzero if not
 */
-int NocaseStringHash::cmp_keys(const void *key1, const void *key2) {
+int NocaseStringHash::cmp_keys(const void *key1, const void *key2)
+{
 	char *K1 = (char*)key1, *K2 = (char*)key2;
-	
-	if (K1 == K2) return (0);
-	if ((K1 == NULL) || (K2 == NULL)) return (-1);
+
+	if (K1 == K2)
+		return (0);
+	if ((K1 == NULL) || (K2 == NULL))
+		return (-1);
 	K1 = strlwr(K1);
 	K2 = strlwr(K2);
-	
+
 	return (strcmp(K1, K2));
 } // cmp_keys()
 
-ulong NocaseStringHash::hash(const void *key) {
+unsigned int NocaseStringHash::hash(const void *key)
+{
 	char *K = (char*)key;
-	ulong currentAdler1 = 0x00000000UL;
-    	ulong currentAdler2 = 0x00000001UL;
-    	ulong i;
-    	
-    	for (i = 0; i < strlen(K); i++) {
-    		currentAdler1 += K[i];
-    		currentAdler2 += currentAdler1;
-    	} // for
-    	currentAdler1 = currentAdler1 << 16;
-    	
-    	return (currentAdler1 + currentAdler2);
+	unsigned int currentAdler1 = 0x00000000UL;
+	unsigned int currentAdler2 = 0x00000001UL;
+	unsigned int i;
+
+	for (i = 0; i < strlen(K); i++)
+	{
+		currentAdler1 += K[i];
+		currentAdler2 += currentAdler1;
+	} // for
+	currentAdler1 = currentAdler1 << 16;
+
+	return (currentAdler1 + currentAdler2);
 } // hash()

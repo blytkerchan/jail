@@ -1,4 +1,4 @@
-/* $Id: Hash.h,v 1.4 2004/04/08 15:02:30 blytkerchan Exp $ */
+/* $Id: Hash.h,v 1.5 2004/05/07 16:28:20 blytkerchan Exp $ */
 /* Jail: Just Another Interpreted Language
  * Copyright (c) 2003-2004, Ronald Landheer-Cieslak
  * All rights reserved
@@ -35,24 +35,25 @@
 #ifndef SLIB_LIBHASH_HASH_H
 #define SLIB_LIBHASH_HASH_H
 
-/*** 
-// Includes */
-#include <stdio.h>
+#define DEPRECATED __attribute__((deprecated))
 
-/*** 
-// Defines */
-#define ulong unsigned long /// NOTE: Get the size of this during configuration - portability issue
+#include <cstdio>
 
 /*** 
 // Type definitions */
-typedef struct _key_type {
+typedef struct _key_type 
+{
 	int size;
 	void *value;
 } key_type;
 
-typedef struct _mapping_type {
+typedef struct _mapping_type 
+{
 	void *key;
 	void *value;
+	unsigned int readers;
+	unsigned int lock;
+	unsigned int hash;
 } mapping_type;
 
 #ifndef __cplusplus
@@ -60,34 +61,37 @@ typedef struct Hash Hash;
 #else
 /*** 
 // Class definition */
-class Hash {
+class Hash 
+{
 public:
 	typedef void (*foreach_func_t)(void*key,void*val,void*data);
+	typedef int (*write_helper_func_t)(void*);
+	
 	Hash();
-	Hash(ulong);
+	Hash(unsigned int);
 	virtual ~Hash();
 	virtual void *get(const void *key);
 	virtual bool put(const void *key, const void *value);
 	virtual bool remove(const void *key);
 	bool clear(void);
-	ulong count(void);
+	unsigned int count(void);
 	virtual void **keys(void);
 	virtual bool contains (const void *key);
-	virtual bool read(char* filename);
-	virtual bool write(char *filename, int (*helper_function)(void*));
-	virtual bool write(int (*helper_function)(void*));
-	virtual bool write(char *filename);
-	virtual bool write(void);
-	void set_write_helper_function(int (*helper_function)(void*));
-	void * get_write_helper_function(void); // cast to int (*)(void*)
-	char *get_filename(void);
-	void set_filename(char *filename);
+	virtual bool read(char* filename) DEPRECATED;
+	virtual bool write(char *filename, int (*helper_function)(void*)) DEPRECATED;
+	virtual bool write(int (*helper_function)(void*)) DEPRECATED;
+	virtual bool write(char *filename) DEPRECATED;
+	virtual bool write(void) DEPRECATED;
+	void set_write_helper_function(write_helper_func_t func) DEPRECATED;
+	write_helper_func_t get_write_helper_function(void) DEPRECATED;
+	char *get_filename(void) DEPRECATED;
+	void set_filename(char *filename) DEPRECATED;
 	virtual void for_each(foreach_func_t func, void * user_data);
 	
 protected:
 	virtual int cmp_keys(const void *key1, const void *key2);
-	virtual ulong hash(const void *key);
-	bool grow(int size);
+	virtual unsigned int hash(const void *key);
+	bool grow(unsigned int size);
 	virtual bool empty_key(void *key);
 	virtual void *_get(const void *key);
 	virtual bool _put(const void *key, const void *value);
@@ -96,11 +100,25 @@ protected:
 	virtual bool _write(void);
 	virtual bool _remove(const void *key);
 	
-	int (*write_helper_function)(void*);
-	ulong size;  // size of the hash
-	ulong Count; // number of elements in the hash
+	write_helper_func_t write_helper_function;
+	unsigned int size;  // size of the hash
+	unsigned int Count; // number of elements in the hash
 	char filename[FILENAME_MAX + 1];
-	mapping_type *mappings;
+	mapping_type * mappings;
+	unsigned int readers;
+	unsigned int _lock;
+
+	void reg_reader(void);
+	void ureg_reader(void);
+	void reg_breader(mapping_type * bucket);
+	void ureg_breader(mapping_type * bucket);
+	void lock(unsigned int n_readers = 0);
+	void unlock(void);
+	void block(mapping_type * bucket);
+	void bunlock(mapping_type * bucket);
+
+	mapping_type * find(const void * key, bool for_write = false);
+	mapping_type * select(unsigned int index, const void * key, bool for_write);
 }; // Hash
 #endif // __cplusplus
 

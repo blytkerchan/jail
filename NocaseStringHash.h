@@ -1,4 +1,4 @@
-/* $Id: NocaseStringHash.h,v 1.3 2004/04/08 15:02:30 blytkerchan Exp $ */
+/* $Id: NocaseStringHash.h,v 1.4 2004/05/07 16:28:21 blytkerchan Exp $ */
 /* Jail: Just Another Interpreted Language
  * Copyright (c) 2003-2004, Ronald Landheer-Cieslak
  * All rights reserved
@@ -47,13 +47,13 @@
 class NocaseStringHash : public StringHash {
 public:
 	NocaseStringHash();
-	NocaseStringHash(ulong);
+	NocaseStringHash(unsigned int);
 	NocaseStringHash(StringHash *sh);
 	~NocaseStringHash();
 
 protected:
 	int cmp_keys(const void *, const void *);
-	ulong hash(const void *);
+	unsigned int hash(const void *);
 }; // NocaseStringHash
 
 

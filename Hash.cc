@@ -1,4 +1,4 @@
-/* $Id: Hash.cc,v 1.5 2004/04/08 15:02:30 blytkerchan Exp $ */
+/* $Id: Hash.cc,v 1.6 2004/05/07 16:28:20 blytkerchan Exp $ */
 /* Jail: Just Another Interpreted Language
  * Copyright (c) 2003-2004, Ronald Landheer-Cieslak
  * All rights reserved
@@ -32,371 +32,469 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-/*** 
-// Includes */
-#if !defined(_WIN32) || defined (__CYGWIN__)
-#include <config.h>
-#else  // in native windows
-#define HAVE_STRING_H 1
-#endif
-#include <assert.h>
+#include <cassert>
 #include "Hash.h"
-#include <stdlib.h>
+#include <cstdlib>
+#include <cstring>
 
-#ifdef HAVE_STRING_H
-	#include <string.h>
-#else 	// !HAVE_STRING
-	#ifdef HAVE_STRINGS_H
-		#include <strings.h>
-	#else // !HAVE_STRINGS
-		#error Neither string.h nor strings.h is available
-		#error Either file is required for the operation of this library
-		#error Please contact ronald@landheer.com for more information
-	#endif // !HAVE_STRINGS
-#endif 	// !HAVE_STRING
+#include "arch/include/increment.h"
+#include "arch/include/decrement.h"
+#include "prime.h"
+#include "thread.h"
 
 /***
 // Constants */
 static const char *HASH_MAGIC = "HASH";
 static const char *HASH_VERSION = "0100";
 
-/*** 
-// Local functions */
-/** 
-// get_prime(): get a prime greater than or equal to _U, return ~0 on error (_U > 3355070839)
-*/
-ulong get_prime(ulong _u) {
-	static const ulong primes[] = {
-		19, 29, 41, 59, 79, 107, 149, 197, 263, 347, 457, 599, 787, 1031,
-		1361, 1777, 2333, 3037, 3967, 5167, 6719, 8737, 11369, 14783,
-		19219, 24989, 32491, 42257, 54941, 71429, 92861, 120721, 156941,
-		204047, 265271, 344857, 448321, 582821, 757693, 985003, 1280519,
-		1664681, 2164111, 2813353, 3657361, 4754591, 6180989, 8035301,
-		10445899, 13579681, 17653589, 22949669, 29834603, 38784989,
-		50420551, 65546729, 85210757, 110774011, 144006217, 187208107,
-		243370577, 316381771, 411296309, 534685237, 695090819, 903618083,
-		1174703521, 1527114613, 1985248999, 2580823717UL, 3355070839UL
-	};
-	size_t i;
-	
-	for (i = 0; i < (sizeof(primes) / sizeof(ulong)); i++) {
-		if (primes[i] >= _u) return (primes[i]);
-	} // for
-
-	return (~0);
-} // get_prime()
-
-/*** 
+/***
 // Constructors */
-/** 
+/**
 // Hash(void): construct a default empty hash
 */
-Hash::Hash(void) {
+Hash::Hash(void)
+{
 	Count = 0;
-	size = get_prime(Count); // FIXME: check this for errors (1)
-	mappings = (mapping_type*)malloc(size * sizeof(mapping_type));
-	memset(mappings, 0, size * sizeof(mapping_type));
-} // Hash()
+	size = get_prime(Count);
+	mappings = (mapping_type*)calloc(size, sizeof(mapping_type));
+}
 
-/** 
-// Hash(ulong): construct a default empty hash with initial size C
+/**
+// Hash(unsigned int): construct a default empty hash with initial size C
 // NOTE: this is not tested by the test1 test program
 */
-Hash::Hash(ulong C) {
+Hash::Hash(unsigned int C)
+{
 	Count = 0;
-	size = get_prime(C); // FIXME: check this for errors (1)
-	mappings = (mapping_type*)malloc(size * sizeof(mapping_type));
-	memset(mappings, 0, size * sizeof(mapping_type));
-} // Hash()
+	size = get_prime(C);
+	mappings = (mapping_type*)calloc(size, sizeof(mapping_type));
+}
 
-/*** 
+/***
 // Destructors */
-/** 
+/**
 // ~Hash(): free everything allocated
 */
-Hash::~Hash(void) {
-	if (mappings) free(mappings);
+Hash::~Hash(void)
+{
+	if (mappings)
+		free(mappings);
 	mappings = NULL;
 } // ~Hash()
 
-/*** 
+/***
 // Public class functions */
-/** 
+/**
 // get(): gets the value corresponding to a key, returns NULL if it doesn't exist
 */
-void *Hash::get(const void *key) {
-	return(_get(key));
+void *Hash::get(const void *key)
+{
+	void * retval;
+
+	reg_reader();
+	retval = _get(key);
+	ureg_reader();
+	
+	return retval;
 } // get()
 
-void *Hash::_get(const void *key) {
-	int location = hash(key) % size;
-	ulong i;
-	
-	for (i = location; (i < size) && !empty_key(mappings[i].key); i++) {
-		if (cmp_keys(key, mappings[i].key) == 0) return(mappings[i].value);
-	} // for
-		
-	return (NULL);
-} // _get()
+void *Hash::_get(const void *key)
+{
+	mapping_type * bucket;
+	void * retval = NULL;
 
-/** 
+	bucket = find(key);
+	if (bucket)
+	{
+		retval = bucket->value;
+		ureg_breader(bucket);
+	}
+	
+	return retval;
+}
+
+/**
 // put(): puts the value VALUE in the hash at key KEY
 //        returns true if successful, false if not
 */
-bool Hash::put(const void *key, const void *value) {
-	return(_put(key, value));
+bool Hash::put(const void *key, const void *value)
+{
+	bool retval;
+
+	reg_reader();
+	retval = _put(key, value);
+	ureg_reader();
+
+	return retval;
 } // put
 
-bool Hash::_put(const void *key, const void *value) {
-	int location = hash(key) % size;
-	ulong i;
-	
-	if (((double)(Count + 1) / (double)size) >= 0.75) { // FIXME: make the 0.75 a define - perhaps in config.h?
-		if (!grow(size + 1)) return (false);
-		return(_put(key, value));
-	} // if
-	for (i = location; true; i++) {
-		if (i == size) {
-			if (grow(size + 1)) 
-				return (_put(key, value));
-			else return (false);
-		} // if
-		if (empty_key(mappings[i].key)) Count++;
-		if (empty_key(mappings[i].key) || (cmp_keys(mappings[i].key, key) == 0)) {
-			mappings[i].key = (void*)key;
-			mappings[i].value = (void*)value;
-			return (true);
-		} // if
-	} // for
+bool Hash::_put(const void *key, const void *value)
+{
+	mapping_type * bucket;
 
-	return(false); // never reached (normally)
+	while (1)
+	{
+		bucket = find(key, true);
+		if (bucket == NULL)
+		{
+			grow(size + 1);
+			continue;
+		}
+		if (empty_key(bucket->key) || !bucket->value)
+		{
+			atomic_increment(&Count);
+			if (((Count * 4) / 3) > size)
+			{
+				bunlock(bucket);
+				ureg_breader(bucket);
+				grow((Count * 4) / 3);
+				atomic_decrement(&Count);
+				continue;
+			}
+		}
+		bucket->key = const_cast<void*>(key);
+		bucket->value = const_cast<void*>(value);
+		bucket->hash = hash(key);
+		bunlock(bucket);
+		ureg_breader(bucket);
+		break;
+	}
+
+	return true;
 } // _put()
 
-/** 
+/**
 // remove(): remove an entry from the hash
-//           we rehash when we've removed the entry to make sure all 
-//           entries end up in the right place
-// FIXME: this could probably be done more efficiently
 */
-bool Hash::remove(const void *key) {
-	return(_remove(key));
-} // remove()
+bool Hash::remove(const void *key)
+{
+	bool retval;
 
-bool Hash::_remove(const void *key) {
-	mapping_type *old_mappings = mappings;
-	int location = hash(key) % size;
-	ulong i;
+	reg_reader();
+	retval = _remove(key);
+	ureg_reader();
 	
-	for (i = location; (i < size) && !empty_key(old_mappings[i].key); i++) {
-		if (cmp_keys(key, old_mappings[i].key) == 0) {
-			old_mappings[i].key = NULL;
-			mappings = (mapping_type*)malloc(size * sizeof(mapping_type));
-			memset(mappings, 0, size * sizeof(mapping_type));
-			Count = 0;
-			for (i = 0; i < size; i++) {
-				if (!empty_key(old_mappings[i].key)) {
-					_put(old_mappings[i].key, old_mappings[i].value);
-				} // if
-			} // for
-			free(old_mappings);
-			return (true);
-		} // if
-	} // for
-		
-	return (false);
+	return retval;
 } // remove()
 
-/** 
+bool Hash::_remove(const void *key)
+{
+	mapping_type * bucket;
+
+	bucket = find(key, true);
+	if (bucket == NULL)
+		return false;
+	bucket->value = NULL;
+	bunlock(bucket);
+	ureg_breader(bucket);
+
+	return true;
+} // remove()
+
+/**
 // clear(): clear the hash of all its contents
 */
-bool Hash::clear(void) {
+bool Hash::clear(void)
+{
+	lock();
 	memset(mappings, 0, size * sizeof(mapping_type));
 	Count = 0;
-		
-	return (true);
+	unlock();
+
+	return true;
 } // clear()
 
-/** 
+/**
 // count(): count the number of entries in the hash
 */
-ulong Hash::count(void) {
-	return (Count);
+unsigned int Hash::count(void)
+{
+	unsigned int retval;
+
+	reg_reader();
+	retval = Count;
+	ureg_reader();
+	
+	return retval;
 } // count()
 
-/** 
+/**
 // keys(): return a list of all keys in the hash
-//         returns NULL on error or if there are no keys, otherwise, a pointer to a static array ending with a NULL
-// NOTE: this could be done more efficiently (for time) if we cached the list..?
+//         returns NULL on error or if there are no keys, otherwise, a pointer to an array ending with a NULL
+//	the returned memory needs to be freed by the caller
 */
-void **Hash::keys(void) {
-	return(_keys());
+void **Hash::keys(void)
+{
+	void ** retval;
+	
+	reg_reader();
+	retval = _keys();
+	ureg_reader();
+
+	return retval;
 } // keys
 
-void **Hash::_keys(void) {
-	static void **keys = NULL;
+void **Hash::_keys(void)
+{
+	void **keys = NULL;
 	unsigned int num_keys = 0;
-	ulong i;
-	
-	if ((keys = (void**)malloc((this->Count + 1) * sizeof(void*))) == NULL) return (NULL);
-	for (i = 0; i < size; i++) {
-		if (!empty_key(mappings[i].key)) {
+	unsigned int i;
+
+	// Count might change but size won't
+	if ((keys = (void**)malloc((size + 1) * sizeof(void*))) == NULL)
+		return (NULL);
+	for (i = 0; i < size; i++)
+	{
+		reg_breader(&(mappings[i]));
+		if (!empty_key(mappings[i].key) && mappings[i].value)
+		{
 			keys[num_keys] = mappings[i].key;
 			keys[num_keys + 1] = NULL;
 			num_keys++;
 		} // if
+		ureg_breader(&(mappings[i]));
 	} // for
-	assert(Count == num_keys);
-	
+
 	return(keys);
 } // keys()
 
-/** 
+/**
 // contains(): return true if the key exists, false if not
 // NOTE: this could be done more efficiently (for time) if we cashed the list..?
 */
-bool Hash::contains(const void *key) {
-	return(_contains(key));
+bool Hash::contains(const void *key)
+{
+	bool retval;
+	
+	reg_reader();
+	retval = _contains(key);
+	ureg_reader();
+	
+	return retval;
 } // contains
 
-bool Hash::_contains(const void *key) {
-	int location = hash(key) % size;
-	ulong i;
+bool Hash::_contains(const void *key)
+{
+	bool retval = false;
+	mapping_type * bucket;
+
+	bucket = find(key);
+	if (bucket != NULL)
+	{
+		retval = (bucket->value != NULL);
+		ureg_breader(bucket);
+	}
 	
-	for (i = location; i < size && !empty_key(mappings[i].key); i++) {
-		if (cmp_keys(key, mappings[i].key) == 0) return true;
-	} // for
-	
-	return false;
+	return retval;
 } // _contains()
 
-/** 
+/**
 // cmp_keys(): compare two keys, return 0 if they're the same, nonzero if not
 */
-int Hash::cmp_keys(const void *key1, const void *key2) {
+int Hash::cmp_keys(const void *key1, const void *key2)
+{
 	key_type *K1 = (key_type*)key1, *K2 = (key_type*)key2;
 
-	if (K1 == K2) return (0);
-	if ((K1 == NULL) || (K2 == NULL)) return (-1);
+	if (K1 == K2)
+		return (0);
+	if ((K1 == NULL) || (K2 == NULL))
+		return (-1);
 	if (K1->size != K2->size)
 		return (K2->size - K1->size);
 	return (memcmp(K1->value, K2->value, K1->size));
 } // cmp_keys()
 
-/** 
+/**
 // hash(): calculates a 32-bit Adler CRC for *VALUE, used to hash the value.
+// Note that this is not quite an Adler CRC, as the Adler CRC modulizes bith ends by a constant, which we don't do.
 */
-ulong Hash::hash(const void *key) {
+unsigned int Hash::hash(const void *key)
+{
 	key_type *K = (key_type*)key;
 	char *value = (char*)K->value;
-	ulong currentAdler1 = 0x00000000UL;
-    	ulong currentAdler2 = 0x00000001UL;
-    	int i;
-    	
-    	for (i = 0; i < K->size; i++) {
-    		currentAdler1 += value[i];
-    		currentAdler2 += currentAdler1;
-    	} // for
-    	currentAdler1 = currentAdler1 << 16;
-    	
-    	return (currentAdler1 + currentAdler2);
+	unsigned int currentAdler1 = 1;
+	unsigned int currentAdler2 = 0;
+	int i;
+
+	for (i = 0; i < K->size; i++)
+	{
+		currentAdler1 += value[i];
+		currentAdler2 += currentAdler1;
+	} // for
+	currentAdler1 = currentAdler1 << 16;
+
+	return (currentAdler1 + currentAdler2);
 } // hash()
 
-/** 
+/**
 // grow(): grow the hash to S (minimum)
 */
-bool Hash::grow(int S) {
-	mapping_type *old_mappings = mappings;
-	ulong i, old_size;
+bool Hash::grow(unsigned int S)
+{
+	mapping_type * old_mappings;
+	mapping_type * bucket;
+	unsigned int i, old_size;
 
+	lock(1);
+	old_mappings = mappings;
 	old_size = size;
 	S = get_prime(S);
-	if ((mappings = (mapping_type*)malloc(S * sizeof(mapping_type))) == NULL) return (false);
-	memset(mappings, 0, S * sizeof(mapping_type));
+	if (S == size)
+	{
+		unlock();
+		return true;
+	}
+	if ((mappings = (mapping_type*)calloc(S, sizeof(mapping_type))) == NULL)
+	{
+		mappings = old_mappings;
+		unlock();
+		return false;
+	}
 	Count = 0;
 	size = S;
-	for (i = 0; i < old_size; i++) {
-		if (!empty_key(old_mappings[i].key)) {
-			_put(old_mappings[i].key, old_mappings[i].value);
-		} // if
+	for (i = 0; i < old_size; i++)
+	{
+		bucket = select(old_mappings[i].hash % size, old_mappings[i].key, true);
+		bucket->key = old_mappings[i].key;
+		bucket->value = old_mappings[i].value;
+		bucket->hash = old_mappings[i].hash;
+		bunlock(bucket);
+		ureg_breader(bucket);
 	} // for
 	free(old_mappings);
-	
+	unlock();
+
 	return(true);
 } // grow()
 
-/** 
+/**
 // empty_key(): check whether a key is empty - return true if so, false if not
 */
-bool Hash::empty_key(void* key) {
+bool Hash::empty_key(void* key)
+{
 	key_type *K = (key_type *)key;
-	
-	if (K == NULL) return (true);
+
+	if (K == NULL)
+		return (true);
 	return(K->size == 0);
 } // empty_key()
 
-bool Hash::read(char *filename) {
+/* deprecated */
+bool Hash::read(char *filename)
+{
 	strcpy(this->filename, filename);
 	FILE *file;
 	int data_size;
 	static key_type *key;
 	char magic[4];
 	void *data = NULL;
-	
+
+	reg_reader();
 	assert(sizeof(int) == 4);
-	if ((file = fopen(filename, "rb")) == NULL) return(false);
+	if ((file = fopen(filename, "rb")) == NULL)
+	{
+		ureg_reader();
+		return(false);
+	}
 	// check the magic number
 	fread(magic, 4, 1, file);
-	if (memcmp(magic, HASH_MAGIC, 4) != 0) return(false);
+	if (memcmp(magic, HASH_MAGIC, 4) != 0)
+	{
+		ureg_reader();
+		return(false);
+	}
 	fread(magic, 4, 1, file);
-	if (memcmp(magic, HASH_VERSION, 4) != 0) return(false);
-	while(fread(&data_size, 4, 1, file) == 1) {
+	if (memcmp(magic, HASH_VERSION, 4) != 0)
+	{
+		ureg_reader();
+		return(false);
+	}
+	while (fread(&data_size, 4, 1, file) == 1)
+	{
 		key = (key_type*)malloc(sizeof(key_type));
-		key->value = NULL; // just to make sure
 		key->size = data_size;
 		key->value = malloc(key->size);
 		fread(key->value, key->size, 1, file);
+
 		fread(&data_size, 4, 1, file);
 		data = malloc(data_size);
 		fread(data, data_size, 1, file);
 		this->_put(key, data);
 	} // while
 	fclose(file);
-	
+
+	ureg_reader();
 	return(true);
 } // read()
 
-bool Hash::write(char *filename, int (*helper_function)(void*)) {
+/* deprecated */
+bool Hash::write(char *filename, int (*helper_function)(void*))
+{
+	bool retval;
 	strcpy(this->filename, filename);
 	write_helper_function = helper_function;
-	return(this->write());
+
+	reg_reader();
+	retval = _write();
+	ureg_reader();
+
+	return retval;
 } // write()
 
-bool Hash::write(int (*helper_function)(void*)) {
+/* deprecated */
+bool Hash::write(int (*helper_function)(void*))
+{
+	bool retval;
 	write_helper_function = helper_function;
-	return(this->write());
+
+	reg_reader();
+	retval = _write();
+	ureg_reader();
+
+	return retval;
 } // write()
 
-bool Hash::write(char *filename) {
+/* deprecated */
+bool Hash::write(char *filename)
+{
+	bool retval;
+	
 	strcpy(this->filename, filename);
-	return(this->write());
+	reg_reader();
+	retval = _write();
+	ureg_reader();
+
+	return retval; 
 } // write()
 
-bool Hash::write(void) {
-	return(_write());
+/* deprecated */
+bool Hash::write(void)
+{
+	bool retval;
+	
+	reg_reader();
+	retval = _write();
+	ureg_reader();
+
+	return retval; 
 } // write
 
-bool Hash::_write(void) {
+/* deprecated */
+bool Hash::_write(void)
+{
 	key_type **key_list;
 	int i, data_size;
 	FILE *file;
 	void *data;
-	
+
 	assert(sizeof(int) == 4);
-	if ((file = fopen(filename, "wb")) == NULL) return(false);
+	if ((file = fopen(filename, "wb")) == NULL)
+		return(false);
 	fwrite(HASH_MAGIC, 4, 1, file);
 	fwrite(HASH_VERSION, 4, 1, file);
 	key_list = (key_type**)this->keys();
-	for (i = 0; key_list[i]; i++) {
+	for (i = 0; key_list[i]; i++)
+	{
 		fwrite(&key_list[i]->size, 4, 1, file);
 		fwrite(key_list[i]->value, key_list[i]->size, 1, file);
 		data = this->_get(key_list[i]);
@@ -405,23 +503,31 @@ bool Hash::_write(void) {
 		fwrite(data, data_size, 1, file);
 	} // for
 	fclose(file);
-	
+
 	return(true);
 } // write()
 
-void Hash::set_write_helper_function(int (*helper_function)(void*)) {
-	write_helper_function = helper_function;
+/* deprecated */
+void Hash::set_write_helper_function(write_helper_func_t func)
+{
+	write_helper_function = func;
 } // set_write_helper_function()
 
-void * Hash::get_write_helper_function(void) {
-	return((void*)write_helper_function);
+/* deprecated */
+Hash::write_helper_func_t Hash::get_write_helper_function(void)
+{
+	return(write_helper_function);
 } // set_write_helper_function()
 
-char *Hash::get_filename(void) {
+/* deprecated */
+char *Hash::get_filename(void)
+{
 	return(filename);
 } // get_filename()
 
-void Hash::set_filename(char *filename) {
+/* deprecated */
+void Hash::set_filename(char *filename)
+{
 	strcpy(this->filename, filename);
 } // get_filename()
 
@@ -429,16 +535,127 @@ void Hash::set_filename(char *filename) {
 // added to implement hash_search
 void Hash::for_each(foreach_func_t func, void * user_data)
 {
-	ulong i;
+	unsigned int i;
 	
+	reg_reader();
 	for (i = 0; i < Count; i++)
 	{
-		if (mappings[i].key)
-			func(mappings[i].key, mappings[i].value, user_data);
+		reg_breader(&(mappings[i]));
+		if (!empty_key(mappings[i].key))
+		{
+			if (mappings[i].value)
+				func(mappings[i].key, mappings[i].value, user_data);
+		}
+		
+	}
+	ureg_reader();
+}
+
+void Hash::reg_reader(void)
+{
+	atomic_increment(&readers);
+	while (_lock)
+	{
+		atomic_decrement(&readers);
+		thread_interrupt();
+		atomic_increment(&readers);
 	}
 }
 
-/* FOOTNOTES
-// 1. Constructors do not return any value, so we should get back to the good old RunControl variable..
-*/
+void Hash::ureg_reader(void)
+{
+	atomic_decrement(&readers);
+}
+
+void Hash::reg_breader(mapping_type * bucket)
+{
+	atomic_increment(&(bucket->readers));
+	while (bucket->lock)
+	{
+		atomic_decrement(&(bucket->readers));
+		thread_interrupt();
+		atomic_increment(&(bucket->readers));
+	}
+}
+
+void Hash::ureg_breader(mapping_type * bucket)
+{
+	atomic_decrement(&(bucket->readers));
+}
+
+void Hash::lock(unsigned int n_readers)
+{
+	atomic_increment(&_lock);
+	while ((_lock != 1) || (readers != n_readers))
+	{
+		atomic_decrement(&_lock);
+		thread_interrupt();
+		atomic_increment(&_lock);
+	}
+}
+
+void Hash::unlock(void)
+{
+	atomic_decrement(&_lock);
+}
+
+void Hash::block(mapping_type * bucket)
+{
+	atomic_increment(&(bucket->lock));
+	while ((bucket->lock != 1) || (bucket->readers != 1))
+	{
+		atomic_decrement(&(bucket->readers));
+		atomic_decrement(&(bucket->lock));
+		thread_interrupt();
+		atomic_increment(&(bucket->lock));
+		atomic_increment(&(bucket->readers));
+	}
+}
+
+void Hash::bunlock(mapping_type * bucket)
+{
+	atomic_decrement(&(bucket->lock));
+} 
+
+mapping_type * Hash::select(unsigned int index, const void * key, bool for_write)
+{
+	unsigned int i;
+	bool started = false;
+	
+	for (i = index; (i != index) || !started; i = (i + 1) % size)
+	{
+		started = true;
+		reg_breader(&(mappings[i]));
+		if (empty_key(mappings[i].key))
+		{
+			if (for_write)
+			{
+				block(&(mappings[i]));
+				return &(mappings[i]);
+			}
+			else
+			{
+				ureg_breader(&(mappings[i]));
+				return NULL;
+			}
+		}
+		if (cmp_keys(mappings[i].key, key) == 0)
+		{
+			if (for_write)
+				block(&(mappings[i]));
+			return &(mappings[i]);
+		}
+		ureg_breader(&(mappings[i]));
+	}
+
+	return NULL;
+}
+
+mapping_type * Hash::find(const void * key, bool for_write)
+{
+	unsigned int index;
+
+	index = hash(key) % size;
+	return select(index, key, for_write);
+}
 

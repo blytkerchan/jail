@@ -1,4 +1,4 @@
-/* $Id: IntHash.h,v 1.3 2004/04/08 15:02:30 blytkerchan Exp $ */
+/* $Id: IntHash.h,v 1.4 2004/05/07 16:28:21 blytkerchan Exp $ */
 /* Jail: Just Another Interpreted Language
  * Copyright (c) 2003-2004, Ronald Landheer-Cieslak
  * All rights reserved
@@ -45,7 +45,7 @@
 class IntHash : public Hash {
 public:
 	IntHash();
-	IntHash(ulong);
+	IntHash(unsigned int);
 	bool read(char*);
 	void *get(const int key);
 	bool put(const int key, const void *value);
@@ -57,7 +57,7 @@ protected:
 	bool _write(void);
 	bool empty_key(void *key);
 	int cmp_keys(const void *, const void *);
-	ulong hash(const void *);
+	unsigned int hash(const void *);
 }; // StringHash
 
 

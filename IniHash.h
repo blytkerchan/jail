@@ -1,4 +1,4 @@
-/* $Id: IniHash.h,v 1.4 2004/04/08 15:02:30 blytkerchan Exp $ */
+/* $Id: IniHash.h,v 1.5 2004/05/07 16:28:21 blytkerchan Exp $ */
 /* Jail: Just Another Interpreted Language
  * Copyright (c) 2003-2004, Ronald Landheer-Cieslak
  * All rights reserved
@@ -60,7 +60,7 @@ typedef struct _key_list_type {
 class IniHash : public NocaseStringHash {
 public:
 	IniHash();
-	IniHash(ulong);
+	IniHash(unsigned int);
 	~IniHash();
 	virtual bool read(char * filename);
 	virtual bool _write(void);

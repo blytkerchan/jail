@@ -38,6 +38,7 @@ libcontain_la_SOURCES = arch/@ARCH@/compare_and_exchange.c \
 			binomial_tree.c \
 			binary.c \
 			heap.c \
+			prime.c \
 			list.c $(libcontain_la_CXXSOURCES)
 pkginclude_HEADERS =	hash_config.h \
 			hash.h \
@@ -48,7 +49,7 @@ pkginclude_HEADERS =	hash_config.h \
 			binomial_tree.h \
 			heap.h \
 			list.h $(libcontain_la_CXXHEADERS)
-noinst_HEADERS = c_interface.h binary.h
+noinst_HEADERS = c_interface.h binary.h prime.h
 libcontain_la_LIBADD=libreplace/libreplace.la glib/libglib.la libmemory/libmemory.la
 libcontain_la_LDFLAGS=-version-info 2:0:1
 AM_CFLAGS = -g -Wall -Werror -I$(top_srcdir)/arch/include

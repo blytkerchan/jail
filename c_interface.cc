@@ -40,14 +40,14 @@ extern "C" Hash * cxx_new_hash(libhash_hashtype hash_type)
 {
 	switch (hash_type)
 	{
-		case NORMAL_HASH :
-			return(new Hash);
-		case STRING_HASH :
-			return(new StringHash);
-		case INT_HASH :
-			return(new IntHash);
-		default :
-			return(NULL);
+	case NORMAL_HASH :
+		return(new Hash);
+	case STRING_HASH :
+		return(new StringHash);
+	case INT_HASH :
+		return(new IntHash);
+	default :
+		return(NULL);
 	}
 }
 
@@ -58,7 +58,8 @@ extern "C" void cxx_delete_hash(Hash * hash)
 
 extern "C" void *cxx_hash_get(Hash * hash, const void *key)
 {
-	return(hash->get(key));
+	return(hash->get
+	       (key));
 }
 
 extern "C" int cxx_hash_put(Hash * hash, const void *key, const void *value)
@@ -68,7 +69,8 @@ extern "C" int cxx_hash_put(Hash * hash, const void *key, const void *value)
 
 extern "C" int cxx_hash_remove(Hash * hash, const void *key)
 {
-	return(hash->remove(key) ? 0 : 1);
+	return(hash->remove
+	       (key) ? 0 : 1);
 }
 
 extern "C" void ** cxx_hash_keys(Hash * hash)

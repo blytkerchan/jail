@@ -1,3 +1,76 @@
+2004-05-07	blytkerchan
+Making Hash thread-safe
+	* Hash.cc (get): re-write to increment and decrement reader count on container as appropriate
+	(put): ditto
+	(remove): ditto
+	(count): ditto
+	(keys): ditto
+	(contains): ditto
+	(for_each): ditto
+	(read): ditto
+	deprecate
+	(write): ditto (both, all versions)
+	(set_write_helper_function): deprecate
+	(get_write_helper_function): ditto
+	(set_filename): ditto
+	(_get): use find() to locate the bucket to use, and decrement the read count on it when done
+	(_keys): ditto
+	(_contains): ditto
+	(_put): ditto, but also unlock the bucket
+	(_remove): completely rewrite to not clear the bucket but just the value, thus not needing to re-hash and making the code faster and clearer
+	(clear): lock the container while working
+	(hash): fix the bug where consecutive leading 0s didn't change the hash
+	(grow): lock the container while working
+	dont re-allocate if the target size results in the same size as current
+	don't use _put to put the values in the new hash but do it here
+	(reg_reader): new function
+	(ureg_reader): ditto
+	(reg_breader): ditto
+	(ureg_breader): ditto
+	(lock): ditto
+	(unlock): ditto
+	(block): ditto
+	(bunlock): ditto
+	(select): ditto
+	(find): ditto
+	* Hash.h: reflect above changes
+	[class Hash]: add readers and _lock fields
+	add write_helper_func_t type
+	[mapping_type]: add readers and lock fields
+	* IniHash.cc (read): re-write to increment and decrement reader count on container as appropriate
+	(get): ditto
+	(put): ditto
+	(keys): ditto
+	(contains): ditto
+	(remove): ditto
+	* IntHash (read): ditto
+	(get): ditto
+	(contains): ditto
+	(keys): ditto
+	(remove): ditto
+	* StringHash.cc (read): ditto
+Hash code cleanup
+	* Hash.cc: remove obsolete stuff (comments, code, etc.)
+	replace includes with C++-style ones where appropriate
+	re-indent
+	use unsigned int instead of ulong
+	use calloc in stead of malloc + memset where applicable
+	* IntHash.cc: ditto (all)
+	* IniHash.cc: ditto (all)
+	* StringHash.cc: ditto (all)
+	* NocaseStringHash.cc: ditto (all)
+	* Hash.h: ditto (all)
+	* IntHash.h: ditto (all)
+	* IniHash.h: ditto (all)
+	* StringHash.h: ditto (all)
+	* NocaseStringHash.h: ditto (all)
+	* c_interface.cc: re-indent
+	* Hash.cc: move get_prime to prime.c file
+	* prime.c: new file
+	* prime.h: ditto
+	* Makefile.am [libcontain_la_SOURCES]: add prime.c
+	[noinst_HEADERS]: add prime.h
+
 2004-05-05	blytkerchan
 integrating libmemory
 	* list.c: give full path to compare_and_exchange header
