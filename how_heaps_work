@@ -1,0 +1,282 @@
+Heaps are containers that will always keey the largest element on top. The
+heap in this library is implemented as a binomial tree which is progressively
+sorted as new elements are put on it. The binomial tree in question is 
+left-complete.
+
+The algorithm described below is implemented in heap.c. Note, though, that the
+implementation uses an underlying binomial tree implementation which means there
+is an extra level of indirection in the implementation, which is not taken into
+account here.
+
+Sadly, I have not been able to conjure up a non-blocking algorithm for this 
+container. Hence, there are three levels of locks on the container: two 
+container-wide and one per-node. The two container-wide locks are a 
+non-exclusive and an exclusive lock. The non-exclusive lock is basically a 
+counter for the number of threads working on the container at any given time,
+with the caveat that the macro that increments this counter also waits for any
+exclusive lock to go away. The exclusive lock waits for the calling thread to
+be the only one working on the container at the time, and will then assume that
+this remains the case until the exclusive lock is lifted. The implementation
+provides four macros for this: SOFT_LOCK(), SOFT_UNLOCK(), HARD_LOCK() and 
+HARD_UNLOCK(). The only function in the implementation that calls HARD_LOCK()
+and HARD_UNLOCK() is heap_pop().
+
+First, let's see how heaps based on binomial trees work:
+
+The maximum number of nodes per level in the tree is 2^l where l is the level,
+starting at 0:
+    level 0      .       2^0 == 1
+                / \
+               /   \
+    level 1   .     .    2^1 == 2
+             / \   / \
+    level 2 .   . .   .  2^2 == 4
+The total number of nodes in a tree of height h is 2^h - 1, where h = max(l) + 1
+(hence, for the heap in the illustration h = 3 and the maximum number of nodes
+is 2^3 - 1 == 8 - 1 == 7.
+
+This information is useful if you want to select the place where to put the next
+leaf:
+  let n be the number of nodes in the tree
+  let h be the height of the tree
+  let K(h) be the maximal number of nodes in a tree of height h, 
+      such that K(h) == 2^h - 1
+  let F(h) be half the number of nodes in the bottom level of the tree of
+      height h, such that F(h) = 2^(h - 1) / 2 == 2^(h - 2)
+It can be proven (rather easily) that h is a function of n if the tree is 
+left-complete: in fact, h = floor(lg(n)) + 1.
+
+Now, taken into account that the left branch of a left-complete binomial tree
+is always a left-complete binomial tree as well, as is the right branch, the
+way to find the next position of the next leaf node (a leaf node being a node
+without children) is by finding, recursively, which branch to take: the left
+or the right one.
+
+Consider these two example trees: both are left-complete:
+  A    .           B    .
+      / \              / \
+     /   \            /   \
+    .     .          .     .
+   / \   /          / 
+  .   . .          .  
+In the first of these two cases, when starting at the root level, the branch
+on the right-hand side would get the next node, whereas in the second one of
+these cases, the branch on the left-hand side would.
+The first tree, tree A, has 6 nodes. The second tree, tree B, has four nodes. 
+Now, consider this algorithm:
+
+1	SelectLastLeaf(heap: HeapType): NodeType {
+2		return SelectNode(heap^.root, floor(lg(heap^.n)) + 1, heap^.n - 1);
+3	}
+in which:
+1	SelectNode(root: NodeType; h: 1 .. max_height; n: 1 .. max_nodes): NodeType {
+2		let r: 1 .. max_nodes;
+3		if (n == 0) return root;
+4		r := K - n;
+5		if (r >= F)
+6			return SelectNode(root^.left, h - 1, n - F);
+7		else	return SelectNode(root^.right, h - 1, n - (2 * F));
+8	}
+and:
+1	NodeType: struct {
+3		left, right: NodeType
+4		val: ValueType
+5	}
+and:
+1	HeapType: struct {
+2		root: NodeType;
+3		N: 1 .. max_nodes;
+4	}
+
+The SelectLastLeaf algorithm will, in fact, return the last leaf in the 
+tree - the right-most leaf on the bottom level. If this node is intended
+to be empty, the heap's attribute n should, in fact, be one greater than
+the actual number of nodes in the tree. (In the case of our heap 
+implementation, we actually increase the counter of the number of nodes in
+the tree before starting the search for the rightmost node on the bottom
+layer, see heap_add() and heap_select_node(), the latter of which 
+implements the above SelectNode algorithm).
+Trying this algorithm on either of the two trees - or in fact on any 
+left-complete binomial tree, will select the proper leaf. The SelectNode 
+algorithm can, in fact, be used to find *any* node in the tree, iff the
+nodes are numbered in ascending order from 0 up. 
+
+In the binomial tree in this heap implementation, for every node, the value of
+the node must exceed or be equal to the value of both of its children 
+(individually) but the relation between the two children is undefined. I.e.
+a heap with the integers 1, 2, 3, 4 and 5, may be any of the following:
+       5          5          5          5
+      / \        / \        / \        / \
+     /   \      /   \      /   \      /   \
+    3     4    4     3    3     4    4     3
+   / \        / \        / \        / \
+  2   1      1   2      1   2      2   1
+Adding a new value to this heap (say, 6) presents a problem: we want the heap
+to remain left-complete and sorted.
+
+The heap_add() function (and the Add algorithm it implements) guarantees that
+_when the function returns_ the heap shall be in a coherent state. While the
+function is still functioning, heap_top() will return either the former top
+or a new one, but is not guaranteed to return the one it would return when
+heap_add() is done. Hence, keeping these restrictions in mind, we can safely
+add our new value as a leaf value before sorting (and fixing) the heap.
+
+Hence, consider the following algorithm for Add:
+1	Add(heap: HeapType; val: ValueType) 
+2	{	let o, n: 1 .. max_nodes;
+3		let leaf, parent: NodeType;
+4
+5		SoftLock(heap);
+6		/* Try increasing the heap's attribute n by exactly one, while retaining
+7		 * the new value */
+8		Do {
+9			o := heap^.n;
+10			n := o + 1;
+11		} While (CompareAndExchange(o, heap^.N, n) != Success);
+12		leaf := SelectNode(heap^.root)
+13		leaf^.val := val;
+14		While (1) {
+15			Do {
+16				parent := leaf^.parent;
+17				if (parent == nil) { 
+18					leaf^.flag := 0; 
+19					SoftUnlock(heap); 
+20					return; 
+21				}
+22				if (parent^.val == nil) continue;
+23			} While (CompareAndExchange(0, parent^.flag, 1) != Success);
+24			if (parent^.val < leaf^.val) {
+25				Exchange(parent^.val, leaf^.val);
+26				parent^.flag := 0;
+27			} else {
+28				parent^.flag := 0;
+29				leaf^.flag := 0;
+30				break;
+31			}
+32			leaf := parent;
+33		}
+34		SoftUnlock(heap);
+35	}
+in which
+	and CompareAndExchange compares the current value of its second argument to
+	its first argument and iff they are the same, set the second argument to
+	the third argument and returns success; else returns error.
+Some notes: 
+* the SoftLock on line 5 doesn't stop other threads from altering the heap's n
+  attribute, which is why the loop starting on line 8 is not guaranteed to work
+  the first time. Once we do have a private n value, though, we know where to 
+  put the new leaf.
+* In line 12, we select the leaf where we will put our value before fixing the
+  heap. "selecting" the leaf node means locking it because as of the moment 
+  the node has been selected, the value of the node must no longer change.
+* As we will see later, the n attribute can not decrease while an add operation
+  is in progress, so two add operations can't compete for the same leaf node to
+  add the new value to *initially*. However, while fixing the heap two add 
+  operations _can_ compete for the same node. That is why the loop starting on
+  line 15 is not guaranteed to work the fist time.
+* If the node has no parent, it is the root node, which means the value is on
+  top of the heap and we're done fixing the heap. (Fixing the heap starts at 
+  line 14).
+* If the parent node exists but has no value, an add operation is in progress 
+  on that node, so we'll have to start over.
+* Once both the parent and the new leaf are locked, the two can be compared and
+  swapped if need be. If there is no need to swap, we're done.
+  
+To get the value of the top node of the tree, it is a simple matter of returning
+that value after it has been read. The implementation can be found in heap_top()
+and no more words will be wasted on it :) Note, however, that Top does not need
+to wait for the lock on the node it reads to go away: Top is not guaranteed to
+return the highest value on the heap until all Add and Pop operations are done.
+
+To remove the top node of the tree, the tree needs to be "fixed" afterwards: 
+removing the top node leaves us with two left-complete binomial trees and no
+top node. Also, the Add algorithm above (implemented in heap_add()) expects
+that the SelectNode function never fails and always returns a leaf node with 
+no value. The Pop algorithm can't change that behaviour. The Top algorithm 
+expects the top node to contain a value if there are any values in the tree,
+but does not guarantee to return the highest value in the tree until all Add
+operations are done.
+
+Consider the following algorithm for Pop:
+1	Pop(heap: HeapType) {
+2		let leaf: NodeType;
+3		
+4		HardLock(heap);
+5		if (heap^.root^.val == nil) {
+6			HardUnlock(heap);
+7			SoftUnlock(heap);
+8			return;
+9		}
+10		heap^.root^.val := nil;
+11		heap^.n := heap^.n - 1;
+12		if (heap^.n == 0) {
+13			HardUnlock(heap);
+14			SoftUnlock(heap);
+15			return;
+16		}
+17		leaf := SelectNode(heap^.root, floor(lg(heap^.n)) + 1, heap^.n);
+18		root^.val := leaf^.val;
+19		leaf^.val := nil;
+20		HardUnlock(heap);
+21		Fix(heap^.root);
+22		SoftUnlock(heap);
+23	}
+in which:
+1	Fix(root, NodeType) {
+2		let left, right, largest: NodeType;
+3
+4		if (root^.val == nil) { root^.flag := 0; return; }
+5		Do {
+6			if (root^.left == nil) { root^.flag := 0; return; }
+7			left := root^.left;
+8			if (left^.val == nil) { root^.flag := 0; return; }
+9		} while (CompareAndExchange(0, left^.flag, 1) != Success);
+10		Do {
+11			right := root^.right;
+12			if (right == nil) break;
+13		} while (CompareAndExchange(0, right^.flag, 1) != Success);
+14		largest := left;
+15		if ((right != nil) && (right^.val != nil)) {
+16			if (right^.val > left^.val)
+17				largest := right;
+18		}
+19		case largest :
+20		left)
+21			if (right != nil) right^.flag := 0;;
+22		right)
+23			left^.flag := 0;;
+24		esac
+25
+26		if (largest^.val > root^.val) {
+27			Swap(largest^.val, root^.val);
+28			root^.flag := 0;
+29			Fix(largest);
+30		} else {
+31			root^.flag := 0;
+32			largest^.flag := 0;
+33		}
+34	}
+
+Note that HardLock sets an exclusive and a non-exclusive lock and HardUnlock 
+only clears the exclusive one. This means that the heap is accessible while
+it is being fixed.
+
+The Fix algorithm first tries to get a lock on the left node (lines 5-9). If
+there is none, the passed-in node is a leaf as we have a left-complete tree.
+It then tries to get a lock on the right node (lines 10-13), which may or may
+not exist. Between the two nodes, it then determines which is the largest 
+(lines 14-18) and releases the lock on the other node (lines 19-24, note that
+the case uses an adapted Bash notation). It then determines whether the largest
+node is larger than the root node (line 26) and if so, swaps and recurses 
+(lines 27-29). Otherwise, it releases the locks on both nodes and is done 
+(lines 31-32).
+Note that Fix expects the passed-in node to be locked and unlocks it before
+returning. Hence, Pop cannot expect the node to still be locked when Fix is
+done.
+
+Finally, to lock the heap, the implementation in heap.c has two flags in the
+heap description structure: workers and flag. There may be other ways to do
+this; finding one is left as an excersize to the reader.
+
+rlc
+

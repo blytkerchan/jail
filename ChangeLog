@@ -1,3 +1,36 @@
+2004-04-27	blytkerchan
+	* binary.c: new file
+	* binary.h: ditto
+	* how_heaps_work: ditto
+	* array.c [pow2s]: move to binary.c
+	(lg): ditto
+	(pow2): ditto
+	* heap.c: include license
+	include stdlib.h
+	[heap_left_child]: remove
+	[heap_right_child]: ditto
+	[SOFT_LOCK]: new macro
+	[SOFT_UNLOCK]: ditto
+	[HARD_LOCK]: ditto
+	[HARD_UNLOCK]: ditto
+	(heap_alloc): remove
+	(heap_grow): ditto
+	(heap_size): ditto
+	(heap_num_entries): ditto
+	(heap_new): re-implement
+	(heap_free): ditto
+	(heap_fix): ditto
+	(heap_add): ditto
+	(heap_top): ditto
+	(heap_pop): ditto
+	(heap_free_helper): new function
+	(heap_select_node): ditto
+	* heap.h: include binomial_tree.h
+	[heap_node_t]: new field flag
+	[heap_t]: re-write
+	(heap_size): remove
+	(heap_num_entries): ditto
+
 2004-04-26	blytkerchan
 	* Makefile.am [pkginclude_HEADERS]: fix type-o
 	* binomial_tree.c: include required headers

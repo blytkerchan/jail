@@ -1,97 +1,296 @@
+/* Jail: Just Another Interpreted Language
+ * Copyright (c) 2004, Ronald Landheer-Cieslak
+ * All rights reserved
+ * 
+ * This is free software. You may distribute it and/or modify it and
+ * distribute modified forms provided that the following terms are met:
+ *
+ * * Redistributions of the source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer;
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in
+ *   the documentation and/or other materials provided with the distribution;
+ * * None of the names of the authors of this software may be used to endorse
+ *   or promote this software, derived software or any distribution of this 
+ *   software or any distribution of which this software is part, without 
+ *   prior written permission from the authors involved;
+ * * Unless you have received a written statement from Ronald Landheer-Cieslak
+ *   that says otherwise, the terms of the GNU General Public License, as 
+ *   published by the Free Software Foundation, version 2 or (at your option)
+ *   any later version, also apply.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+#include <stdlib.h>
 #include "heap.h"
-#define thread_interrupt()	sleep(0)
-#define heap_left_child(i) ((2 * i) + 1)
-#define heap_right_child(i) ((2 * i) + 2)
-
-heap_t * heap_alloc(heap_val_cmp_func_t heap_val_cmp_func, size_t size)
-{
-	heap_t * retval = (heap_t*)calloc(1, sizeof(heap_t));
-	retval->nodes = (heap_node_t*)calloc(size, sizeof(heap_node_t));
-	retval->size = size;
-	retval->heap_val_cmp_func = heap_val_cmp_func;
-	
-	return retval;
-}
+/* this should tell the system that the rest of the time-slice is not interesting for us - it may be handed over to someone else.. */
+#define thread_interrupt() sleep(0)
+/* get a non-exclusive lock on the heap, wait for exclusive locks to go away */
+#define SOFT_LOCK(handle)																	\
+	atomic_increment(&(handle->workers));												\
+	while (handle->flag)																		\
+	{																								\
+		atomic_decrement(&(handle->workers));											\
+		thread_interrupt();																	\
+		atomic_increment(&(handle->workers));											\
+	}
+/* release non-exclusive lock on the heap */
+#define SOFT_UNLOCK(handle) atomic_decrement(&(handle->workers))
+/* get an exclusive lock on the heap, wait for non-exclusive locks to go away */
+#define HARD_LOCK(handle)																	\
+	atomic_increment(&(handle->flag));													\
+	atomic_increment(&(handle->workers));												\
+	while ((handle->workers != 1) || (handle->flag != 1))							\
+	{																								\
+		atomic_decrement(&(handle->flag));												\
+		atomic_decrement(&(handle->workers));											\
+		thread_interrupt();																	\
+		atomic_increment(&(handle->workers));											\
+		atomic_increment(&(handle->flag));												\
+	}
+/* release an exclusive lock on the heap, leave a non-exclusive one */
+#define HARD_UNLOCK(handle)																\
+	do																								\
+	{																								\
+		atomic_decrement(&(handle->flag));												\
+	}																								\
+	while (0)
 
 heap_t * heap_new(heap_val_cmp_func_t heap_val_cmp_func)
 {
-	return heap_alloc(HEAP_DEFAULT_SIZE);
+	heap_t * retval = (heap_t*)calloc(1, sizeof(heap_t));
+	retval->tree = binomial_tree_new();
+	retval->heap_val_cmp_func = heap_val_cmp_func;
+
+	return retval;
+}
+
+static void heap_free_helper(void * dat1, void * dat2)
+{
+	free(dat1);
 }
 
 void heap_free(heap_t * handle)
 {
-	free(handle->nodes);
+	
+	binomial_tree_foreach(handle->tree, heap_free_helper, NULL);
+	binomial_tree_free(handle->tree);
 	free(handle);
 }
 
-void heap_grow(heap_t * handle, size_t growth)
+static binomial_tree_node_t * heap_select_node(binomial_tree_node_t * root, size_t h, size_t n)
 {
-	heap_node_t * old_nodes = handle->nodes;
-	size_t old_size = handle->size;
-	heap_node_t * new_nodes = (heap_node_t*)calloc(old_size + growth, sizeof(heap_node_t));
-
-	memcpy(new_nodes, old_nodes, old_size * sizeof(heap_node_t));
-	handle->nodes = new_nodes;
-	handle->size = old_size + growth;
-	free(old_nodes);
-}
-
-static void heap_fix(heap_node_t * list, size_t low, size_t high, heap_val_cmp_func_t heap_val_cmp_func)
-{
-	size_t root = low;
+	map_node_t * node;
+	size_t k, r;
+	int exp;
 	
-	if (high >= heap_left_child(root))
+	if (n == 0)
 	{
-		if (high >= heap_right_child(root))
+		if (root->val == NULL)
 		{
-			if (heap_val_cmp_func(list[right_child(root)].val, list[left_child(root)], heap_val_cmp_func) > 0)
-				largest_child = right_child(root);
+			node = map_node_new();
+			node->flag = 1;
+			if (binomial_tree_node_set_val(root, NULL, node) != 0)
+				map_node_free(node);
 			else
-				largest_child = left_child(root);
+				return root;
 		}
-		else
-		{
-			largest_child = left_child(root);
-		}
-		if (heap_val_cmp_func(list[largest_child].val, list[root].val, heap_val_cmp_func) > 0)
-		{
-			void * tmp = list[largest_child].val;
-			list[largest_child].val = list[root].val;
-			list[root].val = tmp;
-			heap_fix(list, largest_child, upper);
-		}
+		exp = 0;
+		if (compare_and_exchange(&exp, &(root->val->flag), (void*)1) != 0)
+			return NULL;
+		return root;
 	}
+		
+	k = pow2(h) - 1;
+	r = k - n;
+	if (r >= pow2(h - 1))
+		return heap_select_node(binomial_tree_node_get_left(root), h - 1, n - pow2(h - 2));
+	else
+		return heap_select_node(binomial_tree_node_get_right(root), h - 1, n - pow2(h - 1));
 }
 
 void heap_add(heap_t * handle, void * val)
 {
-	void * top;
-	if (handle->size == handle->num_entries)
-		heap_grow(handle, HEAP_DEFAULT_GROWTH);
-	top = handle->nodes[0].val;
-	handle->nodes[0].val = val;
-	handle->nodes[handle->num_entries++].val = top; 
-	heap_fix(handle->nodes, 0, handle->num_entries, handle->heap_val_cmp_func);
+	size_t o_n;
+	size_t n;
+	binomial_tree_node_t * node = NULL;
+	binomial_tree_node_t * parent;
+	map_node_t * map_node;
+	map_node_t * map_parent_node;
+	int exp, rc;
+
+	SOFT_LOCK(handle);
+	do
+	{
+		o_n = handle->N;
+		n = n + 1;
+	} while (compare_and_exchange(&o_n, &(handle->N), (void*)n));
+	/* these two should never fail.. */
+	node = heap_select_node(binomial_tree_get_root(handle->tree), lg(n) + 1, n - 1);
+	map_node = binomial_heap_node_get_val(node);
+	map_node->val = val;
+	while (1)
+	{
+		do {
+			exp = 0;
+			binomial_tree_node_register(node, 1);
+			if ((parent = binomial_tree_node_get_parent(node)) == NULL)
+			{	/* root node */
+				map_node->flag = 0;
+				SOFT_UNLOCK(handle);
+				return;
+			}
+			if ((map_parent_node = (map_node_t*)binomial_tree_node_get_val(parent)) == NULL)
+				continue;
+		} while (compare_and_exchange(&exp, &(((map_node_t*)(parent->val))->flag), (void*)1) != 0);
+		rc = handle->heap_val_cmp_func(map_node->val, map_parent_node->val);
+		if (rc <= 0)
+		{
+			map_parent_node->flag = 0;
+			map_node->flag = 0;
+			SOFT_UNLOCK(handle);
+			return;
+		}
+		/* these two can't fail */
+		binomial_tree_node_set_value(parent, map_parent_node, map_node);
+		binomial_tree_node_set_value(node, map_node, map_parent_node);
+		map_parent_node->flag = 0;
+		binomial_tree_node_release(node);
+		node = parent;
+	}
+	/* unreachable, but a reminder to the developer */
+	SOFT_UNLOCK(handle);
 }
 
 void * heap_top(heap_t * handle)
 {
-	return handle->nodes[0].val;
+	binomial_tree_node_t * node;
+	map_node_t * map_node;
+	void * retval;
+
+	SOFT_LOCK(handle);
+	node = binomial_tree_get_root(handle->tree);
+	map_node = (map_node_t*)binomial_tree_node_get_val(node);
+	if (map_node == NULL)
+	{
+		SOFT_UNLOCK(handle);
+		return NULL;
+	}
+	retval = map_node->val;
+	binomial_tree_node_release(node);
+
+	SOFT_UNLOCK(handle);
+	return retval;
+}
+
+static void heap_fix(heap_t * handle, binomial_tree_node_t * root)
+{
+	binomial_tree_node_t * left;
+	binomial_tree_node_t * right;
+	binomial_tree_node_t * largest_child;
+	map_node_t * root_node;
+	map_node_t * left_node;
+	map_node_t * right_node;
+	map_node_t * largest_child_node;
+	int exp;
+
+	if ((root_node = binomial_tree_node_get_val(root)) == NULL)
+		return;
+	left = binomial_tree_node_get_left(root);
+	right = binomial_tree_node_get_right(root);
+	/* This is a left-complete tree. If there is no left child, we're a leaf. */
+	do
+	{
+		exp = 0;
+		if ((left_node = binomial_tree_node_get_val(left)) == NULL)
+		{
+			root_node->flag = 0;
+			return;
+		}
+		if (left_node->val == NULL)
+		{
+			root_node->flag = 0;
+			return;
+		}
+	} while (compare_and_exchange(&exp, &(left_node->flag), (void*)1) != 0);
+	do
+	{
+		exp = 0;
+		if ((right_node = binomial_tree_node_get_val(right)) == NULL)
+			break;
+	} while (compare_and_exchange(&exp, &(right_node->flag), (void*)1));
+
+	largest_child = left;
+	largest_child_node = left_node;
+	if (right_node)
+	{
+		if (right_node->val != NULL)
+		{
+			if (handle->heep_val_cmp_func(right_node->val, left_node->val) > 0)
+			{
+				largest_child = right;
+				largest_child_node = right_node;
+			}
+		}
+	}
+	
+	if (largest_child == right)
+		left_node->flag = 0;
+	else if (right_node != NULL)
+		right_node->flag = 0;
+	if (handle->heep_val_cmp_func(largest_child_node, root_node) > 0)
+	{
+		binomial_heap_node_set_val(root, root_node, largest_child_node);
+		binomial_heap_node_set_val(largest_child, largest_child_node, root_node);
+		largest_child_node->flag = 0;
+		heap_fix(handle, largest_child);
+		return;
+	}
+	root_node->flag = 0;
+	largest_child_node->flag = 0;
 }
 
 void heap_pop(heap_t * handle)
 {
-	handle->nodes[0].val = handle->nodes[--(handle->num_entries)].val;
-	handle->nodes[handle->num_entries] = NULL;
-	heap_fix(handle->nodes, 0, handle->num_entries, handle->heap_val_cmp_func);
+	binomial_tree_node_t * root;
+	binomial_tree_node_t * leaf;
+	map_node_t * map_root;
+	map_node_t * map_leaf;
+	
+	HARD_LOCK(handle);
+	root = binomial_tree_get_root(handle->tree);
+	map_root = binomial_tree_node_get_val(root);
+	if (map_root == NULL)
+	{
+		HARD_UNLOCK(handle);
+		SOFT_UNLOCK(handle);
+		return;
+	}
+	binomial_tree_node_set_val(root, map_root, NULL);
+	map_node_free(map_root);
+	(handle->N)--;
+	if (handle->N == 0)
+	{
+		HARD_UNLOCK(handle);
+		SOFT_UNLOCK(handle);
+		return;
+	}
+	leaf = heap_select_node(root, lg(handle->N) + 1, handle->N);
+	map_leaf = (map_node_t*)binomial_tree_get_val(leaf);
+	binomial_tree_node_set_val(root, NULL, map_leaf);
+	binomial_tree_node_get_val(leaf, map_leaf, NULL);
+	HARD_UNLOCK(handle);
+	heap_fix(handle, root);
+	SOFT_UNLOCK(handle);
 }
 
-size_t heap_size(heap_t * handle)
-{
-	return handle->size;
-}
-
-size_t heap_num_entries(heap_t * handle)
-{
-	return handle->num_entries;
-}

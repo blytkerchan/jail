@@ -1,5 +1,5 @@
 /* Jail: Just Another Interpreted Language
- * Copyright (c) 2004, Ronald Landheer-Cieslak
+ * Copyright (c) 2003-2004, Ronald Landheer-Cieslak
  * All rights reserved
  * 
  * This is free software. You may distribute it and/or modify it and
@@ -31,35 +31,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _LIBCONTAIN_HEAP_H
-#define _LIBCONTAIN_HEAP_H
-
-#define HEAP_DEFAULT_SIZE 	100
-#define HEAP_DEFAULT_GROWTH 	100
-
-#include "binomial_tree.h"
-
-typedef int (*heap_val_cmp_func_t)(void * val1, void * val2);
-
-typedef struct {
-	void * val;
-	int flag;
-} heap_node_t;
-
-typedef struct 
-{
-	binomial_tree_t * tree;
-	heap_val_cmp_func_t heap_val_cmp_func;
-	size_t N;
-	unsigned int workers;
-	int flag;
-} heap_t;
-
-heap_t * heap_new(heap_val_cmp_func_t heap_val_cmp_func);
-void heap_free(heap_t * handle);
-void heap_add(heap_t * handle, void * val);
-void * heap_top(heap_t * handle);
-void heap_pop(heap_t * handle);
-
-#endif // _LIBCONTAIN_HEAP_H
-
+#ifndef _LIBCONTAIN_BINARY_H
+#define _LIBCONTAIN_BINARY_H
+size_t lg(size_t n);
+size_t pow2(size_t n);
+#endif // _LIBCONTAIN_BINARY_H
