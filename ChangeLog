@@ -1,3 +1,10 @@
+2004-07-23	blytkerchan
+	* semaphore.c (lt_sem_create): take new member tail into account
+	(lt_sem_enq): implement
+	(lt_sem_deq): re-implement and assume only one caller at a time
+	* semaphore.h [lt_sem_t]: add member tail
+	* module.mk: remove erroneous backslash
+
 2004-07-22	blytkerchan
 	* how_semaphores_work: undefine behaviour of lt_sem_init if semaphore is in use
 	* semaphore.c (lt_sem_first): new function

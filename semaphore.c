@@ -56,6 +56,7 @@ lt_sem_t * lt_sem_create(uint32_t val)
 	retval = (lt_sem_t*)malloc(sizeof(lt_sem_t));
 	retval->value = val;
 	retval->queue = NULL;
+	retval->tail = NULL;
 	
 	return retval;
 }
@@ -122,26 +123,43 @@ void lt_sem_release(lt_sem_t * sem)
 
 static void lt_sem_enq(lt_sem_t * sem, thread_t * thread)
 {
-}
-
-static lt_thread_t * lt_sem_deq(lt_sem_t * sem)
-{
-	thread_t * first;
-	thread_t * next;
+	thread_t * old_tail;
+	thread_t * old_next;
 	
 	while (1)
 	{
 		do
 		{
-			first = sem->first;
-			hptr_register(0, first);
-		} while (first != sem->first);
-		next = first->next;
-		if (compare_and_exchange(&first, &(sem->first), next) == 0)
+			old_tail = sem->tail;
+			hptr_register(0, old_tail)
+		} while (old_tail != sem->tail);
+		old_next = old_tail->next;
+		if (old_tail != sem->tail)
+			continue;
+		if (old_next != NULL)
+		{
+			compare_and_exchange(&old_tail, &(sem->tail), old_next);
+			continue;
+		}
+		if (compare_and_exchange(&old_next, &(old_tail->next), thread) == 0)
 			break;
 	}
+	compare_and_exchange(&old_tail, &(sem->tail), thread);
+	hptr_free(0);
+}
 
-	return first;
+/* NOTE: this function is *not* thread-safe: we assume that only one
+ * thread will call this function at any time! */
+static void lt_sem_deq(lt_sem_t * sem)
+{
+	thread_t * first;
+	thread_t * next;
+	
+	first = sem->first;
+	next = first->next;
+	atomic_set(&(sem->first), next);
+	if (sem->first == NULL)
+		atomic_set(&(sem->tail), NULL);
 }
 
 static thread_t * lt_sem_first(lt_sem_t * sem)

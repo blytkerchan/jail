@@ -38,6 +38,7 @@ typedef struct _lt_sem_t
 {
 	uint32_t value;
 	thread_t * queue;
+	thread_t * tail;
 } lt_sem_t;
 
 void lt_sem_init(lt_sem_t * semaphore, uint32_t val);
