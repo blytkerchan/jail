@@ -1,3 +1,6 @@
+2004-02-20	blytkerchan
+	* Makefile.am: repair README target for out-of-dir building
+
 2004-02-12	blytkerchan
 	* TODO: update
 	* NEWS: ditto
