@@ -103,15 +103,15 @@ sub output_body()
 		$arrayref = $question{answers};
 		if ($question{unique_answer})
 		{
-			$template = "<input type=\"radio\"/>%s<br/>\n";
+			$template = "<input type=\"radio\" name=\"answer\" value=\"%s\"/>%s<br/>\n";
 		}
 		else
 		{
-			$template = "<input type=\"checkbox\"/>%s<br/>\n";
+			$template = "<input type=\"checkbox\" name=\"answer\" value=\"%s\"/>%s<br/>\n";
 		}
 		foreach (@$arrayref)
 		{
-			printf($template, $_);
+			printf($template, $_, $_);
 		}
 	}
 	print "<div id=\"comment\"><textarea id=\"comment\" style=\"text-align: left; width: 100%; height: 300;\">Your comment here please</textarea></div>\n" if ($question{commentable});

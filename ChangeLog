@@ -1,4 +1,6 @@
 2003-01-08	blytkerchan
+	* poll.pl: set names on radio buttons & check boxes.
+
 	* poll.pl: set width of poll form to 200 pixels
 	* index.html: integrate poll.pl in an iframe under the SF logo
 	* poll_response.pl: repair experimental version
