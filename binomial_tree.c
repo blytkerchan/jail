@@ -1,4 +1,3 @@
-
 /* Jail: Just Another Interpreted Language
  * Copyright (c) 2004, Ronald Landheer-Cieslak
  * All rights reserved
@@ -33,6 +32,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <stdlib.h>
+#include <libmemory/smr.h>
+#include <libmemory/hptr.h>
 #include "arch/include/compare_and_exchange.h"
 #include "binomial_tree.h"
 
@@ -55,14 +56,18 @@ binomial_tree_node_t * binomial_tree_get_root(binomial_tree_t * handle)
 	binomial_tree_node_t * top;
 	binomial_tree_node_t * curr;
 	
-	while ((top = handle->trunk) == NULL)
+	do
 	{
-		curr = binomial_tree_node_new(NULL);
-		if (compare_and_exchange(&top, &(handle->trunk), curr) != 0)
-		{
-			binomial_tree_node_free(curr);
+		while ((top = handle->trunk) == NULL)
+		{	/* create a trunk if need be */
+			curr = binomial_tree_node_new(NULL);
+			if (compare_and_exchange(&top, &(handle->trunk), curr) != 0)
+			{
+				binomial_tree_node_free(curr);
+			}
 		}
-	}
+		hptr_register(0, top);
+	} while (top != handle->trunk);
 
 	return top;
 }
@@ -113,7 +118,13 @@ binomial_tree_node_t * binomial_tree_node_get_left(binomial_tree_node_t * node)
 	binomial_tree_node_t * o_node;
 	binomial_tree_node_t * n_node;
 	
-	if ((o_node = node->left) != NULL)
+	do
+	{
+		o_node = node->left;
+		if (o_node != NULL)
+			hptr_register(0, o_node);
+	} while (o_node != node->left)
+	if (o_node != NULL)
 		return o_node;
 	n_node = binomial_tree_node_new(node);
 	if (binomial_tree_node_set_left(node, NULL, n_node))
@@ -127,7 +138,12 @@ binomial_tree_node_t * binomial_tree_node_get_right(binomial_tree_node_t * node)
 	binomial_tree_node_t * o_node;
 	binomial_tree_node_t * n_node;
 	
-	if ((o_node = node->right) != NULL)
+	do
+	{
+		o_node = node->right;
+		hptr_register(0, o_node);
+	} while (o_node != node->right);
+	if (o_node != NULL)
 		return o_node;
 	n_node = binomial_tree_node_new(node);
 	if (binomial_tree_node_set_right(node, NULL, n_node))
@@ -163,14 +179,32 @@ int binomial_tree_node_set_right(binomial_tree_node_t * node, binomial_tree_node
 
 binomial_tree_node_t * binomial_tree_node_get_parent(binomial_tree_node_t * node)
 {
-	return node->parent;
+	binomial_tree_node_t * retval;
+
+	do
+	{
+		retval = node->parent;
+		hptr_register(0, retval);
+	} while (retval != node->parent);
+	
+	return retval;
 }
 
 void binomial_tree_node_register(binomial_tree_node_t * node, int reg) 
-{ /* no-op */ }
+{
+	hptr_register(reg, node);
+}
 
 void binomial_tree_node_release(binomial_tree_node_t * node)
-{ /* no-op */ }
+{
+	unsigned int i;
+	
+	for (i = 0; i < LIBCONTAIN_MIN_HPTRS; i++)
+	{
+		if (hptr_get(i) == node)
+			hptr_free(i);
+	}
+}
 
 void * binomial_tree_node_get_value(binomial_tree_node_t * node)
 {
@@ -182,14 +216,85 @@ int binomial_tree_node_set_value(binomial_tree_node_t * node, void * curr, void 
 	return compare_and_exchange(&curr, &(node->val), val);
 }
 
+static binomial_tree_node_t * binomial_tree_node_select(binomial_tree_node_t * root, unsigned int level, unsigned int nodeind)
+{
+	unsigned int h, K, n, F, r;
+
+	h = level + 1;
+	K = pow2(h) - 1;
+	n = K + nodeind;
+binomial_tree_node_select_start:
+	F = pow2(h - 2);
+	r = K - n;
+
+	if (n == 0)
+		return root;
+	if (r >= F)
+	{
+		root = binomial_tree_node_get_left(root);
+		h--;
+		n -= F;
+		goto binomial_tree_node_select_start;
+	}
+	else
+	{
+		root = binomial_tree_node_get_right(root);
+		h--;
+		n -= (2 * F);
+		goto binomial_tree_node_select_start;
+	}
+}
+
+/* The algorithm implemented by this function minimalizes the number of 
+ * hazardous references we have to the nodes while going by each node to
+ * perform the action described by FUNC. 
+ * Now, what we know about the binomial tree:
+ * * the maximal number of nodes per level is 2^level, where level starts
+ *   at 0.
+ * * The root node has a permanent hazardous reference, which means we can 
+ *   always go down to the node we want from the root.
+ * This doesn't make for the most time-efficient traversal algorithm ever 
+ * known, but it does make for an algorithm that only needs two hazardous
+ * references. A much more time-efficient algorithm would be to traverse
+ * the tree recursively. However, that would mean using either an infinite
+ * amount of hazardous references (as many hazardous references as the
+ * number of nodes in the path from the root to the furthest leaf) or 
+ * blocking the tree while traversing it. We don't have an infinite number
+ * of hazard pointers (we have three) and we don't want to lock the tree.
+ * The select algorithm is a non-recursive adaption of the one found in
+ * the file ``how_heaps_work''. */ 
 void binomial_tree_node_foreach(binomial_tree_node_t * root, binomial_tree_node_foreach_func_t func, void * data)
 {
-	if (root->left)
-		binomial_tree_node_foreach(root->left, func, data);
-	if (root->right)
-		binomial_tree_node_foreach(root->right, func, data);
+	unsigned int level = 0;
+	unsigned int nodeind = 0;
+	int found_node = 0;
+	binomial_tree_node_t * node;
+	void * val;
+	
+	hptr_register(1, root);
+
 	if (root->val)
 		func(root->val, data);
+	level = 1;
+	while (1)
+	{
+		found_node = 0;
+		for (nodeind = 0; nodeind < pow2(level); nodeind++)
+		{
+			node = binomial_tree_node_select(root, level, nodeind);
+			if ((val = node->val) != NULL)
+			{
+				found_node = 1;
+				func(val);
+			}
+		}
+		if (found_node)
+		{
+			level++;
+		}
+		else
+			break;
+	}
 }
 
 void binomial_tree_foreach(binomial_tree_t * handle, binomial_tree_node_foreach_func_t func, void * data)

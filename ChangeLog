@@ -1,3 +1,14 @@
+2004-05-04	blytkerchan	implementing hazard pointers in the binomial tree
+	* binomial_tree.c: include libmemory headers
+	(binomial_tree_get_root): make a hazardous reference to the node before returning it
+	(binomial_tree_node_get_left): ditto
+	(binomial_tree_node_get_right): ditto
+	(binomial_tree_node_get_parent): ditto
+	(binomial_tree_node_register): implement
+	(binomial_tree_node_release): ditto
+	(binomial_tree_node_select): new function
+	(binomial_tree_node_foreach): re-implement
+
 2004-05-03	blytkerchan	debug session
 	* array.c (array_get): use local nodes pointer in stead of the descriptor's nodes pointer
 	return retval, not NULL
