@@ -43,7 +43,7 @@ typedef struct _hptr_local_data_t
 {
 	void ** hp;
 	struct _hptr_local_data_t * next;
-	int flag;
+	int32_t flag;
 } hptr_local_data_t;
 
 
