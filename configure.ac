@@ -24,6 +24,15 @@ AC_TYPE_SIZE_T
 # Checks for library functions.
 AC_FUNC_ALLOCA
 #AC_FUNC_MALLOC
+# check for pthread functions
+AC_CHECK_FUNC([pthread_setspecific], , [
+	AC_CHECK_LIB([pthread], [pthread_setspecific], [
+		LIBS="-lpthread $LIBS"
+	], [
+		echo "Error: you need pthread_setspecific & friends for this library!"
+		(exit 1); exit 1;
+	], [])
+])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

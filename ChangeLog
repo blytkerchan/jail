@@ -1,3 +1,6 @@
+2004-04-30	blytkerchan	repair compilation
+	* configure.ac: find pthread_setspecific function in pthread library
+
 2004-04-29	blytkerchan
 	* AUTHORS: new file
 	* NEWS: ditto
