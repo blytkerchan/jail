@@ -51,14 +51,14 @@ try_again:
 	if (smr_global_data->first == NULL)
 	{
 		exp = NULL;
-		if (compare_and_exchange(&exp, &(smr_global_data->first), data) != 0)
+		if (compare_and_exchange_ptr(&exp, &(smr_global_data->first), data) != 0)
 			goto try_again;
 		registered = 1;
 	}
 	if (smr_global_data->last == NULL)
 	{
 		exp = NULL;
-		if (compare_and_exchange(&exp, &(smr_global_data->last), smr_global_data->first) != 0)
+		if (compare_and_exchange_ptr(&exp, &(smr_global_data->last), smr_global_data->first) != 0)
 			goto try_again;
 	}
 	if (registered)
@@ -66,14 +66,14 @@ try_again:
 	while (smr_global_data->last->next != NULL)
 	{
 		exp = smr_global_data->last;
-		compare_and_exchange((void**)&exp, (void**)&(smr_global_data->last), smr_global_data->last->next);
+		compare_and_exchange_ptr(&exp, &(smr_global_data->last), smr_global_data->last->next);
 	}
 	data->next = NULL;
 	exp = NULL;
-	if (compare_and_exchange((void**)&exp, (void**)&(smr_global_data->last->next), data))
+	if (compare_and_exchange_ptr(&exp, &(smr_global_data->last->next), data))
 		goto try_again;
 	exp = smr_global_data->last;
-	compare_and_exchange((void**)&exp, (void**)&(smr_global_data->last), data);
+	compare_and_exchange_ptr(&exp, &(smr_global_data->last), data);
 }
 
 static hptr_local_data_t * hptr_get_local_data(void)
@@ -108,12 +108,12 @@ try_again:
 		{
 			if (prev == NULL)
 			{
-				if (compare_and_exchange(&curr, &(smr_global_data->first), curr->next))
+				if (compare_and_exchange_ptr(&curr, &(smr_global_data->first), curr->next))
 					goto try_again;
 			}
 			else
 			{
-				if (compare_and_exchange(&curr, &(prev->next), curr->next))
+				if (compare_and_exchange_ptr(&curr, &(prev->next), curr->next))
 					goto try_again;
 			}
 			free(curr);
@@ -144,7 +144,7 @@ int hptr_register(unsigned int index, void * ptr)
 	hptr_local_data_t * local_data;
 	
 	local_data = hptr_get_local_data();
-	while (compare_and_exchange(&exp, &(local_data->hp[index]), ptr));
+	while (compare_and_exchange_ptr(&exp, &(local_data->hp[index]), ptr));
 
 	return(0);
 }
@@ -155,7 +155,7 @@ void hptr_free(unsigned int index)
 	hptr_local_data_t * local_data;
 
 	local_data = hptr_get_local_data();
-	while (compare_and_exchange(&exp, &(local_data->hp[index]), NULL));
+	while (compare_and_exchange_ptr(&exp, &(local_data->hp[index]), NULL));
 }
 
 void * hptr_get(unsigned int index)

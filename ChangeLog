@@ -1,3 +1,10 @@
+2004-08-11	blytkerchan
+	* hptr.c (hptr_register_local_data): use compare_and_exchange_ptr in
+	stead of obsolete compare_and_exchange
+	(hptr_get_local_data): ditto
+	(hptr_register): ditto
+	(hptr_free): ditto
+
 2004-07-22	blytkerchan
 	* hptr.c: remove all void** casts for compare_and_exchange calls
 	* module.mk: update
