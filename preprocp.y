@@ -34,8 +34,8 @@ void yyerror(char * s)
 
 %debug
 
-%token <str> T_TOKEN T_DEFINE T_DEFINED T_EXPR T_UNDEF
-%token T_IFDEF T_IF T_IFNDEF T_ENDIF
+%token <str> T_TOKEN T_DEFINE T_DEFINED T_EXPR T_UNDEF T_FILENAME
+%token T_IFDEF T_IF T_IFNDEF T_ENDIF T_ELSE T_INCLUDE
 %%
 
 whole_file : /* empty*/
@@ -43,6 +43,7 @@ whole_file : /* empty*/
 	| macro_def whole_file
 	| macro_undef whole_file
 	| macro_cond whole_file
+	| include_directive whole_file
 	;
 
 token_def : T_TOKEN {
@@ -131,10 +132,7 @@ macro_cond : T_IFDEF T_TOKEN {
 			}
 			yyout = dev_null;
 		}
-	} whole_file T_ENDIF {
-		yyout = stack_top(outfile_stack);
-		stack_pop(outfile_stack);
-	}
+	} whole_file macro_cond_end
 	| T_IFNDEF T_TOKEN {
 		int rc = 1;
 		
@@ -154,13 +152,56 @@ macro_cond : T_IFDEF T_TOKEN {
 			}
 			yyout = dev_null;
 		}
+	} whole_file macro_cond_end
+	| T_IF T_EXPR {} whole_file macro_cond_end
+	;
+
+macro_cond_end : T_ENDIF {
+		yyout = stack_top(outfile_stack);
+		stack_pop(outfile_stack);
+	}
+	| T_ELSE {
+		if (stack_top(outfile_stack) != dev_null)
+		{
+			if (yyout == dev_null)
+				yyout = stack_top(outfile_stack);
+			else 
+			{
+				if (dev_null == NULL)
+					dev_null = fopen("/dev/null", "ab");
+				yyout = dev_null;
+			}
+		}
 	} whole_file T_ENDIF {
 		yyout = stack_top(outfile_stack);
 		stack_pop(outfile_stack);
 	}
-	| T_IF T_EXPR {} whole_file T_ENDIF {}
 	;
-	
+
+include_directive : T_INCLUDE '<' abs_filename '>'
+	| T_INCLUDE '\"' rel_filename '\"'
+	;
+abs_filename : T_FILENAME {
+	char * filename = resolve_abs_filename(yylval.str);
+
+	if (filename == NULL)
+	{
+		fprintf(stderr, "%s: %d: Error: file not found: %s\n", curr_file, yylineno, yylval.str);
+		exit(1);
+	}
+	}
+	;
+rel_filename : T_FILENAME {
+	char * filename = resolve_rel_filename(yylval.str);
+
+	if (filename == NULL)
+	{
+		fprintf(stderr, "%s: %d: Error: file not found: %s\n", curr_file, yylineno, yylval.str);
+		exit(1);
+	}
+	}
+	;
+
 %%
 int main(int argc, char ** argv)
 {

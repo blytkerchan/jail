@@ -25,7 +25,8 @@ extern FILE * dev_null;
 /* modes/states go here */
 %x comment_state
 %x quoted_txt_state
-%x incl_state
+%x incl_state1
+%x incl_state2
 %x def_state1
 %x def_state2
 %x def_state3
@@ -40,12 +41,17 @@ FILENAME	[\.a-zA-Z0-9_][\.a-zA-Z0-9_/]+
 %%
 <INITIAL,comment_state>"["		{ yy_push_state(comment_state); fwrite(" ", 1, 1, yyout); }
 <INITIAL>\"		{ yy_push_state(quoted_txt_state); fwrite("\"", 1, 1, yyout); }
-<INITIAL>"!include"	{ yy_push_state(incl_state); }
+<INITIAL>"!include"	{ 
+	yy_push_state(incl_state1); 
+	if (yyout != dev_null)
+		return T_INCLUDE; 
+			}
 <INITIAL>"!define"	{ yy_push_state(def_state1); }
 <INITIAL>"!if"		{ yy_push_state(cond_state); return T_IF; }
 <INITIAL>"!ifdef"	{ return T_IFDEF; }
 <INITIAL>"!ifndef"      { return T_IFNDEF; }
 <INITIAL>"!endif"       { return T_ENDIF; }
+<INITIAL>"!else"	{ return T_ELSE; }
 <INITIAL>"!undef"	{ yy_push_state(undef_state); }
 <INITIAL>[^ \t\\\n[\"]+	{ yylval.str = strdup(yytext); return T_TOKEN; }
 <INITIAL>[ \t]*		{ fwrite(yytext, yyleng, 1, yyout); }
@@ -64,28 +70,32 @@ FILENAME	[\.a-zA-Z0-9_][\.a-zA-Z0-9_/]+
 <quoted_txt_state>[^\"\\]* { fwrite(yytext, yyleng, 1, yyout); }
 <quoted_txt_state>\"	{ yy_pop_state(); fwrite("\"", 1, 1, yyout); }
 
-<incl_state>[ \t]*	/* forget the white space */
-<incl_state>[^ \t\n]+	{ /* the include filename */
+<incl_state1>[ \t]*	/* forget the white space */
+<incl_state1>[\"<>]	{ 
+	yy_push_state(incl_state2); 
+	if (yyout != dev_null) 
+		return yytext[0]; 
+			}
+<incl_state1>\n		{
 	if (yyout != dev_null)
 	{
-		preproc_inputfile_t * curr = new_preproc_inputfile();
-		
-		if (include_stack == NULL)
-			include_stack = new_stack();
-		curr->filename = curr_file;
-		curr->lineno = yylineno;
-		curr->state = YY_CURRENT_BUFFER;
-		stack_push(include_stack, curr);
-		curr_file = strdup(yytext);
-		yyin = fopen(curr_file, "r");
-		if (!yyin)
-			error("...");
-		yy_switch_to_buffer(yy_create_buffer(yyin, YY_BUF_SIZE));
-		yylineno = 1;
-		yy_pop_state();
+		fprintf(stderr, "%s: %d: Error: expected filename\n", curr_file, yylineno - 1);
+		exit(1);
+	}
+	yy_pop_state();
+			}
+<incl_state1>[\"<>\n]   {
+	yy_pop_state();
+	yy_pop_state();
+			}
+<incl_state2>[^\n\"<>]+	{ /* the include filename */
+	if (yyout != dev_null)
+	{
+		yylval.str = strdup(yytext);
+		return T_FILENAME;
 	}
 			}
-<undef_state>[ \t]*      /* forget the white space */
+<undef_state>[ \t]*     /* forget the white space */
 <undef_state>[^ \t\n]+	{
 	yy_pop_state();
 	yylval.str = strdup(yytext);

@@ -1,0 +1,11 @@
+!define IIRC If I Recall Correctly
+!ifdef IIRC
+Now you see me
+!else
+Now you don't
+!endif
+!ifndef IIRC
+Now you don't see me
+!else
+Now you do
+!endif

@@ -21,6 +21,10 @@ void free_preproc_inputfile(preproc_inputfile_t * preproc_inputfile);
 preproc_token_def_t * new_preproc_token_def(void);
 void free_preproc_token_def(preproc_token_def_t * preproc_token_def);
 
+char * resolve_abs_filename(const char * filename);
+char * resolve_rel_filename(const char * filename);
+
+/* found in preprocl.l */
 void preprocl_putc(char c);
 
 #endif // _PREPROCESSOR_PREPROC_H

@@ -1,3 +1,12 @@
+2004-03-24	blytkerchan
+	* preprocp.y: implement !else directive
+	lay the groundworks for a better !include implementation
+	* preprocl.l: ditto (both)
+	* preproc.c: ditto
+	* preproc.h: ditto
+	* tests/else.jh: new file
+	* tests/error_in_ignored.jh: ditto
+
 2004-03-23	blytkerchan
 	* preprocl.l: implement the !undef directive
 	* preprocp.u: ditto

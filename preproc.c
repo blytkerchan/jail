@@ -1,3 +1,7 @@
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <stdio.h>
+#include <unistd.h>
 #include "preproc.h"
 
 preproc_inputfile_t * new_preproc_inputfile(void)
@@ -20,5 +24,15 @@ preproc_token_def_t * new_preproc_token_def(void)
 void free_preproc_token_def(preproc_token_def_t * preproc_token_def)
 {
 	free(preproc_token_def);
+}
+
+char * resolve_abs_filename(const char * filename)
+{
+	return NULL;
+}
+
+char * resolve_rel_filename(const char * filename)
+{
+	return NULL;
 }
 
