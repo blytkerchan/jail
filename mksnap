@@ -1,0 +1,120 @@
+#! /bin/bash
+export CVS_RSH=ssh
+export JAIL_CVSROOT=':ext:blytkerchan@cvs.sf.net:/cvsroot/jail-ust'
+if [ x"$1" = x--verbose ]; then
+	set -x
+	shift
+fi
+
+MAKE=$(which gmake 2>&1)
+if [ x"$MAKE" = x ]; then
+	MAKE=$(which make 2>&1)
+fi
+export MAKE
+
+function dump_logs
+{
+	echo "=== begin standard output ==="
+	cat $HOME/.snapshot/$1/$2.1
+	echo "==== end standard output ===="
+	echo "=== begin error output ==="
+	cat $HOME/.snapshot/$1/$2.2
+	echo "==== end error output ===="
+}
+
+function checkout
+{
+	echo "Checking out module $1 for $2..."
+	mkdir -p $HOME/.snapshot/$2 || exit 1
+	cd $HOME/.snapshot/$2
+	cvs -d$3 co $1 2>$HOME/.snapshot/$2/checkout.2 1>$HOME/.snapshot/$2/checkout.1
+	if [ $? -ne 0 ]; then
+		echo "CVS checkout failed!"
+		dump_logs $2 checkout
+		(exit 1); exit 1
+	fi
+}
+
+function prep
+{
+	echo "Preparing $1..."
+	cd $HOME/.snapshot/$1/$2
+	bash bootstrap 2>$HOME/.snapshot/$1/bootstrap.2 1>$HOME/.snapshot/$1/bootstrap.1
+	if [ $? -ne 0 ]; then
+		echo "Bootstrapping failed!"
+		dump_logs $1 bootstrap
+		(exit 1); exit 1
+	fi
+}
+
+function config
+{
+	echo "Configuring $1..."
+	local PACKAGE=$1
+	cd $HOME/.snapshot/$1/$2
+	shift; shift
+	rm -fr .build && \
+	mkdir -p .build && \
+	cd .build && \
+	bash ../configure $* 2>$HOME/.snapshot/${PACKAGE}/config.2 1>$HOME/.snapshot/${PACKAGE}/config.1
+	if [ $? -ne 0 ]; then
+		echo "Configuring failed!"
+		dump_logs $PACKAGE config
+		(exit 1); exit 1
+	fi
+}
+
+function build
+{
+	echo "Building $1..."
+	cd $HOME/.snapshot/$1/$2/.build
+	local PACKAGE=$1
+	shift; shift
+	${MAKE} $* 2>$HOME/.snapshot/${PACKAGE}/build.2 1>$HOME/.snapshot/${PACKAGE}/build.1
+	if [ $? -ne 0 ]; then
+		echo "Building failed!"
+		dump_logs $PACKAGE build
+		(exit 1); exit 1
+	fi
+}
+
+function libcontain
+{
+	echo "Making a snapshot for libcontain..."
+	checkout release-libcontain libcontain "${JAIL_CVSROOT}"
+	prep libcontain libcontain
+	config libcontain libcontain
+	build libcontain libcontain
+	echo "Done for libcontain"
+}
+
+function libthread
+{
+	true
+}
+
+function libmemory
+{
+	true
+}
+
+if [ x"$1" = x  ]; then
+	/bin/bash $0 all
+fi
+
+until [ x"$1" = x ]; do
+	case $1 in
+	libcontain)
+		libcontain;;
+	libthread)
+		libthread;;
+	libmemory)
+		libmemory;;
+	all)
+		libcontain
+		libthread
+		libmemory
+		;;
+	esac
+	shift
+done
