@@ -51,7 +51,8 @@ static smr_private_data_t * smr_get_private_data(void)
 		retval = (smr_private_data_t*)malloc(sizeof(smr_private_data_t));
 		pthread_setspecific(smr_global_data->key, retval);
 		retval->dcount = 0;
-		retval->dlist = (void**)malloc(((smr_global_data->k * smr_gloaval_data->p) + 1) * sizeof(void*));
+		retval->dsize = (smr_global_data->k * smr_global_data->p) + 1;
+		retval->dlist = (void**)malloc(retval->dsize * sizeof(void*));
 	}
 	
 	return retval;
@@ -141,6 +142,10 @@ static unsigned int smr_binary_search(void ** list, size_t size, void * ptr)
 	return smr_binary_search_worker(list, 0, size, ptr);
 }
 
+/* FIXME: if during (or before) stage 1, the number of threads is increased,
+ *        there will not be enough space in the plist for all the hazard 
+ *        pointers. There are to ways to handle this: loop if P changes, or
+ *        lock during stage 1 (i.e. wait or block). */
 static void smr_scan_worker(smr_private_data_t * priv_data)
 {
 	unsigned int i, p, new_dcount;
@@ -148,17 +153,18 @@ static void smr_scan_worker(smr_private_data_t * priv_data)
 	void ** plist;
 	void ** new_dlist;
 	hptr_local_data_t * hptr_data;
-	size_t R = (smr_global_data->k * smr_global_data->p) + 1;
+	unsigned int R = (smr_global_data->k * smr_global_data->p);
+	unsigned int new_dsize = R + 1;
 	
 	p = new_dcount = 0;
 	plist = (void**)alloca(R * sizeof(void*));
-	new_dlist = (void**)alloca(R * sizeof(void*));
+	new_dlist = (void**)malloc(new_dsize * sizeof(void*));
 		
 	// stage 1
 	hptr_data = smr_global_data->first;
 	while (hptr_data != NULL)
 	{
-		for (i = 0; i < R; i++)
+		for (i = 0; i < smr_global_data->k; i++)
 		{
 			if ((hptr = hptr_data->hp[i]) != NULL)
 				plist[p++] = hptr;
@@ -170,7 +176,7 @@ static void smr_scan_worker(smr_private_data_t * priv_data)
 	qsort(plist, p, sizeof(void *), smr_qsort_helper);
 	
 	// stage 3
-	for (i = 0; i < R; i++)
+	for (i = 0; i < priv_data->dsize; i++)
 	{
 		if (smr_binary_search(plist, p, priv_data->dlist[i]) != ~0)
 		{
@@ -182,10 +188,9 @@ static void smr_scan_worker(smr_private_data_t * priv_data)
 	}
 	
 	// stage 4
-	for (i = 0; i < new_dcount; i++)
-	{
-		priv_data->dlist[i] = new_dlist[i];
-	}
+	free(priv_data->dlist);
+	priv_data->dlist = new_dlist;
+	priv_data->dsize = new_dsize;
 	priv_data->dcount = new_dcount;
 }
 
@@ -203,7 +208,7 @@ void smr_free(void * ptr)
 	smr_private_data_t * priv_data;
 	priv_data = smr_get_private_data();
 	priv_data->dlist[priv_data->dcount++] = ptr;
-	if (priv_data->dcount >= ((smr_global_data->p * smr_global_data->k) + 1))
+	if (priv_data->dcount >= priv_data->dsize)
 		smr_scan();
 }
 
@@ -229,3 +234,4 @@ void smr_thread_fini(void)
 	smr_thread_cleanup();
 	atomic_decrement(&(smr_global_data->p));
 }
+

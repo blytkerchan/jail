@@ -53,6 +53,7 @@ typedef struct _smr_private_data_t
 {
 	unsigned int dcount;	// the number of pointers queued for destruction
 	void ** dlist;		// the pointers queued for destruction
+	unsigned int dsize;	// size of the dlist in number of pointers
 } smr_private_data_t;
 
 /* Initialize and configure the memory manager. Set the P, K and R fields of 

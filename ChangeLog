@@ -1,4 +1,14 @@
-2004-04-27	blytkerchan
+2004-04-29	blytkerchan
+	* ChangeLog: update date of yesterday's changes (from apr 27 to apr 28)
+	fix type-o in feb 25 entry
+	* smr.c (smr_get_private_data): use dsize attribute of private data
+	(smr_scan_worker): add FIXME note
+	calculate and use new_dsize - the size of the new dlist
+	use privately stored dsize in stead of calculating new one for the old dlist
+	(smr_free): use privately stored dsize in stead of calculating new one
+	* smr.h [smr_private_data_t]: dsize: new attribute
+
+2004-04-28	blytkerchan
 	* libmemory.3.sgml: new file
 	* hptr.c: provide full path to compare_and_exchange.h in include
 	(hptr_get_local_data): allocate K hazard pointers per thread, not N
@@ -23,7 +33,7 @@
 2004-02-25	blytkerchan
 	* hptr.c: don't include increment.h and decrement.h
 	(hptr_register): remove unnecessary call to atomic_increment
-	(hptr_free): remove unnuecessary call to atomic_decrement
+	(hptr_free): remove unnecessary call to atomic_decrement
 	(hptr_get_local_data): don't use the hpcount field in hptr_local_data_t
 	* hptr.h <hptr_local_data_t>: remove hpcount field
 	* Makefile: don't build increment and decrement
