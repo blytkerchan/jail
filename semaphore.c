@@ -34,6 +34,7 @@
 #include <pthread.h>
 #include <signal.h>
 #include "semaphore.h"
+#include "thread.h"
 #include "arch/include/set.h"
 #include "arch/include/compare_and_exchange.h"
 #include "arch/include/increment.h"
@@ -55,7 +56,7 @@ void lt_sem_init(lt_sem_t * semaphore, uint32_t val)
 }
 
 /* Create a new semaphore with the given value */
-lt_sem_t * lt_sem_create(uint32_t val)
+lt_sem_t * lt_sem_new(uint32_t val)
 {
 	lt_sem_t * retval;
 
@@ -132,7 +133,7 @@ void lt_sem_release(lt_sem_t * sem)
 	do
 	{
 		if ((first = lt_sem_first(sem)) != NULL)
-			lt_thread_kill(SIGCONT, first);
+			lt_thread_kill(first, SIGCONT);
 	} while (first == lt_sem_first(sem));
 	// done
 }

@@ -32,7 +32,7 @@ lt_sem_init() initializes a semaphore with the given value. This causes
 undefined behaviour if there is already a thread waiting on the semaphore -
 use with caution.
 
-lt_sem_create() creates a new semaphore initialized to a given value
+lt_sem_new() creates a new semaphore initialized to a given value
 
 lt_sem_free() frees a semaphore and associated resources. Use of the object's
 descriptor after or during the execution of this function results in undefined

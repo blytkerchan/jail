@@ -32,31 +32,85 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #define LT_NO_PTHREAD_WRAP
-#include "thread.h"
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
+
+#include "thread.h"
+#include "semaphore.h"
+
+static pthread_key_t key;
+static void lt_thread_term(void);
 
 static void * lt_thread_create_helper(void * arg)
 {
 	void * retval;
 	lt_thread_t * handle = (lt_thread_t*)arg;
 
+	pthread_setspecific(key, handle);
 	retval = handle->func(handle->arg);
+	pthread_setspecific(key, NULL);
 	free(handle);
 
 	return retval;
 }
 
-int lt_thread_create(lt_thread_t * thread, lt_thread_func_t start_func, void * arg)
+void lt_thread_init(void)
 {
-	lt_thread_t * n_thread = (lt_thread_t*)malloc(sizeof(lt_thread_t));
+	atexit(lt_thread_term);
+	pthread_key_create(&key, NULL);
+}
+
+static void lt_thread_term(void)
+{
+	pthread_key_delete(key);
+}
+
+lt_thread_t * lt_thread_new(
+	lt_thread_func_t start_func, 
+	void * arg
+)
+{
+	lt_thread_t * retval = (lt_thread_t*)calloc(1, sizeof(lt_thread_t));
 	int rc;
 	
-	n_thread->arg = arg;
-	n_thread->func = start_func;
-	if ((rc = pthread_create(&(n_thread->handle), NULL, lt_thread_create_helper, n_thread)) == 0)
-		memcpy(thread, n_thread, sizeof(lt_thread_t));
-	sem_init(&(n_thread->priv_sem), 0, 0);
-	return rc;
+	retval->arg = arg;
+	retval->func = start_func;
+
+	retval->priv_sem = lt_sem_new(0);
+	
+	rc = pthread_create(
+		&(retval->handle), 
+		NULL, 
+		lt_thread_create_helper, 
+		retval
+	);
+	if (rc != 0)
+	{
+		lt_sem_free(retval->priv_sem);
+		free(retval);
+		retval = NULL;
+	}
+	
+	return retval;
+}
+
+lt_thread_t * lt_thread_self(void)
+{
+	lt_thread_t * retval;
+
+	retval = (lt_thread_t*)pthread_getspecific(key);
+
+	return retval;
+}
+
+int lt_thread_eq(lt_thread_t * t1, lt_thread_t * t2)
+{
+	return pthread_equal(t1->handle, t2->handle) ? 0 : -1;
+}
+
+void lt_thread_kill(lt_thread_t * thread, int how)
+{
+	pthread_kill(thread->handle, how);
 }
 
