@@ -1,3 +1,6 @@
+2004-03-22	blytkerchan
+	* modules: define new release-preprocessor mode and modules that go with it.
+
 2004-02-24	blytkerchan
 	* modules: define new module release-libmemory
 	* ChangeLog: repair date of previous entry

@@ -31,3 +31,13 @@ release-libcontain -a libcontain libcontain-arch libcontain-libreplace
 libmemory-arch -d libmemory/arch arch
 release-libmemory -a libmemory libmemory-arch
 
+preprocessor-arch -d preprocessor/arch arch
+preprocessor-libcontain -d preprocessor/libcontain libcontain
+preprocessor-libmemory -d preprocessor/libmemory libmemory
+preprocessor-libreplace -d preprocessor/libreplace libreplace
+preprocessor-libcontain-libreplace -d preprocessor/libcontain/libreplace libreplace
+preprocessor-libcontain-arch -d preprocessor/libcontain/arch arch
+preprocessor-libmemory-arch -d preprocessor/libmemory/arch arch
+release-preprocessor -a preprocessor preprocessor-arch preprocessor-libcontain preprocessor-libmemory preprocessor-libreplace preprocessor-libcontain-libreplace preprocessor-libcontain-arch preprocessor-libmemory-arch
+
+
