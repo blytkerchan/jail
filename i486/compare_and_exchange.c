@@ -34,7 +34,8 @@
 #include <stdint.h>
 #include "arch/compare_and_exchange.h"
 
-int compare_and_exchange_ptr(void * exp_ptr, void * tar_ptr, const void * src_ptr)
+
+int compare_and_exchange_ptr(void * exp_ptr, volatile void * tar_ptr, const void * src_ptr)
 {
 	int rv;
 
@@ -46,7 +47,8 @@ int compare_and_exchange_ptr(void * exp_ptr, void * tar_ptr, const void * src_pt
 	return rv;
 }
 
-int compare_and_exchange_int(int32_t * exp_ptr, int32_t * tar_ptr, int32_t src)
+
+int compare_and_exchange_int(int32_t * exp_ptr, volatile int32_t * tar_ptr, int32_t src_ptr)
 {
-	return compare_and_exchange_ptr(exp_ptr, tar_ptr, (void*)src);
+	return compare_and_exchange_ptr(exp_ptr, tar_ptr, (void*)src_ptr);
 }

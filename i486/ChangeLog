@@ -1,3 +1,8 @@
+2004-10-30	blytkerchan
+	* compare_and_exchange.c (compare_and_exchange_ptr): make prototype
+	the same as in compare_and_exchange.h
+	(compare_and_exchange_int): ditto
+
 2004-10-26	blytkerchan
 	* version: new file
 	* module.mk: ditto
