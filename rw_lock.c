@@ -32,6 +32,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <assert.h>
+#include <stdlib.h>
 #include "arch/include/compare_and_exchange.h"
 #include "rw_lock.h"
 
@@ -39,19 +40,33 @@
 #define WRITER 2
 
 static void lt_rwlock_schedule(lt_rwlock_t * lock);
-static int lt_thread_list_remove(lt_thread_t * list, lt_thread_t * entry);
-static int lt_thread_queue_empty(lt_thread_t * queue);
-static int lt_thread_list_empty(lt_thread_t * list);
+
 static void lt_thread_wake(lt_thread_t * thread);
-static lt_thread_t * lt_thread_queue_first(lt_thread_t * queue);
 static int atomic_swap_ptr(volatile void * ptr1, volatile void * ptr2);
-static lt_thread_t * lt_thread_queue_deq(lt_thread_t * queue);
-static void lt_thread_list_move(lt_thread_t * to, lt_thread_t * from);
-static void lt_thread_list_for_each(lt_thread_t * list, void (*)(lt_thread_t * thread));
-static void lt_thread_queue_enq(lt_thread_t * queue, lt_thread_t * thread);
 static void lt_thread_suspend(lt_thread_t * thread);
-static void lt_thread_list_insert(lt_thread_t * list, lt_thread_t * thread);
-static lt_thread_t * lt_thread_list_find(lt_thread_t * list, lt_rwlock_t * thread);
+
+lt_rwlock_t * lt_rwlock_new(void)
+{
+	lt_rwlock_t * retval;
+
+	retval = malloc(sizeof(lt_rwlock_t));
+	retval->readers[0] = lt_thread_list_new();
+	retval->readers[1] = lt_thread_list_new();
+	retval->writers = lt_thread_queue_new();
+	retval->general = lt_thread_queue_new();
+	retval->scheduler = 0;
+
+	return retval;
+}
+
+void lt_rwlock_free(lt_rwlock_t * lock)
+{
+	lt_thread_list_free(lock->readers[0]);
+	lt_thread_list_free(lock->readers[1]);
+	lt_thread_queue_free(lock->writers);
+	lt_thread_queue_free(lock->general);
+	free(lock);
+}
 
 void lt_rwlock_read_lock(lt_rwlock_t * lock)
 {
@@ -95,7 +110,7 @@ void lt_rwlock_read_unlock(lt_rwlock_t * lock)
 
 void lt_rwlock_write_unlock(lt_rwlock_t * lock) 
 {
-	lt_thread_t * place_holder = NULL;
+	lt_thread_list_t * place_holder = NULL;
 
 	/* As of this point, arriving readers should go into readers[1], the
 	 * readers in readers[0] should go there too, and readers[1] should 

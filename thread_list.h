@@ -31,23 +31,19 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _libthread_rwlock_h_
-#define _libthread_rwlock_h_
-#include "thread.h"
-#include "thread_list.h"
+#ifndef _libthread_thread_list_h_
+#define _libthread_thread_list_h_
 
-typedef struct _lt_rwlock_t {
-	lt_thread_list_t * readers[2]; /* lists of threads */
-	lt_thread_queue_t * writers; /* writers queue */
-	lt_thread_queue_t * general; /* queue of threads */
-	lt_thread_t * scheduler; /* worker thread doing the scheduling */
-} lt_rwlock_t;
+typedef struct _lt_thread_list_t {} lt_thread_list_t;
 
-lt_rwlock_t * lt_rwlock_new(void);
-void lt_rwlock_free(lt_rwlock_t *);
-void lt_rwlock_read_lock(lt_rwlock_t *);
-void lt_rwlock_read_unlock(lt_rwlock_t *);
-void lt_rwlock_write_lock(lt_rwlock_t *);
-void lt_rwlock_write_unlock(lt_rwlock_t *);
+lt_thread_list_t * lt_thread_list_new(void);
+void lt_thread_list_free(lt_thread_list_t * list);
+int lt_thread_list_remove(lt_thread_list_t * list, lt_thread_t * entry);
+int lt_thread_list_empty(lt_thread_list_t * list);
+void lt_thread_list_move(lt_thread_list_t * to, lt_thread_t * from);
+void lt_thread_list_for_each(lt_thread_list_t * list, void (*)(lt_thread_t * thread));
+void lt_thread_list_insert(lt_thread_list_t * list, lt_thread_t * thread);
+lt_thread_t * lt_thread_list_find(lt_thread_list_t * list, lt_rwlock_t * thread);
 
-#endif 
+#endif
+

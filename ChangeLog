@@ -1,4 +1,17 @@
 2004-08-17	blytkerchan	continue translation to C
+	* thread_queue.h: new file
+	* thread_list.h: ditto
+	* rw_lock.c: move lt_thread_queue_* declarations to thread_queue.h
+	move lt_thread_list_* declarations to thread_list.h
+	include stdlib
+	(lt_rwlock_new): new function
+	(lt_rwlock_free): ditto
+	(lt_rwlock_write_unlock) [place_holder]: make a lt_thread_list_t
+	* rw_lock.h: include thread_list.h
+	include thread_queue.h
+	[lt_rwlock_t]: make readers field an array of lt_thread_list_t's
+	make writers and general fields lt_thread_queue_t's
+
 	* rw_lock.c: %s/lt_rwlock_queue/lt_thread_queue/g
 	%s/lt_rwlock_list/lt_thread_list/g
 
