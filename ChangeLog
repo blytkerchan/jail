@@ -1,3 +1,22 @@
+2004-05-11	blytkerchan
+	* Makefile.am [SUBDIRS]: include libmemory
+	* bootstrap: bootstrap libmemory
+	* configure.ac: require autoconf 2.57 and up, not 2.59 and up
+	configure libmemory
+	* libconf.c (libconf_init): s/new_hash/hash_new/g
+	(libconf_fini_helper): constify parameters, cast to compensate
+	(libconf_fini): s/delete_hash/hash_free/g
+	(libconf_phase5_helper): constify parameters
+	* libconf_optparam.c (libconf_optparam_dup): ditto
+	(libconf_optparams_dup): ditto
+
+	* libconf.c: include stdarg.h
+	(libconf_getopt): implement
+	(libconf_setopt): ditto
+	* libconf.h [libconf_t]: comment the fields
+	* libconf_optparam.c: include libreplace/macros.h
+	(libconf_optparam_new): trim the string values
+
 2004-04-12	blytkerchan
 	* configure.ac: define Automake conditional MT_SAFE (always true for the time being)
 	* libconf.c (libconf_init): zero out handle's argv field on allocation

@@ -43,6 +43,7 @@
  * the hash before putting a new value in.
  */
 #include <sys/types.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 #include "libconf.h"
@@ -65,7 +66,7 @@ libconf_t * libconf_init(
 		retval->global_config_filename = strdup(global_config_filename);
 	if (local_config_filename != NULL)
 		retval->local_config_filename = strdup(local_config_filename);
-	retval->options = new_hash(STRING_HASH, NULL, NULL);
+	retval->options = hash_new(STRING_HASH, 0, NULL, NULL);
 	t_options = libconf_defaultopts();
 	for (i = 0; t_options[i]; i++)
 	{
@@ -78,8 +79,8 @@ libconf_t * libconf_init(
 		hash_put(retval->options, strdup(t_options[i]->co_name), t_options[i]);
 	}
 	free(t_options); // note: shallow free because the contents is in the hash
-	retval->option_hash = new_hash(STRING_HASH, NULL, NULL);
-	retval->tmp_hash = new_hash(STRING_HASH, NULL, NULL);
+	retval->option_hash = hash_new(STRING_HASH, 0, NULL, NULL);
+	retval->tmp_hash = hash_new(STRING_HASH, 0, NULL, NULL);
 	retval->argc = argc;
 	retval->argv = (char**)calloc(argc + 1, sizeof(char*));
 	for (i = 0; i < argc; i++)
@@ -90,10 +91,10 @@ libconf_t * libconf_init(
 	return retval;
 }
 
-void libconf_fini_helper(void * key, void * val, void * data)
+void libconf_fini_helper(const void * key, const void * val, void * data)
 {
-	free(key);
-	free(val);
+	free((void*)key);
+	free((void*)val);
 }
 
 void libconf_fini(libconf_t * handle)
@@ -104,11 +105,11 @@ void libconf_fini(libconf_t * handle)
 	free(handle->local_config_filename);
 
 	hash_foreach(handle->options, libconf_fini_helper, NULL);
-	delete_hash(handle->options);
+	hash_free(handle->options);
 	hash_foreach(handle->option_hash, libconf_fini_helper, NULL);
-	delete_hash(handle->option_hash);
+	hash_free(handle->option_hash);
 	hash_foreach(handle->tmp_hash, libconf_fini_helper, NULL);
-	delete_hash(handle->tmp_hash);
+	hash_free(handle->tmp_hash);
 	for (i = 0; i < handle->argc; i++)
 		free(handle->argv[i]);
 	free(handle->argv);
@@ -347,10 +348,10 @@ int libconf_phase4(libconf_t * handle)
 	return libconf_readconf_local(handle);
 }
 
-static void libconf_phase5_helper(void * key, void * val, void * data)
+static void libconf_phase5_helper(const void * key, const void * val, void * data)
 {
 	libconf_t * handle = (libconf_t *)data;
-	hash_put(handle->option_hash, strdup((char*)key), val);
+	hash_put(handle->option_hash, strdup((char*)key), (void*)val);
 }
 int libconf_phase5(libconf_t * handle) 
 {
@@ -359,6 +360,94 @@ int libconf_phase5(libconf_t * handle)
 	return 0;
 }
 
-int libconf_getopt(libconf_t * handle, const char * optname, ...){ return -1; }
-int libconf_setopt(libconf_t * handle, const char * optname, ...){ return -1; }
+int libconf_getopt(libconf_t * handle, const char * optname, ...)
+{
+	va_list ap;
+	libconf_optparam_t * val;
+	int rc = 0;
+	int * d;
+	char ** s;
+	array_t ** a;
+
+	val = (libconf_optparam_t*)hash_get(handle->option_hash, (void*)optname);
+	if (val == NULL)
+		return -1;
+	va_start(ap, optname);
+	switch (val->param_type)
+	{
+	case PT_YESNO :
+	case PT_TRUEFALSE :
+		d = va_arg(ap, int*);
+		*d = val->val.bool_val;
+		break;
+	case PT_NUMERIC :
+		d = va_arg(ap, int*);
+		*d = val->val.num_val;
+		break;
+	case PT_STRING :
+	case PT_FILENAME :
+		s = va_arg(ap, char**);
+		*s = strdup(val->val.str_val);
+		break;
+	case PT_NUMERIC_LIST :
+		a = va_arg(ap, array_t**);
+		*a = array_copy(val->val.array_val);
+		break;
+	case PT_STRING_LIST :
+	case PT_FILENAME_LIST :
+		a = va_arg(ap, array_t**);
+		*a = array_deep_copy(val->val.array_val, (libcontain_copy_func_t)strdup);
+		break;
+	default :
+		rc = -1;
+	}
+	va_end(ap);
+
+	return rc; 
+}
+int libconf_setopt(libconf_t * handle, const char * optname, ...)
+{
+	va_list ap;
+	libconf_opt_t * opt;
+	int rc = 0;
+	int d;
+	char * s;
+	array_t * a;
+
+	opt = (libconf_opt_t*)hash_get(handle->options, (void*)optname);
+	if (opt == NULL)
+		return -1;
+	va_start(ap, optname);
+	switch (opt->co_long_param_type)
+	{
+	case PT_YESNO :
+	case PT_TRUEFALSE :
+		d = va_arg(ap, int);
+		hash_put(handle->option_hash, (void*)optname, (void*)d);
+		break;
+	case PT_NUMERIC :
+		d = va_arg(ap, int);
+		hash_put(handle->option_hash, (void*)optname, (void*)d);
+		break;
+	case PT_STRING :
+	case PT_FILENAME :
+		s = va_arg(ap, char*);
+		hash_put(handle->option_hash, (void*)optname, strdup(s));
+		break;
+	case PT_NUMERIC_LIST :
+		a = va_arg(ap, array_t*);
+		hash_put(handle->option_hash, (void*)optname, array_copy(a));
+		break;
+	case PT_STRING_LIST :
+	case PT_FILENAME_LIST :
+		a = va_arg(ap, array_t*);
+		hash_put(handle->option_hash, (void*)optname, array_deep_copy(a, (libcontain_copy_func_t)strdup));
+		break;
+	default :
+		rc = -1;
+	}
+	va_end(ap);
+
+	return rc; 
+}
 

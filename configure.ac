@@ -1,7 +1,7 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ(2.59)
+AC_PREREQ(2.57)
 AC_INIT(libconf, 0.0-alpha1, ronald@landheer.com)
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([libconf.c])
@@ -46,7 +46,7 @@ AC_FUNC_REALLOC
 AC_FUNC_VPRINTF
 AC_REPLACE_FUNCS([memset strchr strdup])
 
-AC_CONFIG_SUBDIRS([libcontain])
+AC_CONFIG_SUBDIRS([libcontain libmemory])
 AC_CONFIG_FILES([Makefile
                  libreplace/Makefile
                  posix/Makefile

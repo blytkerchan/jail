@@ -86,25 +86,25 @@ typedef struct _libconf_optparam_t
 
 typedef struct _libconf_t 
 {
-	char * global_config_filename;
-	char * local_config_filename;
-	hash_t * options;
-	hash_t * option_hash;
-	hash_t * tmp_hash;
-	int argc;
-	char ** argv;
-	char * argv0;
-	libconf_do_on_error_t default_error_action;
-	libconf_optparam_t ** defaults;
+	char * global_config_filename;	/* the filename of the global conf. file */
+	char * local_config_filename;		/* the filename of the local conf. file */
+	hash_t * options;						/* options we might find (opt_t) */
+	hash_t * option_hash;				/* options we've found (optparam_t) */
+	hash_t * tmp_hash;					/* temporary options (optparam_t) */
+	int argc;								/* number of cmdline arguments */
+	char ** argv;							/* the cmdline arguments */
+	char * argv0;							/* invocation */
+	libconf_do_on_error_t default_error_action;	/* what to do on error */
+	libconf_optparam_t ** defaults;	/* default values for the options */
 
 	/* These are for the POSIX implementation */
-	void * Lexer;
-	void * yyin;
-	void * yyout;
-	char * filename;
-	int yylineno;
-	void * temp;
-	libconf_param_type_t t_pt;
+	void * Lexer;							/* the lexical scanner */
+	void * yyin;							/* the scanner's input stream */
+	void * yyout;							/* the scanner's output stream */
+	char * filename;						/* the filename of the conffile treated */
+	int yylineno;							/* line number in the conffile */
+	void * temp;							/* temp. storage */
+	libconf_param_type_t t_pt;			/* ditto for option type */
 } libconf_t;
 
 /* initialize the library */
@@ -136,8 +136,8 @@ libconf_optparam_t * libconf_optparam_new(
 	char * name,
 	libconf_param_type_t libconf_param_type, 
 	char * str);
-libconf_optparam_t * libconf_optparam_dup(libconf_optparam_t * param);
-libconf_optparam_t ** libconf_optparams_dup(libconf_optparam_t ** params);
+libconf_optparam_t * libconf_optparam_dup(const libconf_optparam_t * param);
+libconf_optparam_t ** libconf_optparams_dup(const libconf_optparam_t ** params);
 void libconf_optparam_free(libconf_optparam_t * param);
 void libconf_optparams_free(libconf_optparam_t ** params);
 

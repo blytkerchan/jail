@@ -36,8 +36,9 @@
 #include <string.h>
 #include "libconf.h"
 #include "libreplace/catstr.h"
+#include "libreplace/macros.h"
 
-libconf_optparam_t * libconf_optparam_dup(libconf_optparam_t * param)
+libconf_optparam_t * libconf_optparam_dup(const libconf_optparam_t * param)
 {
 	libconf_optparam_t * retval;
 
@@ -67,7 +68,7 @@ libconf_optparam_t * libconf_optparam_dup(libconf_optparam_t * param)
 	return retval;
 }
 
-libconf_optparam_t ** libconf_optparams_dup(libconf_optparam_t ** params)
+libconf_optparam_t ** libconf_optparams_dup(const libconf_optparam_t ** params)
 {
 	int n, i;
 	libconf_optparam_t ** retval;
@@ -164,7 +165,7 @@ libconf_optparam_t * libconf_optparam_new(
 		break;
 	case PT_STRING :
 	case PT_FILENAME :
-		retval->val.str_val = strdup(str);
+		retval->val.str_val = trim(strdup(str));
 		break;
 	case PT_NUMERIC_LIST :
 		retval->val.array_val = new_array(0);
@@ -173,7 +174,7 @@ libconf_optparam_t * libconf_optparam_new(
 	case PT_STRING_LIST :
 	case PT_FILENAME_LIST :
 		retval->val.array_val = new_array(0);
-		array_push_back(retval->val.array_val, strdup(str));
+		array_push_back(retval->val.array_val, trim(strdup(str)));
 		break;
 	default :
 		free(retval);

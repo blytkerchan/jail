@@ -1,4 +1,4 @@
-SUBDIRS=libcontain posix libreplace . tests
+SUBDIRS=libmemory libcontain posix libreplace . tests
 
 lib_LTLIBRARIES=libconf.la
 libconf_la_SOURCES=libconf.c libconf_opt.c libconf_optparam.c

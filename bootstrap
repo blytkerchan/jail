@@ -4,5 +4,8 @@ aclocal && \
 autoheader && \
 autoconf && \
 automake --add-missing && \
-cd libcontain && sh bootstrap
+cd libcontain && sh bootstrap && cd .. && \
+cd libmemory && sh bootstrap && cd .. && \
+true
+
 
