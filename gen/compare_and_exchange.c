@@ -31,12 +31,39 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _ARCH_I486_COMPARE_AND_EXCHANGE
-#define _ARCH_I486_COMPARE_AND_EXCHANGE
- 
-int compare_and_exchange(void ** exp_ptr, void ** tar_ptr, const void * src_ptr); 
-#endif
+#include <unistd.h>
 
+/* As of the i486, x86 processors have a compare and exchange function
+ * which will evidently be called with the same prototype of i486+ 
+ * computers. However, on the off chance that someone might want to use
+ * something older than an i486 (or a non-x86 platform for which the 
+ * architecture-specific routine has not been written yet) we provide
+ * a blocking implementation in C.
+ * This implementation is not intended to be very efficient: we synchronize
+ * on a function-level without watching too closely what we'll be working on.
+ * If you want a better-optimized version, feel free to contribute one :)
+ */
+int compare_and_exchange(void ** exp_ptr, void ** tar_ptr, const void * src_ptr)
+{
+	static int lock = 0;
+	int rv;
+
+	lock++;
+	while (lock != 1) sleep(0);
+
+	if (*exp_ptr != *tar_ptr)
+	{
+		*exp_ptr = *tar_ptr;
+		rv = -1;
+	}
+	else
+	{
+		*tar_ptr = src_ptr;
+		rv = 0;
+	}
 	
+	lock--;
+	return(rv);
+}
 
 

@@ -1,3 +1,8 @@
+2003-10-18	blytkerchan
+	* main.c: moved to ../test
+	* Makefile: removed
+	* compare_and_exchange.h: moved to ../include
+
 2003-10-17	blytkerchan
 	* main.c: add a new test for the case that should work
 

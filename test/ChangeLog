@@ -1,0 +1,3 @@
+2003-10-18	blytkerchan
+	* compare_and_exchange.c: moved from ../i486/main.c
+

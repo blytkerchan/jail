@@ -1,4 +1,10 @@
+2003-10-18	blytkerchan
+	* AUTHORS: new file
+	* gen: new directory
+	* include: ditto
+	* test: ditto
+
 2003-10-17	blytkerchan
-	i486:	new directory
+	* i486: new directory
 
 
