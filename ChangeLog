@@ -1,3 +1,10 @@
+2004-03-22	blytlerchan
+	* preprocl.l: define def_state2
+	use def_state2 for macro definition contents
+	return T_DEFINED token for macro definition contents
+	* preprocp.y [T_DEFINED]: new terminal
+	[macro_def]: expect T_DEFINED in stead of T_TOKEN
+
 2004-03-19	blytkerchan
 	* preprocl.l: new file
 	* preprocp.y: ditto

@@ -24,6 +24,7 @@ stack_t * include_stack = NULL;
 %x quoted_txt_state
 %x incl_state
 %x def_state
+%x def_state2
 %x cond_state
 
 /* class definitions go here */
@@ -70,11 +71,17 @@ FILENAME	[\.a-zA-Z0-9_][\.a-zA-Z0-9_/]+
 	yy_pop_state();
 			}
 
-<def_state>[ \t]*	/* forget the white space */
+<def_state,def_state2>[ \t]*	/* forget the white space */
 <def_state>[^ \t\n]+	{ /* the macro name */
-	yy_pop_state();
+	yy_push_state(def_state2);
 	yylval.str = strdup(yytext);
 	return T_DEFINE;
+			}
+<def_state2>[^ \t\n]*	{
+	yy_pop_state();
+	yy_pop_state();
+	yylval.str = strdup(yytext);
+	return T_DEFINED;
 			}
 
 <cond_state>[^\n]+	{ /* the expression */

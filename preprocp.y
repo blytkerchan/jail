@@ -31,7 +31,7 @@ void yyerror(char * s)
 
 %debug
 
-%token <str> T_TOKEN T_DEFINE T_EXPR
+%token <str> T_TOKEN T_DEFINE T_DEFINED T_EXPR
 %token T_IFDEF T_IF T_IFNDEF T_ENDIF
 %%
 
@@ -63,7 +63,7 @@ macro_def : T_DEFINE {
 		if (curr != NULL)
 			fprintf(stderr, "Warning: redefinition of %s\n", yylval.str);
 		curr = yylval.str;
-	} 	T_TOKEN {
+	} 	T_DEFINED {
 		hash_put(token_hash, curr, yylval.str);
 	}
 	;
