@@ -1,3 +1,6 @@
+2004-07-20	blytkerchan
+	* module.mk: new file
+
 2004-04-12	blytkerchan
 	* ltrim.c: new file
 	* rtrim.c: ditto
