@@ -1,4 +1,6 @@
 2004-10-25	blytkerchan
+	* modules (i486-libarch): repair
+
 	* modules (i486-libarch): move include dir to arch
 	move src dir to libarch
 
