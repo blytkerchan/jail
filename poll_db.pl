@@ -1,7 +1,7 @@
 #! /usr/bin/perl
 use DBI();
 
-$PROGID = '$Id: poll_db.pl,v 1.1 2004/01/11 11:42:46 blytkerchan Exp $';
+$PROGID = '$Id: poll_db.pl,v 1.2 2004/01/20 16:52:05 blytkerchan Exp $';
 
 $db_database  = 'jail';
 $db_host      = 'localhost';
@@ -82,7 +82,7 @@ CREATE TABLE IF NOT EXISTS responses (
 	remote_ip varchar(16) default NULL,
 	log_time timestamp,
 	PRIMARY KEY  (uid)
-) TYPE=MyISAM;
+) TYPE=MyISAM
 EOE
 ;	
 	$sth = $db{dbh}->prepare($create_request);

@@ -4,7 +4,7 @@ require "poll_db.pl";
 require "poll_http.pl";
 
 $print_header = 1;
-$PROGID       = '$Id: poll_response.pl,v 1.5 2004/01/11 11:42:46 blytkerchan Exp $';
+$PROGID       = '$Id: poll_response.pl,v 1.6 2004/01/20 16:52:05 blytkerchan Exp $';
 
 sub output_body()
 {
@@ -33,6 +33,7 @@ sub add_to_hash(%$$)
 
 while (<>)
 {
+	$last_key = "";
 	if ($last_key ne 'comment')
 	{
 		if (/\s*([^\s=]*)\s*?=(.*)/)

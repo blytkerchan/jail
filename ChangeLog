@@ -1,3 +1,9 @@
+2003-01-20	blytkerchan
+	* poll.css: new style for result_table_title
+	* poll_db.pl: remove trailing semicolon from table declaration
+	* poll_response.pl: kill warning about uninitialized variable 
+	* poll_result.pl: implement
+
 2003-01-10	blytkerchan
 	* poll_db.pl: new file
 	* poll_result.pl: ditto
