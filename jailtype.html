@@ -289,8 +289,35 @@ a heap and a stack is that a heap is sorted in such a way that either the
 smallest or the largest element is always on top. Objects stored in a heap 
 therefore need to have a <code>compare</code> function.</td></tr>
 <tr><td class="subject" colspan=2 align="center">Associative Container types</td></tr>
-<tr><td class="subject">Map</td><td></td></tr>
-<tr><td class="subject">Hash</td><td></td></tr>
+<tr><td colspan=2><p id="summary">Associative containers are objects that map
+keys to values. Both the keys and the values are objects of some sort. There 
+are no special restrictions on the values, however, according to the type of
+associative container used, the restrictions on the keys may vary.</p></td></tr>
+<tr><td class="subject">Map</td><td>A Map maps a key to a value by comparing
+the key to other keys already in the map. Hence, the keys need to have a 
+<code>compare</code> function<br/>
+Use maps when you need fast key-to-value mapping that doesn't take too much
+space in memory, or when you don't have a hash function (and don't want to 
+write one).
+</td></tr>
+<tr><td class="subject">Hash</td><td>A Hash maps a key to a value by using a
+computed integer value corresponding to the key. For this, it calls the <code>
+hash</code> function on the key.<br/>
+It is actually quite difficult to write a good hash function: the function 
+needs to correspond to a number of very specific requirements (listed below)
+and ideally needs to be very fast. If a good hash function is available, 
+however, a hash is a lot faster than a map.<br/>
+The requirements of a hash function are:<ul>
+<li>the result value must be an integer</li>
+<li>the result value must not be random</li>
+<li>the result value from two "close" input values must not be close</li>
+</ul>
+Often-used hash functions algorithsm are algorithms like MD4, MD5, SHA, CRC32,
+Adler-32, etc.<br/>
+Use a hash when you need fast key-to-value mapping, memory is not an issue and
+you have a good hash function. If memory is an issue, you can still use a hash
+but should be aware that it is (much) less memory-efficient than a map.
+</td></tr>
 </tbody>
 </table>
 </div>
@@ -306,6 +333,6 @@ width="210" height="62" border="0" align="right" alt=
 </tbody>
 </table>
 <div style="text-align: right; font-size: smaller;"<a href="#top">back to top</a></div>
-<div align="right">This page was last updated: $Date: 2004/01/28 15:39:04 $</div>
+<div align="right">This page was last updated: $Date: 2004/01/29 15:11:00 $</div>
 </body>
 </html>
