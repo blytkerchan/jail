@@ -1,4 +1,7 @@
 2003-01-20	blytkerchan
+	* index.html: roll back to revision 1.10
+	remove alignment from SF logo
+
 	* poll.css: new style for result_table_title
 	* poll_db.pl: remove trailing semicolon from table declaration
 	* poll_response.pl: kill warning about uninitialized variable 
