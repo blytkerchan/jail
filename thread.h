@@ -48,6 +48,7 @@ typedef struct _lt_thread_t {
 	void * arg;
 	struct _lt_thread_t * next;
 	int flag;
+	int mark;
 } lt_thread_t;
 
 lt_thread_t * lt_thread_new(lt_thread_func_t start_func, void * arg);

@@ -91,6 +91,7 @@ lt_thread_t * lt_thread_new(
 		free(retval);
 		retval = NULL;
 	}
+	retval->mark = 0;
 	
 	return retval;
 }

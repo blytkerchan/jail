@@ -36,6 +36,7 @@
 
 typedef struct _lt_thread_list_t 
 {
+	lt_thread_t * head;
 } lt_thread_list_t;
 
 lt_thread_list_t * lt_thread_list_new(void);

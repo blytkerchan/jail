@@ -1,3 +1,16 @@
+2004-08-22	blytkerchan
+	* thread.c (lt_thread_new): set mark field to 0
+	* thread.h [lt_thread_t]: new field: mark
+	* thread_list.c [DUMMY_MAGIC]: new macro
+	[lt_thread_list_state_t]: new typedef
+	(lt_thread_list_find): new function
+	(lt_thread_list_new): initialize retval members
+	(lt_thread_list_free): free head member
+	(lt_thread_list_remove): implement
+	(lt_thread_list_empty): ditto
+	(lt_thread_list_move): ditto
+	* thread_list.h [lt_thread_list_t]: new field: head
+
 2004-08-20	blytkerchan
 	* how_thread_queues_work.txt: update
 	* thread_queue.c: include arch/include/increment.h
