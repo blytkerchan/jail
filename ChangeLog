@@ -1,3 +1,10 @@
+2004-04-01	blytkerchan
+	* memset.c: new file
+	* realloc.c: ditto
+	* strdup.c: ditto
+	* malloc.c: ditto
+	* strchr.c: ditto
+
 2004-03-30	blytkerchan
 	* catstr.c: new file
 	* catstr.h: ditto

@@ -1,3 +1,5 @@
+#include <stdlib.h>
+
 char * catstr(char * str1, char * str2)
 {
 	char * retval;
