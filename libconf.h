@@ -55,7 +55,7 @@ typedef struct _libconf_t
 	void * yyin;
 	void * yyout;
 	char * filename;
-	char * yylineno;
+	int yylineno;
 	void * temp;
 } libconf_t;
 

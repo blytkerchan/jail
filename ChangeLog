@@ -1,3 +1,11 @@
+2004-04-01	blytkerchan
+	* configure.ac: new file
+	* Makefile.am: ditto
+	* bootstrap: ditto
+	* NEWS: ditto
+	* Makefile: remove
+	* libconf.h [libconf_t::yylineno]: make int
+
 2004-03-31	blytkerchan
 	* libconf.c (libconf_optdefaults): comment out
 	(libconf_optcat): ditto
