@@ -30,7 +30,8 @@ projects. Based on the MOZILLA PUBLIC LICENSE, Version 1.1
 
      1.6. "Initial Developer" means the individual or entity identified
      as the Initial Developer in the Source Code notice required by Exhibit
-     A.
+     A or, if absent, the copyright holder as specified by the notice required
+     by Exhibit B or, if absent, Ronald Landheer-Cieslak.
 
      1.7. "Larger Work" means a work which combines Covered Code or
      portions thereof with code not governed by the terms of this License.
@@ -370,7 +371,7 @@ projects. Based on the MOZILLA PUBLIC LICENSE, Version 1.1
      provides that the language of a contract shall be construed against
      the drafter shall not apply to this License.
 
-12. RESPONSIBILITY FOR CLAIMS.
+11. RESPONSIBILITY FOR CLAIMS.
 
      As between Initial Developer and the Contributors, each party is
      responsible for claims and damages arising, directly or indirectly,
@@ -379,7 +380,7 @@ projects. Based on the MOZILLA PUBLIC LICENSE, Version 1.1
      responsibility on an equitable basis. Nothing herein is intended or
      shall be deemed to constitute any admission of liability.
 
-13. MULTIPLE-LICENSED CODE.
+12. MULTIPLE-LICENSED CODE.
 
      Initial Developer may designate portions of the Covered Code as
      "Multiple-Licensed".  "Multiple-Licensed" means that the Initial
