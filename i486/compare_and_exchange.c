@@ -47,5 +47,5 @@ int compare_and_exchange_ptr(void * exp_ptr, void * tar_ptr, const void * src_pt
 
 int compare_and_exchange_int(int32_t * exp_ptr, int32_t * tar_ptr, int32_t src)
 {
-	return compare_and_exchange_ptr(exp_ptr, tar_ptr, (void*)src)
+	return compare_and_exchange_ptr(exp_ptr, tar_ptr, (void*)src);
 }

@@ -1,4 +1,6 @@
 2004-08-11	blytkerchan
+	* compare_and_exchange.c (compare_and_exchange_int): add semicolon
+
 	* fetch_and_add.c (fetch_and_add): call compare_and_exchange_int in
 	stead of compare_and_exchange
 
