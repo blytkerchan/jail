@@ -1,3 +1,7 @@
+2004-07-18	blytkerchan
+	* configure.ac: new file
+	* Makefile.in: ditto
+
 2004-02-03	blytkerchan
 	* config.arch: new file
 

@@ -1,0 +1,9 @@
+AC_INIT
+AC_PROG_LIBTOOL
+AC_CANONICAL_HOST
+source config.arch
+ARCH=${host_cpu}
+AC_SUBST(ARCH)
+
+AC_CONFIG_FILES([Makefile])
+AC_OUTPUT
