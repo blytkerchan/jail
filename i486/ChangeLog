@@ -1,4 +1,6 @@
 2003-10-17	blytkerchan
+	* main.c: add a new test for the case that should work
+
 	* Makefile: new file
 	* compare_and_exchange.c: ditto
 	* compare_and_exchange.h: ditto

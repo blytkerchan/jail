@@ -7,7 +7,10 @@ int main(void)
 	int * j = 0;
 	int * k = i; 
 
-	printf("%d\n", compare_and_exchange(&j, &k, i));
+	printf("%d\n", compare_and_exchange(&k, &j, i));
+	printf("%p, %p, %p\n", i, j, k);
+	k = 0;
+	printf("%d\n", compare_and_exchange(&k, &j, i));
 	printf("%p, %p, %p\n", i, j, k);
 
 	return 0;
