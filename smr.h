@@ -47,6 +47,7 @@ typedef struct _smr_global_data_t
 
 	hptr_local_data_t * first;
 	hptr_local_data_t * last;
+	hptr_local_data_t * free;
 } smr_global_data_t;
 
 typedef struct _smr_private_data_t

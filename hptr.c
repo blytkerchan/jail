@@ -38,9 +38,103 @@
 #include <stdlib.h>
 
 #include "arch/include/compare_and_exchange.h"
+#include "arch/include/set.h"
 
 extern smr_global_data_t * smr_global_data;
 hptr_global_data_t * hptr_global_data = NULL;
+
+// we assume to have exclusive ownership of DATA: we're the only ones allowed
+// to write to it as the owning thread is (normally) dying.
+// This assumption should remain valid until the moment we put the node (data)
+// in the place of the "free" field of the SMR global data, at which time
+// we relinquish ownership.
+// A thread dequeueing a node from free should not assume to have ownership until
+// it succeeds a CAS setting the new value of the free field in the SMR global data.
+// That's why we set that field to NULL to assume ownership of the node as well. 
+// Normally, no-one should be traversing the queue of nodes at that time, but 
+// we take some measures to accomodate for that (im)possibility anyway.
+// Also note we've added a flag to the local data type (hptr_local_data_t)
+// which is 1 if the hptr scanning logic should no longer count on our 
+// "next" field to be valid.
+static void smr_hptr_free_list_enq(hptr_local_data_t * data)
+{
+	int i;
+	hptr_local_data_t * exp;
+	hptr_local_data_t * ptr = NULL;
+	
+	// make our node ready for inclusion in the free list
+	// clear out all existing hazardous references
+	for (i = 0; i < smr_global_data->k; i++)
+		atomic_set_ptr(&(data->hp[i]), NULL);
+	// set out flag
+	atomic_set_int(&(data->flag), 1);
+	// NOTE: we expect atomic_set_* to do the right thing concerning 
+	// memory barriers: we expect the setting of the flag to be visible 
+	// before the clearing of the next pointer!
+	
+	// clear out our next pointer
+	atomic_set_ptr(&(data->next), NULL);
+	// try to set it to smr_global_data->free first.
+	exp = NULL;
+	while (compare_and_exchange_ptr(&exp, &(smr_global_data->free), data) != 0)
+	{	// Otherwise, set smr_global_data->free to NULL (and get whatever is in there);
+		// set its old value to our next and put us in its place.
+		// "Whatever is in there" is what we have in exp now..
+		if (compare_and_exchange(&exp, &(smr_global_data->free), NULL) != 0)
+			continue;
+		// we may have been here more than once, in which case ptr holds whatever we have in our next field..
+		if (compare_and_exchange(&ptr, &(data->next), NULL) != 0)
+			assert(0); // just in case..
+		// we now put whatever is in ptr at the end of exp - which might be a whole queue for all we know..
+		if (exp != NULL && ptr != NULL) 
+		{
+			hptr_local_data_t * head = exp;
+			hptr_local_data_t * tail = exp;
+			
+			while (1)
+			{
+				// find the tail of the queue in exp (now head)
+				while (tail->next != NULL)
+					tail = tail->next;
+				// we expect a NULL at the end of this queue
+				exp = NULL;
+				// try to put ptr at the end of the queue
+				if (compare_and_exchange_ptr(&exp, &(tail->next), ptr) != 0)
+				{	// otherwise, we start over from scratch
+					tail = head;
+					continue;
+				}
+			}
+			// when we get here, ptr is at the end of the queue we want to add to our node
+			// so we add the queue...
+			if (compare_and_exchange(&exp, &(data->next), head) != 0)
+				// someone was still writing to our node - that should be impossible..
+				assert(0);
+		}
+	}
+	// when we get here, we're done.
+}
+
+// the logic here should be much simpler that that of smr_hptr_free_list_enq: we
+// simply try to obtain a node from the free list and keep trying until our CAS
+// works.
+static hptr_local_data_t * smr_hptr_free_list_deq(void)
+{
+	hptr_local_data_t * retval;
+	hptr_local_data_t * next;
+	
+	do
+	{
+		retval = smr_global_data->free;
+		next = retval->next;
+	} while (compare_and_exchange_ptr(&retval, &(smr_global_data->free), next) != 0)
+
+	// we now have ownership of retval.
+	retval->next = NULL;
+	retval->flag = 0;
+	
+	return retval;
+}
 
 static void hptr_register_local_data(hptr_local_data_t * data)
 {
@@ -83,9 +177,12 @@ static hptr_local_data_t * hptr_get_local_data(void)
 	retval = pthread_getspecific(hptr_global_data->key);
 	if (retval == NULL)
 	{
-		retval = (hptr_local_data_t*)calloc(1, sizeof(hptr_local_data_t));
-		pthread_setspecific(hptr_global_data->key, retval);
-		retval->hp = (void**)calloc(smr_global_data->k, sizeof(void*));
+		if ((retval = smr_hptr_free_list_deq()) == NULL)
+		{
+			retval = (hptr_local_data_t*)calloc(1, sizeof(hptr_local_data_t));
+			pthread_setspecific(hptr_global_data->key, retval);
+			retval->hp = (void**)calloc(smr_global_data->k, sizeof(void*));
+		}
 		hptr_register_local_data(retval);
 	}
 
@@ -116,7 +213,7 @@ try_again:
 				if (compare_and_exchange_ptr(&curr, &(prev->next), curr->next))
 					goto try_again;
 			}
-			free(curr);
+			smr_hptr_free_list_enq(curr);
 			return;
 		}
 

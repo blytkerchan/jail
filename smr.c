@@ -38,6 +38,7 @@
 #include <string.h>
 #include "arch/include/increment.h"
 #include "arch/include/decrement.h"
+#include "arch/include/membar.h"
 
 smr_global_data_t * smr_global_data = NULL;
 
@@ -161,9 +162,10 @@ static void smr_scan_worker(smr_private_data_t * priv_data)
 {
 	unsigned int i, p, new_dcount;
 	void * hptr;
-	void ** plist;
+	void ** plist = NULL;
 	void ** new_dlist;
 	hptr_local_data_t * hptr_data;
+	hptr_local_data_t * next;
 	unsigned int R;
 	unsigned int new_dsize;
 
@@ -171,7 +173,7 @@ smr_scan_worker_start:
 	R = smr_global_data->k * smr_global_data->p;
 	new_dsize = R + 1;
 	p = new_dcount = 0;
-	plist = (void**)alloca(R * sizeof(void*));
+	plist = (void**)realloc(plist, R * sizeof(void*));
 	memset(plist, 0, R * sizeof(void*));
 	new_dlist = (void**)calloc(new_dsize, sizeof(void*));
 		
@@ -189,7 +191,14 @@ smr_scan_worker_start:
 				goto smr_scan_worker_start;
 			}
 		}
-		hptr_data = hptr_data->next;
+		next = hptr_data->next;
+		membar_rw();
+		// having a set flag here means we can't count on the next pointer being OK, 
+		// which means the hazard pointers we've read from this node are tainted, 
+		// which means we have to start over :(
+		if (hptr_data->flag)
+			goto smr_scan_worker_start;
+		hptr_data = next;
 	}
 	
 	// stage 2
@@ -212,6 +221,8 @@ smr_scan_worker_start:
 	priv_data->dlist = new_dlist;
 	priv_data->dsize = new_dsize;
 	priv_data->dcount = new_dcount;
+	
+	free(plist);
 }
 
 void smr_scan(void)
