@@ -40,7 +40,7 @@ typedef struct _lt_sem_t
 	thread_t * queue;
 } lt_sem_t;
 
-int lt_sem_init(lt_sem_t * semaphore);
+void lt_sem_init(lt_sem_t * semaphore, uint32_t val);
 lt_sem_t * lt_sem_create(uint32_t val);
 void lt_sem_free(lt_sem_t * semaphore);
 void lt_sem_wait(lt_sem_t * semaphore);

@@ -1,4 +1,15 @@
 2004-07-22	blytkerchan
+	* how_semaphores_work: undefine behaviour of lt_sem_init if semaphore is in use
+	* semaphore.c (lt_sem_first): new function
+	(lt_sem_enq): ditto (empty for the moment)
+	(lt_sem_deq): ditto
+	(lt_sem_init): implement
+	(lt_sem_create): ditto
+	(lt_sem_free): ditto
+	(lt_sem_wait): ditto
+	(lt_sem_release): ditto
+	* semaphore.h: change prototype of lt_sem_init
+
 	* version: new file
 
 	* semaphore.c: new file

@@ -28,9 +28,9 @@ to signal events, etc.
 
 This implementation
 -------------------
-lt_sem_init() initializes a semaphore with the given value. It will fail if 
-there are already threads waiting on the semaphore, as that would disturb the
-use of the semaphore in question.
+lt_sem_init() initializes a semaphore with the given value. This causes
+undefined behaviour if there is already a thread waiting on the semaphore -
+use with caution.
 
 lt_sem_create() creates a new semaphore initialized to a given value
 
