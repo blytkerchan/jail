@@ -1,3 +1,6 @@
+2004-04-05	blytkerchan
+	* modules: remove libmemory from the preprocessor - not used
+
 2004-03-30	blytkerchan
 	* modules: add libreplace module to libconf in preprocessor
 
