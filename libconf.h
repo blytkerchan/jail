@@ -40,7 +40,7 @@ extern "C" {
 
 #include <stdio.h>
 #include "libcontain/hash.h"
-#include "libcontain/array.h"
+#include "libcontain/vector.h"
 
 typedef enum { TP_NO, TP_YES, TP_OPTIONAL } libconf_take_parm_t;
 typedef enum { 
@@ -79,7 +79,7 @@ typedef struct _libconf_optparam_t
 		int 			bool_val;
 		char * 		str_val;
 		int 			num_val;
-		array_t * 	array_val;
+		vector_t * 	vector_val;
 	} val;
 	int have_error;
 } libconf_optparam_t;
@@ -130,7 +130,7 @@ void libconf_opts_free(libconf_opt_t ** opts);
 void libconf_opt_free(libconf_opt_t * opt);
 libconf_opt_t ** libconf_optdup(const libconf_opt_t ** options);
 libconf_opt_t ** libconf_defaultopts(void);
-libconf_opt_t ** libconf_optconst(libconf_opt_t * options);
+libconf_opt_t ** libconf_optconst(const libconf_opt_t * options);
 
 libconf_optparam_t * libconf_optparam_new(
 	char * name,

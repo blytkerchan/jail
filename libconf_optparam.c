@@ -58,7 +58,7 @@ libconf_optparam_t * libconf_optparam_dup(const libconf_optparam_t * param)
 	case PT_NUMERIC_LIST :
 	case PT_STRING_LIST :
 	case PT_FILENAME_LIST :
-		retval->val.array_val = array_copy(param->val.array_val);
+		retval->val.vector_val = vector_copy(param->val.vector_val);
 		break;
 	default :
 		retval->val.num_val = param->val.num_val;
@@ -97,16 +97,16 @@ void libconf_optparam_free(libconf_optparam_t * param)
 		break;
 	case PT_STRING_LIST :
 	case PT_FILENAME_LIST :
-		n = array_get_size(param->val.array_val);
+		n = vector_get_size(param->val.vector_val);
 		for (i = 0; i < n; i++)
 		{
-			if ((p = array_get(param->val.array_val, i)) != NULL)
+			if ((p = vector_get(param->val.vector_val, i)) != NULL)
 			{
 				free(p);
 			}
 		}
 	case PT_NUMERIC_LIST :
-		free_array(param->val.array_val);
+		free_vector(param->val.vector_val);
 		break;
 	default :
 		break;
@@ -168,13 +168,13 @@ libconf_optparam_t * libconf_optparam_new(
 		retval->val.str_val = trim(strdup(str));
 		break;
 	case PT_NUMERIC_LIST :
-		retval->val.array_val = new_array(0);
-		array_push_back(retval->val.array_val, (void*)atoi(str));
+		retval->val.vector_val = vector_new(0);
+		vector_push_back(retval->val.vector_val, (void*)atoi(str));
 		break;
 	case PT_STRING_LIST :
 	case PT_FILENAME_LIST :
-		retval->val.array_val = new_array(0);
-		array_push_back(retval->val.array_val, trim(strdup(str)));
+		retval->val.vector_val = vector_new(0);
+		vector_push_back(retval->val.vector_val, trim(strdup(str)));
 		break;
 	default :
 		free(retval);

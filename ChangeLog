@@ -1,4 +1,15 @@
 2004-10-18	blytkerchan
+	* libconf_config.h: new file, temporary addition
+	* libconf.c: search for libconf_config.h locally
+	include libcontain/hash.h
+	use vector in stead of array
+	* libconf.h: include libcontain/vector.h in stead of
+	libcontain/array.h
+	use vector in stead of array throughout
+	(libconf_optconst): constify argument
+	* libconf_opt.c: reflect above changes
+	* libconf_optparam.c: ditto
+	
 	* module.mk: new file
 
 	* Makefile.am: remove

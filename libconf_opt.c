@@ -46,7 +46,7 @@ static const libconf_opt_t default_options[] = {
 	{ NULL, 0, TP_NO, PT_NONE, NULL, TP_NO, PT_NONE, NULL, DOE_NOTHING }
 }; 
 
-libconf_opt_t ** libconf_optconst(libconf_opt_t * options)
+libconf_opt_t ** libconf_optconst(const libconf_opt_t * options)
 {
 	int i, n;
 	libconf_opt_t ** retval;

@@ -47,8 +47,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include "libconf.h"
-#include <libconf_config.h>
+#include "libconf_config.h"
 #include "libreplace/catstr.h"
+#include "libcontain/hash.h"
 
 libconf_t * libconf_init(
 	const char * global_config_filename,
@@ -176,7 +177,7 @@ int libconf_phase1(libconf_t * handle)
 							case PT_FILENAME_LIST :
 								param = hash_get(handle->tmp_hash, option->co_name);
 								if (param != NULL)
-									array_push_back(param->val.array_val, strdup(argv[1]));
+									vector_push_back(param->val.vector_val, strdup(argv[1]));
 							default :
 								if (param == NULL)
 									param = libconf_optparam_new(option->co_name, option->co_long_param_type, argv[1]);
@@ -230,7 +231,7 @@ int libconf_phase1(libconf_t * handle)
 							case PT_FILENAME_LIST :
 								param = hash_get(handle->tmp_hash, option->co_name);
 								if (param != NULL)
-									array_push_back(param->val.array_val, strdup(argv[0] + 2));
+									vector_push_back(param->val.vector_val, strdup(argv[0] + 2));
 							default :
 								if (param == NULL)
 									param = libconf_optparam_new(option->co_name, option->co_short_param_type, argv[0] + 2);
@@ -250,7 +251,7 @@ int libconf_phase1(libconf_t * handle)
 							case PT_FILENAME_LIST :
 								param = hash_get(handle->tmp_hash, option->co_name);
 								if (param != NULL)
-									array_push_back(param->val.array_val, strdup(argv[1]));
+									vector_push_back(param->val.vector_val, strdup(argv[1]));
 							default :
 								if (param == NULL)
 									param = libconf_optparam_new(option->co_name, option->co_short_param_type, argv[1]);
@@ -367,7 +368,7 @@ int libconf_getopt(libconf_t * handle, const char * optname, ...)
 	int rc = 0;
 	int * d;
 	char ** s;
-	array_t ** a;
+	vector_t ** a;
 
 	val = (libconf_optparam_t*)hash_get(handle->option_hash, (void*)optname);
 	if (val == NULL)
@@ -390,13 +391,13 @@ int libconf_getopt(libconf_t * handle, const char * optname, ...)
 		*s = strdup(val->val.str_val);
 		break;
 	case PT_NUMERIC_LIST :
-		a = va_arg(ap, array_t**);
-		*a = array_copy(val->val.array_val);
+		a = va_arg(ap, vector_t**);
+		*a = vector_copy(val->val.vector_val);
 		break;
 	case PT_STRING_LIST :
 	case PT_FILENAME_LIST :
-		a = va_arg(ap, array_t**);
-		*a = array_deep_copy(val->val.array_val, (libcontain_copy_func_t)strdup);
+		a = va_arg(ap, vector_t**);
+		*a = vector_deep_copy(val->val.vector_val, (libcontain_copy_func_t)strdup);
 		break;
 	default :
 		rc = -1;
@@ -412,7 +413,7 @@ int libconf_setopt(libconf_t * handle, const char * optname, ...)
 	int rc = 0;
 	int d;
 	char * s;
-	array_t * a;
+	vector_t * a;
 
 	opt = (libconf_opt_t*)hash_get(handle->options, (void*)optname);
 	if (opt == NULL)
@@ -435,13 +436,13 @@ int libconf_setopt(libconf_t * handle, const char * optname, ...)
 		hash_put(handle->option_hash, (void*)optname, strdup(s));
 		break;
 	case PT_NUMERIC_LIST :
-		a = va_arg(ap, array_t*);
-		hash_put(handle->option_hash, (void*)optname, array_copy(a));
+		a = va_arg(ap, vector_t*);
+		hash_put(handle->option_hash, (void*)optname, vector_copy(a));
 		break;
 	case PT_STRING_LIST :
 	case PT_FILENAME_LIST :
-		a = va_arg(ap, array_t*);
-		hash_put(handle->option_hash, (void*)optname, array_deep_copy(a, (libcontain_copy_func_t)strdup));
+		a = va_arg(ap, vector_t*);
+		hash_put(handle->option_hash, (void*)optname, vector_deep_copy(a, (libcontain_copy_func_t)strdup));
 		break;
 	default :
 		rc = -1;
