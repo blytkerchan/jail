@@ -1,4 +1,11 @@
 2003-01-10	blytkerchan
+	* poll_db.pl: new file
+	* poll_result.pl: ditto
+	* poll_http.pl: ditto
+	* poll.pl: move all database-related functions and globals to poll_db.pl
+	move the header and footer functions to poll_http.pl
+	* poll_response.pl: ditto
+
 	* jailust.answers.sql: normalize
 	* jailust.examples.sql: ditto
 	* jailust.questions.sql: ditto

@@ -16,6 +16,7 @@ CREATE TABLE questions (
   answers integer NOT NULL default '0',
   commentable integer NOT NULL default '0',
   ask_email integer NOT NULL default '0',
+  one_answer integer NOT NULL default '1',
   PRIMARY KEY  (uid)
 ) TYPE=MyISAM;
 
