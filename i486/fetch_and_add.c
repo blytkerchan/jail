@@ -31,8 +31,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "fetch_and_add.h"
-#include "compare_and_exchange.h"
+#include "arch/include/fetch_and_add.h"
+#include "arch/include/compare_and_exchange.h"
 
 int32_t fetch_and_add(int32_t * val, int32_t add)
 {
@@ -42,7 +42,7 @@ int32_t fetch_and_add(int32_t * val, int32_t add)
 	do
 	{
 		newval = retval + add;
-	} while (compare_and_exchange(&retval, val, newval) != 0);
+	} while (compare_and_exchange(&retval, val, (void*)newval) != 0);
 	 
 	return retval; 
 }
