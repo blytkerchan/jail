@@ -1,0 +1,7 @@
+case ${host_cpu} in
+i[4567]86)
+	export host_cpu="i486";;
+*)
+	echo ERROR: your CPU is not supported
+	(exit 1); exit 1;;
+esac;
