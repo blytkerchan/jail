@@ -1,5 +1,7 @@
-SRC += 	arch/$(ARCH)/compare_and_exchange.c \
-	arch/$(ARCH)/set.c \
-	arch/$(ARCH)/increment.c \
-	arch/$(ARCH)/decrement.c
+arch_SRC = 	$(ARCH)/compare_and_exchange.c \
+		$(ARCH)/set.c \
+		$(ARCH)/increment.c \
+		$(ARCH)/decrement.c
+
+SRC += $(patsubst %,arch/%,$(arch_SRC))
 
