@@ -1,3 +1,32 @@
+2004-03-30	blytkerchan
+	* tests: new directory
+	* Makefile [all]: generate libconf.3
+	[libconf.3]: new target
+	* libconf.sgml: new file
+	* libconf.c: include libreplace/catstr.h
+	[default_options]: new variable
+	(libconf_optdefaults): new function
+	(libconf_optdup): handle NULL parameter
+	(libconf_optcat): new function
+	(libconf_init): remove misleading comment
+	take two more parameters: argc and argv
+	add default parameters to the one in the handle
+	add argc and argv to the handle
+	add a temporary hash to the handle, which will contain the command-line options from phase 1
+	(libconf_fini): free the new fields in the handle
+	(libconf_optparam_new): new function
+	[libconf_phase1_error_t]: new type
+	(libconf_phase1): implement
+	(libconf_phase2): provide minimalist implementation
+	(libconf_phase3): ditto
+	(libconf_phase4): ditto
+	(libconf_phase5): ditto
+	(libconf_getopt): ditto
+	(libconf_setopt): ditto
+	* libconf.h: rename enum types so they don't conflict
+	reflect above changes
+	[libconf_optparam_t]: new type
+
 2004-03-29	blytkerchan
 	* libconf.h: new file
 	* libconf.c: ditto

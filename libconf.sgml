@@ -1,0 +1,39 @@
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook V4.0//EN">
+<refentry id="libconf">
+
+<refmeta>
+<refentrytitle>libconf</refentrytitle>
+<manvolnum>3</manvolnum>
+</refmeta>
+
+<refnamediv>
+<refname>libconf</refname>
+<refpurpose>Configuration management library</refpurpose>
+</refnamediv>
+
+<refsect1>
+<title>Synopsis</title>
+<para><screen>
+#include &lt;libconf/libconf.h&gt;
+
+...
+
+int main(int argc, char ** argv)
+{
+&nbsp;&nbsp;&nbsp;...
+&nbsp;&nbsp;&nbsp;libconf_t * handle = libconf_init(global_config_filename, local_config_filename, options, argc, argv);
+&nbsp;&nbsp;&nbsp;libconf_phase1(handle);
+&nbsp;&nbsp;&nbsp;libconf_phase2(handle);
+&nbsp;&nbsp;&nbsp;libconf_phase3(handle);
+&nbsp;&nbsp;&nbsp;libconf_phase4(handle);
+&nbsp;&nbsp;&nbsp;libconf_phase5(handle);
+
+&nbsp;&nbsp;&nbsp;...
+
+&nbsp;&nbsp;&nbsp;libconf_fini(handle);
+&nbsp;&nbsp;&nbsp;...
+}
+</screen></para>
+</refsect1>
+
+</refentry>

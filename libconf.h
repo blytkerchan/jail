@@ -1,10 +1,12 @@
 #ifndef _LIBCONF_LIBCONF_H
 #define _LIBCONF_LIBCONF_H
 
+#include <stdio.h>
 #include <libcontain/hash.h>
 
-typedef enum { NO, YES, OPTIONAL } libconf_take_parm_t;
-typedef enum { NONE, YESNO, TRUEFALSE, NUMERIC, STRING } libconf_param_type_t;
+typedef enum { TP_NO, TP_YES, TP_OPTIONAL } libconf_take_parm_t;
+typedef enum { PT_NONE, PT_YESNO, PT_TRUEFALSE, PT_NUMERIC, PT_STRING, PT_FILENAME } libconf_param_type_t;
+typedef enum { DOE_NOTHING, DOE_WARNING, DOE_ERROR } libconf_do_on_error_t;
 typedef struct _libconf_opt_t
 {
 	char * co_name;
@@ -18,7 +20,19 @@ typedef struct _libconf_opt_t
 	libconf_param_type_t co_long_param_type;
 	
 	char * helptext;
+	libconf_do_on_error_t do_on_error;
 } libconf_opt_t;
+
+typedef struct _libconf_optparam_t
+{
+	libconf_param_type_t param_type;
+	union {
+		int 	bool_val;
+		char * 	str_val;
+		int 	num_val;
+	} val;
+	int have_error;
+} libconf_optparam_t;
 
 typedef struct _libconf_t 
 {
@@ -26,13 +40,18 @@ typedef struct _libconf_t
 	char * local_config_filename;
 	libconf_opt_t ** options;
 	hash_t * option_hash;
+	hash_t * tmp_hash;
+	int argc;
+	char ** argv;
+	char * argv0;
 } libconf_t;
 
 /* initialize the library */
 libconf_t * libconf_init(
 	const char * global_config_filename,
 	const char * local_config_filename,
-	const libconf_opt_t ** options
+	const libconf_opt_t ** options,
+	int argc, const char ** argv
 		);
 void libconf_fini(libconf_t * handle);
 
