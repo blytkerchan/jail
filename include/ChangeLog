@@ -1,3 +1,8 @@
+2004-04-08	blytkerchan
+	* compare_and_exchange.h: add 2004 to the license's years
+	* decrement.h: ditto
+	* increment.h: ditto
+
 2004-02-10	blytkerchan
 	* compare_and_exchange.h: minor prototype fix
 
