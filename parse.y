@@ -4,6 +4,8 @@
 // defines go here
 %}
 
+%token FUNCTION_TK END_BLOCK_TK INT_LITERAL_TK TYPE_TK FP_LITERAL_TK ACCESS_TK ALIAS_TK BOOL_LITERAL_TK CLASS_TK CHAR_LITERAL_TK STRING_LITERAL_TK BEGIN_BLOCK_TK SCOPE_TK EOS_TK NAMESPACE_TK
+
 %%
 
 /** 
@@ -52,6 +54,7 @@ declaration :
 	| namespace_declaration
 	| alias_declaration
 	| variable_declaration
+	| function_declaration
 	;
 
 /* A class declarationis always a forward declaration - just the class token
@@ -66,18 +69,30 @@ namespace_declaration :
 	NAMESPACE_TK namespace_name namespace_body
 	;
 
-/* An alias declaration provides an alias for an already-declared class. For
- * that, it needs a fully-qualified class name */
+/* An alias declaration provides an alias for an already-declared class 
+ * or function. For that, it needs a fully-qualified class/function
+ * name */
 alias_declaration :
-	ALIAS_TK fully_qualified_class_name EOS_TK
+	ALIAS_TK alias_name ':' CLASS_TK qualified_class_name EOS_TK
+	| ALIAS_TK alias_name ':' FUNCTION_TK qualified_function_name EOS_TK
 	;
 
 /* a variable declaration is the variable's type followed by the variable's
  * name. There may be more than one variable declared at the same time, in
  * which case the variable names are separated by commas. */
 variable_declaration :
-	class_name variable_names EOS_TK
+	VAR_TK variable_name variable_attrs EOS_TK
 	;
+
+/* A function declaration is the function token followed by its name, the 
+ * parameters it takes and its attributes. The attributes in the declaration
+ * shall correspond exactly to the attributes in the corresponding definition
+ * or the attributes shall be absent from the definition. If the function is
+ * to have any attributes, they are mandatory in the declaration. */
+function_declaration :
+	FUNCTION_TK function_name function_params function_attrs EOS_TK
+	;
+
 /** 
  * Definitions 
  */

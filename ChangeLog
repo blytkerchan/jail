@@ -1,3 +1,13 @@
+2004-08-12	blytkerchan
+	* parse.y: make a %token definition for each missing lexical token
+	(declaration): include function_declaration
+	(alias_declaration): revise alias declaration grammar to be more
+	coherent with function and variable declarations
+	allow aliases of functions
+	(variable_declaration): revise grammar according to discussions on
+	jail-ust-lang
+	(function_declaration): new production
+
 2004-08-03	blytkerchan
 	* parse.y: add function attribute definition as per
 	http://tinyurl.com/3t3sh
