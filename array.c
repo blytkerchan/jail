@@ -171,8 +171,9 @@ static size_t array_linear_search(array_node_t * array_nodes, size_t lower, size
 	
 	for (curr = lower; curr <= upper; curr++)
 	{
-		if (cmp_func(array_nodes[curr].val, val) == 0)
-			return curr;
+		if (array_nodes[curr].val != NULL)
+			if (cmp_func(array_nodes[curr].val, val) == 0)
+				return curr;
 	}
 
 	return ~0;
@@ -257,12 +258,12 @@ static int array_condense_helper(const void * ptr1, const void * ptr2)
 		if (node2->val == NULL)
 			return 0;
 		else
-			return -1;
+			return 1;
 	}
 	else
 	{
 		if (node2->val == NULL)
-			return 1;
+			return -1;
 		else
 			return 0;
 	}

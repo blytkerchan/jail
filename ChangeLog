@@ -1,3 +1,14 @@
+2004-03-29	blytkerchan
+	* array.c (array_linear_search): don't compare if the value in the array is NULL (i.e. node is empty)
+	(array_condense_helper): sort empty nodes to the end of the array
+	* tests/array_test.c (array_test1): add a comment on what we do
+	check that the sorting worked
+	fix memory leak
+	[array_test2_t]: new structure
+	(array_test2_compare): new function
+	(array_test2): ditto
+	(main): call array_test2
+
 2004-03-27	blytkerchan
 	* array.c (array_resize): fix memory leak
 	(array_sort_worker): ditto
