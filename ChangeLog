@@ -1,4 +1,7 @@
 2004-07-20	blytkerchan
+	* module.mk: use support for conditionally compiled files - don't try
+	using the automake method
+
 	* module.mk: new file
 	* stack.c: don't use already-installed libmemory headers for compile
 

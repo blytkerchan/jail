@@ -1,10 +1,10 @@
 # the library
-@CXX_TRUE@SRC += 	libcontain/Hash.cc \
-@CXX_TRUE@	libcontain/StringHash.cc \
-@CXX_TRUE@	libcontain/IntHash.cc \
-@CXX_TRUE@	libcontain/NocaseStringHash.cc \
-@CXX_TRUE@	libcontain/IniHash.cc \
-@CXX_TRUE@	libcontain/c_interface.cc
+CXX_SRC += 	libcontain/Hash.cc \
+		libcontain/StringHash.cc \
+		libcontain/IntHash.cc \
+		libcontain/NocaseStringHash.cc \
+		libcontain/IniHash.cc \
+		libcontain/c_interface.cc
 SRC +=	libcontain/stack.c \
 	libcontain/queue.c \
 	libcontain/hash.c \
@@ -15,3 +15,5 @@ SRC +=	libcontain/stack.c \
 	libcontain/heap.c \
 	libcontain/prime.c \
 	libcontain/list.c
+GLIB_SRC += 	glib/ghash.c \
+		glib/gprimes.c
