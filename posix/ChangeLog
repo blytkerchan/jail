@@ -1,4 +1,9 @@
 2004-04-02	blytkerchan
+	* LCFlexLexer.h [class LCFlexLexer]: remove yvalp field
+	* confl.l: handle list types
+	* confp.y: ditto
+
+2004-04-02	blytkerchan
 	* confl.l: handle spaces and newlines correctly
 	* confp.y: expect a colon between the configuration option's name and its value
 	pass the name of the parameter to libconf_optparam_new
@@ -22,4 +27,5 @@
 	* README: ditto
 	* confl.l: ditto
 	* confp.h: ditto
+
 

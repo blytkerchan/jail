@@ -13,7 +13,6 @@ class LCFlexLexer : public yyFlexLexer
 {
 private :
 	libconf_t * handle;
-	YYSTYPE * lvalp;
 	YYSTYPE yylval;
 
 public:

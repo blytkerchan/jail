@@ -14,9 +14,32 @@
 		HANDLE->temp = strdup(yylval.str)
 #define setval(type)  																		\
 	{																								\
-		libconf_optparam_t * param = libconf_optparam_new(							\
-			HANDLE->temp, type, yylval.str);												\
-		hash_put(HANDLE->option_hash, HANDLE->temp, param);						\
+		switch (type)																			\
+		{																							\
+		case PT_NUMERIC_LIST :																\
+		case PT_STRING_LIST :																\
+		case PT_FILENAME_LIST :																\
+			{																						\
+				libconf_optparam_t * param = hash_get(									\
+					HANDLE->option_hash, HANDLE->temp);									\
+				if (param != NULL)															\
+				{																					\
+					if (type == PT_NUMERIC_LIST)											\
+						array_push_back(														\
+							param->val.array_val, (void*)atoi(yylval.str));			\
+					else																			\
+						array_push_back(														\
+							param->val.array_val, strdup(yylval.str));				\
+					break;																		\
+				}																					\
+			}																						\
+		default :																				\
+			{																						\
+				libconf_optparam_t * param = libconf_optparam_new(					\
+					HANDLE->temp, type, yylval.str);										\
+				hash_put(HANDLE->option_hash, HANDLE->temp, param);				\
+			}																						\
+		}																							\
 	}
 
 void emit_error(libconf_t * handle, const char * fmt, ...)
@@ -57,7 +80,9 @@ void emit_error(libconf_t * handle, const char * fmt, ...)
 %defines
 
 %token <str> T_UNKNOWN_OPTION T_TRUEFALSE T_YESNO T_NUMERIC T_STRING T_FILENAME
-%token <str> T_TRUE T_YES T_NUM T_STR T_FILE
+%token <str> T_NUMERIC_LIST T_STRING_LIST T_FILENAME_LIST
+%token <str> T_TRUE T_YES T_NUM T_STR T_FILE T_LISTVAL
+%token T_ENDOFLIST
 %%
 
 whole_file : /* empty */
@@ -73,5 +98,20 @@ config_def /* not empty */
 	| T_NUMERIC { setval_prepare(); } ':' T_NUM { setval(PT_NUMERIC); }
 	| T_STRING { setval_prepare(); } ':' T_STR { setval(PT_STRING); }
 	| T_FILENAME { setval_prepare(); } ':' T_FILE { setval(PT_FILENAME); }
+	| T_NUMERIC_LIST { 
+		setval_prepare(); HANDLE->t_pt = PT_NUMERIC_LIST; 
+	} ':' list_val
+	| T_STRING_LIST {
+		setval_prepare(); HANDLE->t_pt = PT_STRING_LIST;
+	} ':' list_val
+	| T_FILENAME_LIST {
+		setval_prepare(); HANDLE->t_pt = PT_FILENAME_LIST; 
+	} ':' list_val
+	;
+	
+list_val /* not empty */
+	: T_LISTVAL { setval(HANDLE->t_pt); }
+	| T_LISTVAL { setval(HANDLE->t_pt); } ':' list_val
+	| T_ENDOFLIST
 	;
 %%

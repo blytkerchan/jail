@@ -21,6 +21,9 @@ filename		([/]|{special}|{alpha}|{digit})+
 %x numeric_state
 %x string_state
 %x filename_state
+%x numeric_list_state
+%x string_list_state
+%x filename_list_state
 %%
 
 <INITIAL>{cmt_char}	{	/* a comment - eat anything up to the next newline */
@@ -75,6 +78,18 @@ filename		([/]|{special}|{alpha}|{digit})+
 		BEGIN(filename_state);
 		yylval.str = yytext;
 		return T_FILENAME;
+	case PT_NUMERIC_LIST : 
+		BEGIN(numeric_list_state);
+		yylval.str = yytext;
+		return T_NUMERIC_LIST;
+	case PT_STRING_LIST :
+		BEGIN(string_list_state);
+		yylval.str = yytext;
+		return T_STRING_LIST;
+	case PT_FILENAME_LIST :
+		BEGIN(filename_list_state);
+		yylval.str = yytext;
+		return T_FILENAME_LIST;
 	default :
 		abort();
 	}
@@ -106,7 +121,25 @@ filename		([/]|{special}|{alpha}|{digit})+
 		BEGIN(0);
 		return T_FILE;
 	}
-
+<numeric_list_state>{space}*{digit}+	{
+		yylval.str = yytext;
+		return T_LISTVAL;
+	}
+<string_list_state>[^\n:]*	{
+		yylval.str = yytext;
+		return T_LISTVAL;
+	}
+<filename_list_state>{space}*{filename}	{
+		yylval.str = yytext;
+		return T_LISTVAL;
+	}
+<numeric_list_state>\n	|
+<string_list_state>\n	|
+<filename_list_state>\n	{
+		BEGIN(0);
+		return T_ENDOFLIST;
+	}
+<*>\n	BEGIN(0);
 <*>.	return yytext[0];
 %%
 
