@@ -1,3 +1,8 @@
+2004-09-13	blytkerchan
+	* hptr.c (smr_hptr_free_list_enq): use compare_and_exchange_ptr in
+	stead of compare_and_exchange
+	(smr_hptr_free_list_deq): ditto
+
 2004-09-12	blytkerchan	repair issue 1014458
 	* hptr.c (smr_hptr_free_list_enq): new function
 	(smr_hptr_free_list_deq): ditto

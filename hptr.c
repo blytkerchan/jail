@@ -35,6 +35,7 @@
 #include "smr.h"
 #include "hptr.h"
 
+#include <assert.h>
 #include <stdlib.h>
 
 #include "arch/include/compare_and_exchange.h"
@@ -80,10 +81,10 @@ static void smr_hptr_free_list_enq(hptr_local_data_t * data)
 	{	// Otherwise, set smr_global_data->free to NULL (and get whatever is in there);
 		// set its old value to our next and put us in its place.
 		// "Whatever is in there" is what we have in exp now..
-		if (compare_and_exchange(&exp, &(smr_global_data->free), NULL) != 0)
+		if (compare_and_exchange_ptr(&exp, &(smr_global_data->free), NULL) != 0)
 			continue;
 		// we may have been here more than once, in which case ptr holds whatever we have in our next field..
-		if (compare_and_exchange(&ptr, &(data->next), NULL) != 0)
+		if (compare_and_exchange_ptr(&ptr, &(data->next), NULL) != 0)
 			assert(0); // just in case..
 		// we now put whatever is in ptr at the end of exp - which might be a whole queue for all we know..
 		if (exp != NULL && ptr != NULL) 
@@ -107,7 +108,7 @@ static void smr_hptr_free_list_enq(hptr_local_data_t * data)
 			}
 			// when we get here, ptr is at the end of the queue we want to add to our node
 			// so we add the queue...
-			if (compare_and_exchange(&exp, &(data->next), head) != 0)
+			if (compare_and_exchange_ptr(&exp, &(data->next), head) != 0)
 				// someone was still writing to our node - that should be impossible..
 				assert(0);
 		}
@@ -127,7 +128,7 @@ static hptr_local_data_t * smr_hptr_free_list_deq(void)
 	{
 		retval = smr_global_data->free;
 		next = retval->next;
-	} while (compare_and_exchange_ptr(&retval, &(smr_global_data->free), next) != 0)
+	} while (compare_and_exchange_ptr(&retval, &(smr_global_data->free), next) != 0);
 
 	// we now have ownership of retval.
 	retval->next = NULL;
