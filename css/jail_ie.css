@@ -1,0 +1,77 @@
+h1,h2,h3 {
+	color: #0000FF;
+	font-weight: bold;
+	background: #FFFF80;
+}
+h1 {
+	font-size: x-large;
+}
+h2 {
+	font-size: large;
+}
+h3 {
+	font-size: normal;
+}
+#summary {
+	font-style: italic;
+	width: 80%;
+	padding-left: 10%;
+}
+
+table.toc {
+        border: none;
+        background: #FFFFF0;
+        text-align: center;
+}
+
+table.menu {
+	border: none;
+	background: #FFFFF0;
+	text-align: center;
+}
+
+table.intext {
+	border: thin groove black;
+}
+caption {
+	font-weight: bold;
+	color: #000080;
+	background: #FFFF80;
+	font-style: italic;
+}
+tr.title {
+	color: #0000FF;
+	background: #FFFFF0;
+	text-align: center;
+	border-bottom: thin solid black;
+}
+td {
+	vertical-align: top;
+}
+td.subject {
+	background: #FFFFF8;
+	text-align: center;
+}
+code {
+	font-family: monospace;
+}
+p.notice {
+	font-weight: bold;
+	font-style: italic;
+	font-size: larger;
+	background: #FFFF00;
+	color: #800000; 
+	text-align: center;
+	border: thin outset #800000;
+}
+a.toc:link {
+	color: #0000FF;
+}
+a.toc:active {
+	color: #0000FF;
+	font-variant: small-caps;
+}
+
+a.toc:visited {
+	color: #0000FF;
+}
