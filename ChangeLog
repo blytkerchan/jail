@@ -1,4 +1,6 @@
 2004-02-10	blytkerchan
+	* NEWS: update
+
 	* Hash.7.pod: update
 	* Makefile.am [AM_CFLAGS]: include top_srcdir in -I option
 	[AM_CXXFLAGS]: ditto
