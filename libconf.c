@@ -12,6 +12,7 @@ static const libconf_opt_t default_options[] = {
 	{ NULL, 0, TP_NO, PT_NONE, NULL, TP_NO, PT_NONE, NULL, DOE_NOTHING }
 }; 
 
+/*
 static libconf_opt_t ** libconf_optdefaults(void)
 {
 	libconf_opt_t ** retval = NULL;
@@ -38,7 +39,7 @@ static libconf_opt_t ** libconf_optdefaults(void)
 
 	return retval;
 }
-
+*/
 static libconf_opt_t ** libconf_optdup(const libconf_opt_t ** options)
 {
 	libconf_opt_t ** retval;
@@ -69,6 +70,7 @@ static libconf_opt_t ** libconf_optdup(const libconf_opt_t ** options)
 	return retval;
 }
 
+/*
 static libconf_opt_t ** libconf_optcat(libconf_opt_t ** options1, const libconf_opt_t ** options2)
 {
 	libconf_opt_t ** opt2;
@@ -90,6 +92,7 @@ static libconf_opt_t ** libconf_optcat(libconf_opt_t ** options1, const libconf_
 
 	return options1;
 }
+*/
 
 void libconf_opt_free(libconf_opt_t * opt)
 {
@@ -116,15 +119,23 @@ libconf_t * libconf_init(
 	int argc, const char ** argv)
 {
 	int i;
+	libconf_opt_t ** t_options;
 	libconf_t * retval = (libconf_t *)malloc(sizeof(libconf_t));
-	const libconf_opt_t ** temp = (const libconf_opt_t**)libconf_optdefaults();
 	memset(retval, 0, sizeof(libconf_t));
 
 	retval->global_config_filename = strdup(global_config_filename);
 	retval->local_config_filename = strdup(local_config_filename);
-	retval->options = libconf_optdup(options);
-	retval->options = libconf_optcat(retval->options, temp);
-	libconf_opts_free((libconf_opt_t**)temp);
+	retval->options = new_hash(STRING_HASH, NULL, NULL);
+	t_options = libconf_optdup(options);
+	for (i = 0; default_options[i].co_name; i++)
+	{
+		hash_put(retval->options, default_options[i].co_name, &(default_options[i]));
+	}
+	for (i = 0; t_options[i]; i++)
+	{
+		hash_put(retval->options, t_options[i]->co_name, t_options[i]);
+	}
+	free(t_options);
 	retval->option_hash = new_hash(STRING_HASH, NULL, NULL);
 	retval->tmp_hash = new_hash(STRING_HASH, NULL, NULL);
 	retval->argc = argc;
@@ -140,7 +151,7 @@ void libconf_fini(libconf_t * handle)
 
 	free(handle->global_config_filename);
 	free(handle->local_config_filename);
-	libconf_opts_free(handle->options);
+	delete_hash(handle->options);
 	delete_hash(handle->option_hash);
 	delete_hash(handle->tmp_hash);
 	for (i = 0; i < handle->argc; i++)
@@ -149,7 +160,7 @@ void libconf_fini(libconf_t * handle)
 	free(handle);
 }
 
-static libconf_optparam_t * libconf_optparam_new(
+libconf_optparam_t * libconf_optparam_new(
 	libconf_param_type_t param_type,
 	char * str)
 {
@@ -197,22 +208,31 @@ static libconf_optparam_t * libconf_optparam_new(
 }
 
 typedef enum { 
-	ET_NONE, ET_EXPECTED_PARAM_TP_NOT_FOUND, ET_PARAM_MALFORMED, ET_EXPECTED_OPTION_TP_NOT_FOUND
-} libconf_phase1_error_t;
+	ET_NONE, ET_EXPECTED_PARAM_TP_NOT_FOUND, ET_PARAM_MALFORMED, ET_EXPECTED_OPTION_TP_NOT_FOUND, ET_UNKNOWN_OPTION
+} libconf_phase_error_t;
+
+int libconf_phase1_helper1(const void * v1, const void * v2)
+{
+	libconf_opt_t * val1 = (libconf_opt_t *)v1;
+	libconf_opt_t * val2 = (libconf_opt_t *)v2;
+	
+	return val1->co_short_opt - val2->co_short_opt;
+}
 
 /* read the command-line options and set the global_config_filename and 
  * local_config_filename fields accordingly */
 int libconf_phase1(libconf_t * handle)
 {
-	int i;
 	int argc = handle->argc;
 	char ** argv = handle->argv;
-	libconf_phase1_error_t have_error;
+	libconf_phase_error_t have_error;
 	libconf_optparam_t * param;
 	libconf_do_on_error_t error_action = DOE_ERROR;
 	int have_param;
 	char * param_name;
 	char * tmp_str;
+	libconf_opt_t * option;
+	libconf_opt_t t_option;
 
 	handle->argv0 = *argv;
 	argv++; argc--;
@@ -229,34 +249,33 @@ int libconf_phase1(libconf_t * handle)
 			switch (argv[0][1])
 			{
 			case '-' : /* we have a long option */
-				for (i = 0; handle->options[i]; i++)
-				{
-					if (handle->options[i]->co_long_opt)
+				option = hash_get(handle->options, argv[0] + 2);
+				if (option != NULL)
+				{ /* we've found the option */
+					param_name = option->co_name;
+					error_action = option->do_on_error;
+					if (option->co_long_takes_param != TP_NO)
 					{
-						if (strcmp(argv[0] + 2, handle->options[i]->co_long_opt) == 0)
-						{ /* we've found the option */
-							param_name = handle->options[i]->co_name;
-							error_action = handle->options[i]->do_on_error;
-							if (handle->options[i]->co_long_takes_param != TP_NO)
-							{
-								if (argc > 1 && argv[1][0] && argv[1][0] != '-')
-								{ /* we have our option's param */
-									param = libconf_optparam_new(handle->options[i]->co_long_param_type, argv[1]);
-									if (param == NULL)
-										have_error = ET_PARAM_MALFORMED;
-									else if (param->have_error)
-										have_error = ET_PARAM_MALFORMED;
-									have_param = 1;
-								}
-								else if (handle->options[i]->co_long_takes_param == TP_YES)
-								{ /* we should have had a param, but we don't */
-									have_error = ET_EXPECTED_PARAM_TP_NOT_FOUND;
-								}
-							}
+						if (argc > 1 && argv[1][0] && argv[1][0] != '-')
+						{ /* we have our option's param */
+							param = libconf_optparam_new(option->co_long_param_type, argv[1]);
+							if (param == NULL)
+								have_error = ET_PARAM_MALFORMED;
+							else if (param->have_error)
+								have_error = ET_PARAM_MALFORMED;
+							have_param = 1;
+						}
+						else if (option->co_long_takes_param == TP_YES)
+						{ /* we should have had a param, but we don't */
+							have_error = ET_EXPECTED_PARAM_TP_NOT_FOUND;
 						}
 					}
+					hash_put(handle->tmp_hash, argv[0], param);
 				}
-				hash_put(handle->tmp_hash, argv[0], param);
+				else
+				{
+					have_error = ET_UNKNOWN_OPTION;
+				}
 				break;
 			case 0 : /* we should stop treating command-line options and 
 			          * concatenate the rest of the command-line, separated by 
@@ -272,40 +291,43 @@ int libconf_phase1(libconf_t * handle)
 				hash_put(handle->tmp_hash, "-", param);
 				break;
 			default : /* we have a short option */
-				for (i = 0; handle->options[i]; i++)
-				{
-					if (handle->options[i]->co_short_opt == argv[0][1])
-					{	/* we have our option */
-						param_name = handle->options[i]->co_name;
-						error_action = handle->options[i]->do_on_error;
-						if (handle->options[i]->co_short_takes_param != TP_NO)
-						{
-							if (argv[0][2])
-							{ /* we have a parameter directly following */
-								param = libconf_optparam_new(handle->options[i]->co_short_param_type, argv[0] + 2);
-								if (param == NULL)
-									have_error = ET_PARAM_MALFORMED;
-								else if (param->have_error)
-									have_error = ET_PARAM_MALFORMED;
-								have_param = 1;
-							}
-							else if (argc > 1 && argv[1][0] && argv[1][0] != '-' )
-							{	/* we have a parameter */
-								param = libconf_optparam_new(handle->options[i]->co_short_param_type, argv[1]);
-								if (param == NULL)
-									have_error = ET_PARAM_MALFORMED;
-								else if (param->have_error)
-									have_error = ET_PARAM_MALFORMED;
-								have_param = 1;
-							}
-							else if (handle->options[i]->co_short_takes_param == TP_YES)
-							{	/* we should have had a param, but we don't */
-								have_error = ET_EXPECTED_PARAM_TP_NOT_FOUND;
-							}
+				t_option.co_short_opt = argv[0][1];
+				option = hash_search(handle->options, &t_option, libconf_phase1_helper1);
+				if (option != NULL)
+				{	/* we have our option */
+					param_name = option->co_name;
+					error_action = option->do_on_error;
+					if (option->co_short_takes_param != TP_NO)
+					{
+						if (argv[0][2])
+						{ /* we have a parameter directly following */
+							param = libconf_optparam_new(option->co_short_param_type, argv[0] + 2);
+							if (param == NULL)
+								have_error = ET_PARAM_MALFORMED;
+							else if (param->have_error)
+								have_error = ET_PARAM_MALFORMED;
+							have_param = 1;
+						}
+						else if (argc > 1 && argv[1][0] && argv[1][0] != '-' )
+						{	/* we have a parameter */
+							param = libconf_optparam_new(option->co_short_param_type, argv[1]);
+							if (param == NULL)
+								have_error = ET_PARAM_MALFORMED;
+							else if (param->have_error)
+								have_error = ET_PARAM_MALFORMED;
+							have_param = 1;
+						}
+						else if (option->co_short_takes_param == TP_YES)
+						{	/* we should have had a param, but we don't */
+							have_error = ET_EXPECTED_PARAM_TP_NOT_FOUND;
 						}
 					}
+					hash_put(handle->tmp_hash, argv[0], param);
 				}
-				hash_put(handle->tmp_hash, argv[0], param);
+				else
+				{
+					have_error = ET_UNKNOWN_OPTION;
+				}
 				break;
 			}
 			break;
@@ -338,6 +360,9 @@ int libconf_phase1(libconf_t * handle)
 			case ET_EXPECTED_OPTION_TP_NOT_FOUND :
 				fprintf(stderr, "not an option %s\n", argv[0]);
 				break;
+			case ET_UNKNOWN_OPTION :
+				fprintf(stderr, "unknown option %s\n", argv[0]);
+				break;
 			default :
 				break;
 			}
@@ -353,7 +378,11 @@ int libconf_phase1(libconf_t * handle)
 	return 0;
 }
 
-int libconf_phase2(libconf_t * handle) { return -1; }
+int libconf_phase2(libconf_t * handle)
+{
+	return -1; 
+}
+
 int libconf_phase3(libconf_t * handle) { return -1; }
 int libconf_phase4(libconf_t * handle) { return -1; }
 int libconf_phase5(libconf_t * handle) { return -1; }

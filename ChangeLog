@@ -1,3 +1,16 @@
+2004-03-31	blytkerchan
+	* libconf.c (libconf_optdefaults): comment out
+	(libconf_optcat): ditto
+	(libconf_init): use a hash for the options in the handle
+	(libconf_optparam_new): make it exportable
+	[libconf_phase_error_t]: rename from libconf_phase1_error_t
+	add ET_UNKNOWN_OPTION
+	(libconf_phase1_helper1): new function
+	(libconf_phase1): use a hash for the options in the handle
+	* libconf.h: make it possible to include this file from C++ source
+	[libconf_t]: use a hash for the options field
+	(libconf_optparam_new): new function
+
 2004-03-30	blytkerchan
 	* tests: new directory
 	* Makefile [all]: generate libconf.3
