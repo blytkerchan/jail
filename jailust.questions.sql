@@ -23,4 +23,4 @@ CREATE TABLE questions (
 --
 
 INSERT INTO questions VALUES (0,'What\'s in a namespace?','0','0','1');
-
+INSERT INTO questions VALUES (1,'A question with an example','1','0','0');

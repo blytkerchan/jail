@@ -1,18 +1,17 @@
 use Data::Dumper;
 use DBI();
 
-$PROGID      = '$Id: poll.pl,v 1.1 2004/01/06 08:45:26 blytkerchan Exp $';
+$PROGID      = '$Id: poll.pl,v 1.2 2004/01/07 08:39:12 blytkerchan Exp $';
 $base_url    = 'poll.pl';
 $db_database = 'jail';
 $db_host     = 'localhost';
 $db_username = 'ronald';
 $db_password = '770217104';
-%db;
 
 sub connect_database()
 {
 	$db{dsn} = "DBI:mysql:database=$db_database;host=$db_host";
-	$db{dbh} = DBI->connect($db{dsn}, $db_user, $db_password, 
+	$db{dbh} = DBI->connect($db{dsn}, $db_username, $db_password, 
 	                        {'RaiseError' => 1});
 }
 
@@ -34,9 +33,11 @@ sub output_footer()
 sub fetch_question()
 {
 	my $sth;
-	my $ref;
+	my $question;
+	my $example;
 	my $question_id;
 	my %retval;
+	my @examples;
 	
 	$sth = $db{dbh}->prepare("SELECT MAX(uid) FROM questions");
 	$sth->execute();
@@ -45,9 +46,19 @@ sub fetch_question()
 
 	$sth = $db{dbh}->prepare("SELECT * FROM questions WHERE uid=$question_id");
 	$sth->execute();
-	$ref = $sth->fetchrow_hashref();
-	$retval{question} = $$ref{question};
-	$retval{commentable} = $$ref{commentable};
+	$question = $sth->fetchrow_hashref();
+	$retval{question} = $$question{question};
+	$retval{commentable} = $$question{commentable};
+	if ($$question{examples})
+	{
+		$sth = $db{dbh}->prepare("SELECT * FROM examples WHERE question_id=\'$question_id\'");
+		$sth->execute();
+		while ($example = $sth->fetchrow_hashref())
+		{
+			push @examples, $$example{example};
+		}
+	}
+	$retval{examples} = \@examples;
 
 	return %retval;
 }
@@ -55,14 +66,27 @@ sub fetch_question()
 sub output_body()
 {
 	my %question;
+	my $arrayref;
+	my $i;
 	
 	%question = fetch_question();
 
-	print "<form action=\"$base_url\" method=\"post\" enctype=\"text/plain\" accept-charset=\"utf8\" style=\"width: 210;\">";
+	print "<form action=\"$base_url\" method=\"post\" enctype=\"text/plain\" accept-charset=\"utf8\" style=\"width: 210;\">\n";
 	print "<div id=\"question\">".$question{question}."</div>\n";
-	print "<div id=\"comment\"><textarea id=\"comment\" style=\"text-align: left; width: 100%; height: 300;\">Your comment here please</textarea></div>" if ($question{commentable});
-	print "<input type=\"submit\" value=\"Submit\"/>";
-	print "</form>";
+
+	$arrayref = $question{examples};
+	$i = 1;
+	foreach (@$arrayref)
+	{
+		print "<div id=\"example\">\n";
+		print "<div id=\"example_title\">Example $i:</div>";
+		print "$_\n";
+		print "</div>\n";
+		$i++;
+	}
+	print "<div id=\"comment\"><textarea id=\"comment\" style=\"text-align: left; width: 100%; height: 300;\">Your comment here please</textarea></div>\n" if ($question{commentable});
+	print "<div style=\"text-align: right;\"><input type=\"reset\" value=\"Reset\"/><input type=\"submit\" value=\"Submit\"/></div>\n";
+	print "</form>\n";
 }
 
 connect_database();

@@ -1,3 +1,13 @@
+2003-01-06	blytkerchan
+	* poll.pl: take examples into account
+	* poll.css: ditto
+	* jailust.examples.sql: new file
+	* jailust.questions.sql: add some nonesense data for testing
+
+	* poll.pl: new file
+	* poll.css: ditto
+	* jailust.questions.sql: ditto
+	
 2003-12-09	blytkerchan
 	* design.html: re-write
 	* language.html: add (most of) old contents of design.html
