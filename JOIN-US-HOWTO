@@ -1,0 +1,33 @@
+This file describes how to join the development of the Jail project. It
+contains information relevant to the different kinds of contributors to the
+project - those that discuss the language and those that work on its
+implementation.
+
+* If you want to help define the language's semantics, grammar and syntax,
+  please join the jail-ust-lang discussion group by sending an E-mail to
+  jail-ust-lang-subscribe@lists.sourceforge.net. The E-mail's body is not
+  important (and will not be read).
+* If you want to help with the development of the language, the toolchain and
+  the different components that make up the toolchain, follow the following
+  procedure:
+  1. read the ROADMAP file in this directory
+  2. decide which part you would like to work on, according to your
+     programming skills and what you would like to learn.
+     For every part of the development that needs to be done, you are welcome
+     to join in the development if you are either willing to learn, or have
+     some knowledge on the subject. The only requirement is that you read up
+     on a thread before chiming in on it.
+  3. Once you've decided what code you would like to work on, if it exists
+     already, read that code.
+  4. If discussion has already taken place on jail-ust-devel on the part of
+     the toolchain you would like to work on, read up on it and join in.
+     Otherwise, feel free to start a new thread.
+  5. Subscribe to the jail-ust-devel list: it's a subscribers-only list and
+     all project members must be subscribed. Unsubscribing from the list means
+     you'll be removed from the project, subscribing to the list makes you a
+     possible candidate for addition to the project members (which entails CVS
+     write access).
+
+That's pretty much it!
+
+

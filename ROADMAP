@@ -1,0 +1,47 @@
+This file describes the structure of the CVS repository of the Jail project.
+
+The CVS repository currently contains five "modules":
+* compiler
+  This directory contains the files directly related to the compiler. The 
+  compiler is the tool that translates preprocessed source code to JailVM 
+  assembler code - it doesn't do *anything* else.
+  If you want to work on this component, the required skills (the ones you have
+  or want to learn) are:
+  - YACC
+    for the parser: if you want to modify the grammar or the semantics of the 
+    language's implementation
+  - LEX
+    for the scanner: if you want to modify the keywords and how they are 
+    recognised
+  - C
+    for the rest
+* htdocs
+  This directory contains the website sources - available at jail-ust.sf.net
+  If you want to work on this, you need to know about HTML.
+* jaildk
+  This directory contains the files that describe how you can join the 
+  development of the project. You can't work on this unless you're a project
+  admin.
+* libcontain
+  This directory contains the containers library. If you want to work on this
+  the required skills (the ones you have or want to learn) are:
+  - C++
+    for the Hash library classes
+  - C
+    for the C interface
+* standards
+  This directory contains the coding and other standards applicable to the
+  project. You can't work on this unless you're a project admin.
+
+it also contains three files at the root:
+* license.h
+  This is the applicable license that should be added to all source and header 
+  files in the project. It is a BSD-like license that covers the source file 
+  with both the license itself and the GNU General Public License, unless 
+  otherwise specified by rlc. Read jaildk/licensing for details.
+* AUTHORS
+  This is the list of authors of the files at the root - normally this only
+  contains me (rlc)
+* ChangeLog
+  These are the changes made to the files at the root of the repository.
+  
