@@ -1,4 +1,6 @@
 2004-10-18	blytkerchan
+	* module.mk: new file
+
 	* Makefile.am: remove
 	* configure.ac: ditto
 	* bootstrap : ditto
