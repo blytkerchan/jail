@@ -9,6 +9,7 @@ TESTS=	hash_test1 \
 	queue_test \
 	array_test
 noinst_PROGRAMS=$(TESTS)
+noinst_HEADERS=test.h
 hash_test1_SOURCES=hash_test1.cc
 hash_test2_SOURCES=hash_test2.cc
 hash_test3_SOURCES=hash_test3.cc

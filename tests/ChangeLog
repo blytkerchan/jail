@@ -1,3 +1,6 @@
+2004-04-14	blytkerchan
+	* Makefile.am [noinst_HEADERS]: new variable
+
 2004-04-08	blytkerchan
 	* array_test.c: apply license
 	* hash_test6.c: ditto
