@@ -55,9 +55,9 @@ typedef struct _vector_node_t
 
 typedef struct _vector_t
 {
-	size_t size;
-	size_t num_entries;
-	size_t increase;
+	uint32_t size;
+	uint32_t num_entries;
+	uint32_t increase;
 	vector_node_t * nodes;
 	int sorted;
 	int condensed;

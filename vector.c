@@ -33,8 +33,8 @@
  */
 #include <stdlib.h>
 #include <string.h>
-#include <libmemory/smr.h>
-#include <libmemory/hptr.h>
+#include "libmemory/smr.h"
+#include "libmemory/hptr.h"
 #include "arch/include/set.h"
 #include "arch/include/compare_and_exchange.h"
 #include "arch/include/increment.h"
@@ -43,7 +43,7 @@
 #include "binary.h"
 #include "thread.h"
 
-static void internal_resize(vector_t * vector, size_t n_size);
+static void internal_resize(vector_t * vector, uint32_t n_size);
 static void internal_condense(vector_t * vector);
 
 /* This may seem obvious, and it is! Allocate a new vector of SIZE entries */
@@ -218,12 +218,12 @@ size_t vector_get_numentries(vector_t * vector)
 	return retval;
 }
 
-static void internal_resize(vector_t * vector, size_t n_size)
+static void internal_resize(vector_t * vector, uint32_t n_size)
 {
 	vector_node_t * new_nodes = calloc(n_size, sizeof(vector_node_t));
 	vector_node_t * o_nodes;
 	vector_node_t * nodes;
-	size_t size;
+	uint32_t size;
 	
 	do
 	{

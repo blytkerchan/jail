@@ -35,125 +35,105 @@
 #include "arch/include/compare_and_exchange.h"
 #include <libmemory/smr.h>
 #include <libmemory/hptr.h>
-#include "list.h"
 #include "list_node.h"
 
-int list_insert(list_t * list, void * val)
+void list_node_free(list_node_t * node)
 {
-	list_node_t * n_node = list_node_new(val);
-	if (list_node_insert(list->head, list->cmp_func, n_node) != 0)
-	{
-		list_node_free(n_node);
-	}
-	else
-		return 0;
-
-	return -1;
+	free(node);
 }
 
-int list_delete(list_t * list, void * val)
+list_node_t * list_node_new(void * val)
 {
+	list_node_t * retval = (list_node_t *)malloc(sizeof(list_node_t));
+	retval->mark = 0;
+	retval->val = val;
+	retval->next = NULL;
+
+	return retval;
+}
+
+list_node_t * list_node_find(list_state_t * state, list_node_t * head, libcontain_cmp_func_t cmp_func, void * val)
+{
+	int rv;
+	
+try_again:
+	/* the hazardous reference here is a slight modification of 
+	 * MM Micheal's algorithm: in the original algorithm, no hazard 
+	 * pointer is used to hold prev if prev is the head of the list. I 
+	 * do this mostly for consistency: hptr2 contains prev, hptr0
+	 * contains next and hptr1 contains curr */
+	do
+	{
+		state->prev = head;
+		hptr_register(2, state->prev);
+	} while (state->prev != head);
+	state->pmark = state->prev->mark;
+	state->curr = state->prev->next;
+	hptr_register(1, state->curr);
+	if ((state->pmark != 0) || (state->prev->mark != 0) || (state->curr != state->prev->next))
+		goto try_again;
+	while (1)
+	{
+		if (state->curr == NULL)
+			return NULL;
+		state->next = state->curr->next;
+		state->cmark = state->curr->mark;
+		hptr_register(0, state->next);
+		if ((state->next != state->curr->next) || (state->cmark != state->curr->mark))
+			goto try_again;
+		state->cval = state->curr->val;
+		if ((state->prev->mark != 0) || (state->prev->next != state->curr))
+			goto try_again;
+		if (state->cmark == 0)
+		{
+			rv = cmp_func(state->cval, val);
+			if (rv > 0)
+				return NULL;
+			if (rv == 0)
+				return state->curr;
+			state->prev = state->curr;
+			hptr_register(2, state->prev);
+		}
+		else
+		{
+			if (compare_and_exchange_ptr(&(state->curr), &(state->prev->next), state->next) == 0)
+				free(state->curr);
+			else goto try_again;
+		}
+		state->curr = state->next;
+		hptr_register(1, state->curr);
+	}
+}
+
+int list_node_insert(list_node_t * head, libcontain_cmp_func_t cmp_func, list_node_t * node)
+{
+	void * val;
 	int retval;
-	int cmark;
-	int nmark;
 	list_state_t * state = (list_state_t*)alloca(sizeof(list_state_t));
 	state->prev = NULL;
 	state->curr = NULL;
 	state->cval = NULL;
 	state->cmark = 0;
 
+	val = node->val;
 	while (1)
 	{
-		if (list_node_find(state, list->head, list->cmp_func, val) == NULL)
+		if (list_node_find(state, head, cmp_func, val) != NULL)
 		{
 			retval = -1;
 			break;
 		}
-		cmark = 0;
-		nmark = 1;
-		if (compare_and_exchange_ptr(&cmark, &(state->curr->mark), (void*)nmark) != 0)
-			continue;
-		if (compare_and_exchange_ptr(&(state->curr), &(state->prev->next), state->next) == 0)
+		node->mark = 0;
+		node->next = state->curr;
+		if (compare_and_exchange_ptr(&(state->curr), &(state->prev->next), node) == 0)
 		{
-			list_node_free(state->curr);
 			retval = 0;
 			break;
 		}
 	}
-
 	hptr_free(0);
 	hptr_free(1);
 	hptr_free(2);
-	
-	return retval;
-}
-
-void * list_search(list_t * list, void * val)
-{
-	list_node_t * node;
-	list_state_t * state = (list_state_t*)alloca(sizeof(list_state_t));
-	state->prev = NULL;
-	state->curr = NULL;
-	state->cval = NULL;
-	state->cmark = 0;
-	
-	node = list_node_find(state, list->head, list->cmp_func, val);
-
-	hptr_free(0);
-	hptr_free(1);
-	hptr_free(2);
-	
-	if (node == NULL)
-		return NULL;
-	return state->cval;
-}
-
-list_t * list_new(libcontain_cmp_func_t cmp_func)
-{
-	list_t * retval = (list_t*)malloc(sizeof(list_t));
-	retval->cmp_func = cmp_func;
-	retval->head = list_node_new(NULL);
 
 	return retval;
 }
-
-void list_free(list_t * list)
-{
-	list_node_t * curr;
-	list_node_t * next;
-
-	curr = list->head;
-	while (curr)
-	{
-		next = curr->next;
-		free(curr);
-		curr = next;
-	}
-	free(list);
-}
-
-void list_foreach(list_t * list, libcontain_foreach_func_t helper, void * data)
-{
-	list_node_t * curr;
-	list_node_t * next;
-	
-	do
-	{
-		curr = list->head;
-		hptr_register(0, curr);
-	} while (curr != list->head);
-	while (curr != NULL)
-	{
-		helper(curr->val, data);
-		do
-		{
-			next = curr->next;
-			hptr_register(1, next);
-		} while (next != curr->next);
-		curr = next;
-		hptr_register(0, curr);
-	}
-	hptr_free(0);
-	hptr_free(1);
-}
-

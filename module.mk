@@ -8,6 +8,7 @@ libcontain_SRC +=	stack.c \
 			heap.c \
 			prime.c \
 			list.c \
+			list_node.c \
 			vector.c \
 			hash_helpers.c
 

@@ -1,3 +1,25 @@
+2004-10-21	blytkerchan	compile vector impl with stricter compiler
+	* vector.h [vector_t]: change types of size_t elements to uint32_t
+	* vector.c: prefer local copies to installed ones for libmemory
+	headers
+	(internal_resize): reflect changes to vector_t
+
+move list node functions to their own files
+	* list_node.c: new file
+	* list_node.h: ditto
+	* list.c: include list_node.h
+	[list_state_t]: move to list_node.h
+	(list_node_free): move to list_node.c
+	(list_node_new): ditto
+	(list_node_insert): ditto
+	(list_find): ditto, but rename to list_node_find
+	(list_insert): update calls to list_node_insert
+	(list_delete): call list_node_find in stead of list_find
+	(list_search): ditto
+	* list.h: include list_node.h
+	[list_node_t]: move to list_node.h
+	* module.mk [libcontain_SRC]: add list_node.c
+
 2004-10-20	blytkerchan
 	* hash_helpers.h: new file
 	* hash_helpers.c: ditto

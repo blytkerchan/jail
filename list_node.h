@@ -31,33 +31,32 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef LIBCONTAIN_LIST_H
-#define LIBCONTAIN_LIST_H
+#ifndef LIBCONTAIN_LIST_NODE_H
+#define LIBCONTAIN_LIST_NODE_H
 
 #include "libcontain_config.h"
 #include "types.h"
-#include "list_node.h"
 
-typedef struct _list_t
+typedef struct _list_node_t
 {
-	list_node_t * head;
-	libcontain_cmp_func_t cmp_func;
-} list_t;
+	void * val;
+	int mark;
+	struct _list_node_t * next;
+} list_node_t;
 
-list_t * list_new(libcontain_cmp_func_t cmp_func);
-void list_free(list_t * list);
-int list_insert(list_t * list, void * val);
-int list_delete(list_t * list, void * val);
+typedef struct _list_state_t 
+{ 
+	list_node_t * prev; 
+	list_node_t * curr; 
+	list_node_t * next; 
+	void * cval; 
+	int cmark; 
+	int pmark; 
+} list_state_t; 
 
-/* Search a node in the list and return it.
- * This may seem a bit weird, as you hand the node you're looking for as a 
- * parameter to the function, but the reason for this is rather simple: 
- * the compare function need not look at the complete value you've put in
- * the list to decide whether the the value is the one you're looking for.
- * If the value you're looking for is composed of a key and an associated
- * value, the comparison function will only look at the key, whereas it 
- * will be the value you're ultimately interested in. */
-void * list_search(list_t * list, void * val);
-void list_foreach(list_t * list, libcontain_foreach_func_t helper, void * data);
+void list_node_free(list_node_t * node);
+list_node_t * list_node_new(void * val);
+list_node_t * list_node_find(list_state_t * state, list_node_t * head, libcontain_cmp_func_t cmp_func, void * val);
+int list_node_insert(list_node_t * head, libcontain_cmp_func_t cmp_func, list_node_t * node);
 
-#endif // LIBCONTAIN_LIST_H
+#endif // LIBCONTAIN_LIST_NODE_H
