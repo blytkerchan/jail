@@ -108,10 +108,12 @@ static void smr_hptr_free_list_enq(hptr_local_data_t * data)
 			}
 			// when we get here, ptr is at the end of the queue we want to add to our node
 			// so we add the queue...
+			exp = NULL;
 			if (compare_and_exchange_ptr(&exp, &(data->next), head) != 0)
 				// someone was still writing to our node - that should be impossible..
 				assert(0);
 		}
+		exp = NULL;
 	}
 	// when we get here, we're done.
 }

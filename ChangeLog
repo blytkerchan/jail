@@ -1,3 +1,7 @@
+2005-03-01	blytkerchan
+	* hptr.c (smr_hptr_free_list_enq): explicitly set exp to NULL before
+	each CAS where the value is expected to be NULL
+
 2005-02-25	blytkerchan
 	* hptr.c (smr_hptr_free_list_enq): revive more complicated version
 	fix simplified version
