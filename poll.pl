@@ -114,7 +114,7 @@ sub output_body()
 			printf($template, $_, $_);
 		}
 	}
-	print "<div id=\"comment\"><textarea id=\"comment\" style=\"text-align: left; width: 100%; height: 300;\">Your comment here please</textarea></div>\n" if ($question{commentable});
+	print "<div id=\"comment\"><textarea name=\"comment\" style=\"text-align: left; width: 100%; height: 300;\">Your comment here please</textarea></div>\n" if ($question{commentable});
 	print "<div style=\"text-align: right;\"><input type=\"reset\" value=\"Reset\"/><input type=\"submit\" value=\"Submit\"/></div>\n";
 	print "</form>\n";
 }
