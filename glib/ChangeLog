@@ -1,7 +1,0 @@
-2004-04-08	blytkerchan
-	* ghash.c: apply Jail license to changes made
-	* ghash.h: ditto
-	* gprimes.c: ditto
-	* gprimes.h: ditto
-	* gtypes.h: ditto
-

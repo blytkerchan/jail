@@ -1,4 +1,11 @@
-2004-10-19	blytkerchan	fix the vector implementation
+2004-10-19	blytkerchan	remove last remnants of obsolete code
+	* glib/*: remove
+	* c_interface.cc: ditto
+	* c_interface.h: ditto
+	* hash.c: remove all obsolete code
+	* hash.h: ditto
+
+fix the vector implementation
 	* vector.c (internal_resize): fix type-o in name
 	use compare_and_exchange_ptr or compare_and_exchange_int in stead of
 	compare_and_exchange

@@ -34,10 +34,6 @@
 #ifndef _HASH_H
 #define _HASH_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <sys/types.h>
 #include "types.h"
 #include "list.h"
@@ -46,10 +42,6 @@ extern "C" {
 
 typedef struct _hash_t
 {
-#if ! DONT_USE_OBSOLETE
-	void * cxx_hash;
-	void * glib_hash;
-#endif // ! DONT_USE_OBSOLETE
 	list_t ** buckets;
 	size_t n_buckets;
 	libcontain_cmp_func_t cmp;
@@ -64,19 +56,7 @@ typedef struct _hash_node_t
 	libcontain_cmp_func_t cmp;
 } hash_node_t;
 
-#if ! DONT_USE_OBSOLETE
-typedef enum {
-	NORMAL_HASH,
-	STRING_HASH,
-	INT_HASH,
-	GLIB_HASH,
-} libhash_hashtype;
-#endif // ! DONT_USE_OBSOLETE
-
 hash_t * hash_new(
-#if ! DONT_USE_OBSOLETE
-	libhash_hashtype hash_type, 
-#endif // ! DONT_USE_OBSOLETE
 	size_t n_buckets,
 	libcontain_hash_func_t hash_func,
 	libcontain_cmp_func_t compare_func
@@ -90,9 +70,5 @@ void ** hash_keys(hash_t * hash);
 /* search the hash by value */
 void * hash_search(hash_t * hash, void * searchfor, libcontain_cmp_func_t compare);
 void hash_foreach(hash_t * hash, libcontain_foreach2_func_t func, void * data);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif // _HASH_H
