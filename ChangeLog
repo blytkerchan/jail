@@ -1,3 +1,17 @@
+2004-10-18	blytkerchan	obsolete C++ hash implementation
+	* Hash.7.pod: remove
+	* Hash.cc: ditto
+	* Hash.h: ditto
+	* IniHash.cc: ditto
+	* IniHash.h: ditto
+	* IntHash.cc: ditto
+	* IntHash.h: ditto
+	* Makefile.am: ditto
+	* NocaseStringHash.cc: ditto
+	* NocaseStringHash.h: ditto
+	* StringHash.cc: ditto
+	* StringHash.h: ditto
+
 2004-08-22	blytkerchan
 	* vector.c (interal_resize): move rw_spinlock_downgrade call down to
 	protect node pointer replacement
