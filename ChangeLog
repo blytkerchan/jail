@@ -1,4 +1,7 @@
 2004-10-14	blytkerchan
+	* mksnap: fix bugs to find make
+	add features to compile other stuff than just libcontain
+
 	* 00-index: update
 	* mksnap: new file
 

@@ -6,9 +6,9 @@ if [ x"$1" = x--verbose ]; then
 	shift
 fi
 
-MAKE=$(which gmake 2>&1)
+MAKE=$(which gmake 2>/dev/null)
 if [ x"$MAKE" = x ]; then
-	MAKE=$(which make 2>&1)
+	MAKE=$(which make 2>/dev/null)
 fi
 export MAKE
 
@@ -90,12 +90,22 @@ function libcontain
 
 function libthread
 {
-	true
+	echo "Making a snapshot for libthread..."
+	checkout release-libthread libthread "${JAIL_CVSROOT}"
+	prep libthread libthread
+	config libthread libthread
+	build libthread libthread
+	echo "Done for libthread"
 }
 
 function libmemory
 {
-	true
+	echo "Making a snapshot for libmemory..."
+	checkout release-libmemory libmemory "${JAIL_CVSROOT}"
+	prep libmemory libmemory
+	config libmemory libmemory
+	build libmemory libmemory
+	echo "Done for libmemory"
 }
 
 if [ x"$1" = x  ]; then
