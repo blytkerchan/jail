@@ -59,6 +59,7 @@ noinst_DATA = README
 	pod2man --section 3 --release "The Jail project" --center "libcontain documentation" $< > $@
 
 README : Hash.7.pod README.in
-	pod2text $< > $@
-	cat $(srcdir)/README.in >> $@
+	cat $(srcdir)/README.in > $@
+	pod2text $< >> $@
+
 

@@ -1,6 +1,7 @@
-* make thread-safe
+* make the hash thread-safe
 * add heaps, etc.
 * add a hash that uses lists in its buckets (as opposed to linear hashing)
 * Document (section 3 manpages)
 * In the HASH, HASS and HASI file formats: add the number of entries in the hash and grow the hash to fit on read
 * Make a template interface for each container
+

@@ -1,0 +1,47 @@
+The Jail-Ust Container library - libcontain, version @VERSION@
+by Ronald Landheer-Cieslak <ronald@landheer.com>
+
+Introduction
+============
+The goal of the container library is to provide a set of blindingly fast
+thread-safe containers that are easy to use for C and C++ programmers.
+
+The primary intended audience of the library is, of course, the Jail-ust
+project, but the library itself is available as a separate package for those
+who want to use it in the hopes of widening the audience and getting more 
+feedback (as well as getting more attention to the Jail-ust project).
+
+Note For Corporate Users
+========================
+If your business needs fast, thread-safe containers, be aware that this package
+is licensed under two licenses: one is a BSD-like license, the other is GPL. 
+The reason for this is basically to accomodate the both of us: you'll be free 
+to use this package as you see fit under either one of two conditions:
+* either you free your software
+* or you contribute to this software
+
+Contributing to this (or related - I'm not picky) software is easy: get the 
+code, test is, expand it and contribute your changes back to the project. 
+Patches will be thoughtfully considered and if you help the project along its
+way, there's no reason why the project shouldn't help you as well.
+
+The Containers
+==============
+Each of the containers should correspond to the following description:
+* read operations can be combined with any number of read operations on the
+  same (or another) object
+* write operations can be combined with any number of read operations on the
+  same (or another) object
+* read operations have no mutating side-effects on the container (i.e. the
+  container will be in the same state before and after the read operation
+  unless there is a concurrent write operation that changes the state)
+* each operation is linearizable - i.e. each operation is implemented in such
+  a way that it seems to be atomic when regarded from outside of the function
+* the state of the container is always coherent between the time it is 
+  allocated until the time it is freed
+
+Each of the containers will be described separately. Some technical 
+description follows below (generated from pod sources and appended here).
+
+- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+

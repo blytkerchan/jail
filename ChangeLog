@@ -1,4 +1,13 @@
 2004-02-12	blytkerchan
+	* TODO: update
+	* NEWS: ditto
+	* configure.in: ditto
+	generate README.in
+	* README.in: rename to README.in.in
+	* README.in.in: rename from README.in and add contents
+	* Makefile.am: start the contents of README with the contents of 
+	README.in
+
 	* list.c <list_state_t>: new type
 	(list_find): make re-entrant: take state as parameter
 	(list_insert_node): make a local state pointer and use it

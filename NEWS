@@ -1,7 +1,24 @@
-$Id: NEWS,v 1.3 2004/02/10 15:48:08 blytkerchan Exp $
+$Id: NEWS,v 1.4 2004/02/12 14:22:48 blytkerchan Exp $
 
 New News
 ========
+version 0.0-alpha3
+------------------
+Thu, Feb 12, 2004: In my list implementation, the variables marked as "private"
+in the algorithm description were put in the list_t type, which basically means
+they were part of the list descriptor. That means that they were inherently 
+shared among threads, which means that the implementation wasn't thread-safe
+at all.
+I've created a new type, list_state_t, which is used in the list implementation
+by each of the functions that calls list_find(). list_find and all of its
+callers will use a local copy of the state, which is allocated on the stack
+and which is therefore local to the thread. This should make the list 
+thread-safe.
+
+Old News
+========
+version 0.0-alpha2
+------------------
 Tue, Feb 10, 2004: I've just finished implementing the lists described by 
 M.M. Micheal, though I haven't used his "tag" to prevent the ABA problem:
 I will be using the SMR memory management method later on, and I don't have
@@ -14,8 +31,8 @@ which was not the case in the previous release.
 We still need testcases for all of the non-hash objects, though.., and the
 README file isn't quite up-to-date yet..
 
-Old News
-========
+version 0.0-alpha1
+------------------
 Tue, Feb 3, 2004: first alpha release of the container library - no testing 
 has been done whatsoever, except on the hash. I haven't even taken the time to
 re-read the documentation yet. The implementations should work, though, and 

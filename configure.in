@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.57)
-AC_INIT([libcontain],[0.0-alpha2],[ronald@landheer.com])
+AC_INIT([libcontain],[0.0-alpha3],[ronald@landheer.com])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([Hash.cc])
 AC_CONFIG_HEADER([config.h])
@@ -35,5 +35,6 @@ dnl AC_FUNC_MALLOC
 AC_FUNC_MEMCMP
 AC_CHECK_FUNCS([memset strchr strdup])
 AC_REPLACE_FUNCS([strlwr])
-AC_CONFIG_FILES([Makefile config-libcontain libreplace/Makefile])
+AC_CONFIG_FILES([Makefile config-libcontain README.in libreplace/Makefile])
 AC_OUTPUT
+
