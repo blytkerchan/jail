@@ -31,21 +31,60 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _libthread_thread_list_h_
-#define _libthread_thread_list_h_
+#include "thread_queue.h"
 
-typedef struct _lt_thread_list_t 
+lt_thread_queue_t * lt_thread_queue_new(void)
 {
-} lt_thread_list_t;
+	lt_thread_queue_t * retval;
+	
+	retval = malloc(sizeof(lt_thread_queue_t));
+	
+	return retval;
+}
 
-lt_thread_list_t * lt_thread_list_new(void);
-void lt_thread_list_free(lt_thread_list_t * list);
-int lt_thread_list_remove(lt_thread_list_t * list, lt_thread_t * entry);
-int lt_thread_list_empty(lt_thread_list_t * list);
-void lt_thread_list_move(lt_thread_list_t * to, lt_thread_t * from);
-void lt_thread_list_for_each(lt_thread_list_t * list, void (*)(lt_thread_t * thread));
-void lt_thread_list_insert(lt_thread_list_t * list, lt_thread_t * thread);
-lt_thread_t * lt_thread_list_find(lt_thread_list_t * list, lt_rwlock_t * thread);
+void lt_thread_free(lt_thread_queue_t * queue)
+{
+	free(queue);
+}
 
-#endif
+int lt_thread_queue_empty(lt_thread_queue_t * queue)
+{
+}
+
+lt_thread_t * lt_thread_queue_first(lt_thread_queue_t * queue)
+{
+}
+
+lt_thread_t * lt_thread_queue_deq(lt_thread_queue_t * queue)
+{
+	lt_thread_t * retval;
+
+	return retval;
+}
+
+void lt_thread_queue_enq(lt_thread_queue_t * queue, lt_thread_t * thread)
+{
+	lt_thread_t * old_tail = NULL;
+	lt_thread_t * old_next = NULL;
+	
+	while (1)
+	{
+		do
+		{
+			old_tail = queue->tail;
+			hptr_register(0, old_tail);
+		} while (old_tail != queue->tail);
+		old_next = old_tail->next;
+		if (old_tail != queue->tail) continue;
+		if (old_next != NULL)
+		{
+			compare_and_exchange_ptr(&old_tail, &(queue->tail), old_next);
+			continue;
+		}
+		if (compare_and_exchange_ptr(&old_next, &(old_tail->next), thread) == 0)
+			break;
+	}
+	compare_and_exchange_ptr(&old_tail, &(queue->tail), thread);
+	hptr_free(0);
+}
 

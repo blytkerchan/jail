@@ -1,3 +1,14 @@
+2004-08-18	blytkerchan
+	* thread_list.c: new file
+	* thread_queue.c: ditto
+	* module.mk [libthread_SRC]: add thread_list.c and thread_queue.c
+	* thread_queue.h [lt_thread_queue_t]: new fields head and tail
+	(lt_thread_queue_empty): change type of queue parameter to
+	lt_thread_queue_t
+	(lt_thread_queue_first): ditto
+	(lt_thread_queue_deq): ditto
+	(lt_thread_queue_enq): ditto
+
 2004-08-17	blytkerchan	continue translation to C
 	* thread_queue.h: new file
 	* thread_list.h: ditto

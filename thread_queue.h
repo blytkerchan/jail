@@ -34,14 +34,20 @@
 #ifndef _libthread_thread_queue_h_
 #define _libthread_thread_queue_h_
 
-typedef struct _lt_thread_queue_t {} lt_thread_queue_t;
+#include "thread.h"
+
+typedef struct _lt_thread_queue_t 
+{
+	lt_thread_t * head;
+	void * tail;
+} lt_thread_queue_t;
 
 lt_thread_queue_t * lt_thread_queue_new(void);
 void lt_thread_free(lt_thread_queue_t * queue);
-int lt_thread_queue_empty(lt_thread_t * queue);
-lt_thread_t * lt_thread_queue_first(lt_thread_t * queue);
-lt_thread_t * lt_thread_queue_deq(lt_thread_t * queue);
-void lt_thread_queue_enq(lt_thread_t * queue, lt_thread_t * thread);
+int lt_thread_queue_empty(lt_thread_queue_t * queue);
+lt_thread_t * lt_thread_queue_first(lt_thread_queue_t * queue);
+lt_thread_t * lt_thread_queue_deq(lt_thread_queue_t * queue);
+void lt_thread_queue_enq(lt_thread_queue_t * queue, lt_thread_t * thread);
 
 #endif
 
