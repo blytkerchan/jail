@@ -1,4 +1,8 @@
 2004-07-16	blytkerchan
+	* version: new file
+	* bootstap: removed
+	* configure.in: ditto
+
 	* singleton.cc: new file
 	* singleton.h: ditto
 
