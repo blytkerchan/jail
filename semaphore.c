@@ -35,10 +35,10 @@
 #include <signal.h>
 #include "semaphore.h"
 #include "thread.h"
-#include "arch/include/set.h"
-#include "arch/include/compare_and_exchange.h"
-#include "arch/include/increment.h"
-#include "arch/include/decrement.h"
+#include "arch/set.h"
+#include "arch/compare_and_exchange.h"
+#include "arch/increment.h"
+#include "arch/decrement.h"
 #include "libmemory/smr.h"
 #include "libmemory/hptr.h"
 

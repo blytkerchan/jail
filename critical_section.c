@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "libmemory/hptr.h"
-#include "arch/include/compare_and_exchange.h"
+#include "arch/compare_and_exchange.h"
 
 critical_section_t * critical_section_new(void)
 {

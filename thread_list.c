@@ -33,7 +33,7 @@
  */
 #include "libmemory/smr.h"
 #include "libmemory/hptr.h"
-#include "arch/include/compare_and_exchange.h"
+#include "arch/compare_and_exchange.h"
 
 #include "thread_list.h"
 #define DUMMY_MAGIC 0xdeadbeef;

@@ -33,7 +33,7 @@
  */
 #include <stdlib.h>
 #include "rw_spinlock.h"
-#include "arch/include/fetch_and_add.h"
+#include "arch/fetch_and_add.h"
 
 #define EXCL 1
 #define SHRD 0x10000

@@ -35,8 +35,8 @@
 #include "libmemory/smr.h"
 #include "libmemory/hptr.h"
 #include "thread_queue.h"
-#include "arch/include/increment.h"
-#include "arch/include/compare_and_exchange.h"
+#include "arch/increment.h"
+#include "arch/compare_and_exchange.h"
 
 #define DUMMY_MAGIC 0xdeadbeef
 

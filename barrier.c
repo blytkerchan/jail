@@ -36,9 +36,9 @@
 #include "barrier.h"
 #include "binary.h"
 #include "thread.h"
-#include "arch/include/increment.h"
-#include "arch/include/set.h"
-#include "arch/include/compare_and_exchange.h"
+#include "arch/increment.h"
+#include "arch/set.h"
+#include "arch/compare_and_exchange.h"
 
 /* blindingly obvious... */
 barrier_t * barrier_new(uint32_t num_threads)

@@ -33,8 +33,8 @@
  */
 #include <assert.h>
 #include <stdlib.h>
-#include "arch/include/compare_and_exchange.h"
-#include "arch/include/swap.h"
+#include "arch/compare_and_exchange.h"
+#include "arch/swap.h"
 #include "rw_lock.h"
 
 #define READER 1
