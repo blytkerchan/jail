@@ -68,16 +68,46 @@ This basically means you shouldn't <code>pop</code> from two threads at the
 same time, but you can combine a single <code>pop</code> action with any number
 of <code>top</code> and <code>push</code> actions.</li>
 <li><b>A hash</b><br/>
-
-</li>
+The hash included in the library is taken from the Real Life Systems hash 
+library, which is the immediate precursor to the Container library. It was
+not ogirinally designed to be thread-safe and is written in C++. The C 
+interface functions were added for the Container library.<br/>
+Currently, the Hash class and its derivatives are not thread-safe yet. There
+should be no problem with concurrent reads, but write actions should not be
+combined with any other actions (including read actions).<br/>
+Making the hash thread-safe for concurrent write operations requires serious
+re-factoring of the underlying implementation and will probably have to wait
+until a thread-safe list has been implemented, so linear hashing can be 
+replaced by list-based hashing (every bucket containing a list).<br/>
+Basically, this means you should see the current hash implementation as a 
+dictionary: write it once and read it often. As this is the most "usual" use
+of a hash anyway, that should not pose much of a problem.</li>
 </ul>
 </p>
-
+<p>Some containers are still in the design phase and are therefore not included
+in the library at this time. These include:
+<ul>
+<li><b>A list</b><br/>
+Based on M.M. Micheal's lock-free list algorithm [<a href="#ref2">2</a>], the 
+list will enable the creation of a list-based hash to replace the current 
+implementation, will be fast, non-blocking and thread-safe.</li>
+<li><b>A map</b><br/>
+Because it is difficult to write good hashing functions for use with a hash,
+a map, though slower, will allow the same type of fast, key-based access to 
+stored elements.</li>
+<li><b>A heap</b></li>
+</ul>
+Currently, only the list is under active development, but it will probably not
+be ready before the current release reaches the Final stage.
+</p>
+<h2>References</h2>
 <a name="references"/>
 <p>
 <ol>
 <li><a name="ref1"/>"Simple, Fast, and Practical Non-Blocking and Blocking
 Concurrent Queue Algorithms"; M. M. Micheal &amp; M. L. Scott; PODC 96</li>
+<li><a name="ref2"/>"High Performance Dynamic Lock-Free Hash Tables and 
+List-Based Sets"; M. M. Micheal; PODC 2002</li>
 </ol>
 </p>
 </div>
@@ -99,7 +129,7 @@ width="210" height="62" border="0" align="right" alt=
 "SourceForge.net Logo"></a>
 </td><td style="vertical-align: bottom; text-align: right; font-size: smaller;">
 <a href="#top">back to top</a><br/>
-This page was last updated: $Date: 2004/02/05 17:33:45 $
+This page was last updated: $Date: 2004/02/09 15:25:11 $
 </td></tr></tbody></table>
 </body>
 </html>

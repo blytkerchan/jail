@@ -1,9 +1,15 @@
-2003-02-06	blytkerchan
+2003-02-09	blytkerchan
+	* index.html: add (funny) publicity banner
+	* menu.html: add download section
+
+2004-02-06	blytkerchan
+	* libcontain_down.html: add words on current and future versions
+
 	* jail-banner.xcf: new file
 	* banners/banner1.xcf: ditto
 	* banners/banner1.png: ditto
 
-2003-02-05	blytkerchan
+2004-02-05	blytkerchan
 	* libcontain_down.html: add words on current version
 
 	* libcontain_down.html: new file
