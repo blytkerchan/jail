@@ -27,5 +27,5 @@ list_test_LDADD=../libcontain.la -lstdc++
 queue_test_LDADD=../libcontain.la -lstdc++
 array_test_LDADD=../libcontain.la
 map_test_LDADD=../libcontain.la
-AM_CFLAGS=-g
+AM_CFLAGS=-g -I$(top_srcdir)
 

@@ -31,6 +31,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <libmemory/smr.h>
 #include "../array.h"
 #include "test.h"
 
@@ -119,9 +120,17 @@ void array_test3(void)
 
 int main(void)
 {
+	smr_init(LIBCONTAIN_MIN_HPTRS);
+	hptr_init();
+	smr_thread_init();
+	
 	array_test1();
 	array_test2();
 	array_test3();
+
+	smr_thread_fini();
+	hptr_fini();
+	smr_fini();
 
 	return 0;
 }

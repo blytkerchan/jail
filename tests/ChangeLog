@@ -1,3 +1,7 @@
+2004-05-03	blytkerchan	debug session
+	* Makefile.am: put top source dir in include path
+	* array_test.c (main): initialize and finilize libmemory
+
 2004-04-26	blytkerchan
 	* map_test.c: new file
 	* Makefile.am [TESTS]: add map_test
