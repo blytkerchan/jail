@@ -1,4 +1,8 @@
 2003-09-02	blytkerchan
+	* empty.html: use IFRAME element in stead of OBJECT
+	undo previous change (SF.NET server is down)
+
+2003-09-02	blytkerchan
 	* empty.html: attempt to fix link to SF logo
 
 2003-09-02	blytkerchan
