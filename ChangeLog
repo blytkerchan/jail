@@ -1,3 +1,6 @@
+2004-10-20	blytkerchan
+	* module.mk [arch_SRC]: add membar.c
+
 2004-08-03	blytkerchan
 	* module.mk [arch_CFLAGS]: remove
 
