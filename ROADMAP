@@ -44,4 +44,24 @@ it also contains three files at the root:
   contains me (rlc)
 * ChangeLog
   These are the changes made to the files at the root of the repository.
-  
+ 
+Generally, shared libraries are found at the root, and shared features are
+found in those libraries. The toolchain is divided into several parts, each
+of which have their own directory, at the root. Within those directories, 
+there may be a subdivision of the sources according to the features they
+implement. Libraries that don't get used outside of the component they are
+made for are, for example, found in the directory of the component. If they
+ever get moved "down" the tree, CVS mechanisms will be used to make that 
+possible (alias modules).
+
+Some directories that don't exist yet at the time of writing, but will soon:
+
+preprocessor	the files for the preprocessor
+libdb		the files for the shared database manager
+arch		architecture-dependant code
+config		configuration (and IDE project) files
+
+This file is subject of discussion on the jail-ust-devel list - as is the tree
+it describes. The tree itself is not subject to any standards, but must at 
+least be coherent.
+
