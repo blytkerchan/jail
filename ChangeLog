@@ -1,3 +1,13 @@
+2003-08-25	blytkerchan
+	* goals.html: new file
+	* how_you_can_help.html: ditto
+	* intended_audience.html: ditto
+	* design.html: update references to dereference new files
+	* empty.html: ditto
+	* progress.html: ditto
+	* index.html: ditto
+	move contents to proper (new) files
+ 
 2003-08-19	blytkerchan
 	* progress.html: new file
 	* grammar.msg: ditto
