@@ -31,13 +31,15 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-int compare_and_exchange(void ** exp_ptr, void ** tar_ptr, const void * src_ptr)
+#include <stdint.h>
+
+int compare_and_exchange(int32_t * exp_ptr, int32_t * tar_ptr, const int32_t src)
 {
 	int rv;
 
 	asm("movl %1, %%eax; lock cmpxchg %4, %3;jz __eq; movl %%eax, %1; movl $-1, %0; jmp __done; __eq: xor %0, %0; __done:" 
 	: "=r" (rv), "=r" (*exp_ptr)
-	: "1" (*exp_ptr), "m" (*tar_ptr), "r" (src_ptr)
+	: "1" (*exp_ptr), "m" (*tar_ptr), "r" (src)
 	: "%eax");	
 
 	return rv;

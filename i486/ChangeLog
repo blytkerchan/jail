@@ -1,4 +1,9 @@
 2004-08-10	blytkerchan
+	* fetch_and_add.c (fetch_and_add): no longer cast third param of
+	compare_and_exchange
+	(compare_and_exchange): change prototype
+	rename src_ptr to src
+
 	* fetch_and_add.c (fetch_and_add): make first param volatile
 
 2004-08-03	blytkerchan

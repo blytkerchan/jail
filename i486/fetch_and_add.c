@@ -42,7 +42,7 @@ int32_t fetch_and_add(volatile int32_t * val, int32_t add)
 	do
 	{
 		newval = retval + add;
-	} while (compare_and_exchange(&retval, val, (void*)newval) != 0);
+	} while (compare_and_exchange(&retval, val, newval) != 0);
 	 
 	return retval; 
 }
