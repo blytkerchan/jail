@@ -1,3 +1,13 @@
+2004-08-23	blytkerchan
+	* thread_list.c (_lt_thread_list_find): rename from
+	lt_thread_list_find
+	(lt_thread_list_remove): use lt_thread_list_state_t in stead of
+	list_state_t
+	call _lt_thread_list_find in stead of list_find
+	(lt_thread_list_for_each): implement
+	(lt_thread_list_insert): ditto
+	(lt_thread_list_find): ditto
+
 2004-08-22	blytkerchan
 	* thread.c (lt_thread_new): set mark field to 0
 	* thread.h [lt_thread_t]: new field: mark

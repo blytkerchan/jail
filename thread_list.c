@@ -43,7 +43,7 @@ typedef struct _lt_thread_list_state_t
 	int cmarl;
 } lt_thread_list_state_t;
 
-static lt_thread_t * lt_thread_list_find(lt_thread_list_state_t * state, lt_thread_list_t * list, lt_thread_t * thread)
+static lt_thread_t * _lt_thread_list_find(lt_thread_list_state_t * state, lt_thread_list_t * list, lt_thread_t * thread)
 {
 	int rv;
 	
@@ -117,7 +117,7 @@ int lt_thread_list_remove(lt_thread_list_t * list, lt_thread_t * entry)
 	int retval;
 	int cmark;
 	int nmark;
-	list_state_t state;
+	lt_thread_list_state_t state;
 	state.prev = NULL;
 	state.curr = NULL;
 	state.cval = NULL;
@@ -125,7 +125,7 @@ int lt_thread_list_remove(lt_thread_list_t * list, lt_thread_t * entry)
 
 	while (1)
 	{
-		if (list_find(&state, list, val) == NULL)
+		if (_lt_thread_list_find(&state, list, val) == NULL)
 		{
 			retval = -1;
 			break;
@@ -196,7 +196,81 @@ start_again:
 	}
 }
 
-void lt_thread_list_for_each(lt_thread_list_t * list, void (*)(lt_thread_t * thread));
-void lt_thread_list_insert(lt_thread_list_t * list, lt_thread_t * thread);
-lt_thread_t * lt_thread_list_find(lt_thread_list_t * list, lt_rwlock_t * thread);
+void lt_thread_list_for_each(lt_thread_list_t * list, void (*function)(lt_thread_t * thread))
+{
+	lt_thread_t * head;
+	lt_thread_t * curr;
+	lt_thread_t * next;
+
+	do
+	{
+		head = list->head;
+		hptr_register(0, head);
+	} while (head != list->head);
+
+	do
+	{
+		curr = head->next;
+		hptr_register(1, curr);
+	} while (curr != head->next);
+	while (curr != NULL)
+	{
+		do
+		{
+			next = curr->next;
+			hptr_register(2, next);
+		} while (next != curr->next);
+		function(curr);
+		curr = next;
+		hptr_register(1, curr);
+	}
+
+	hptr_free(0);
+	hptr_free(1);
+	hptr_free(2);
+}
+
+void lt_thread_list_insert(lt_thread_list_t * list, lt_thread_t * thread)
+{
+	void * val;
+	int retval;
+	list_state_t state;
+	state.prev = NULL;
+	state.curr = NULL;
+	state.cval = NULL;
+	state.cmark = 0;
+
+	while (1)
+	{
+		if (list_find(state, list, thread) != NULL)
+		{
+			retval = -1;
+			break;
+		}
+		thread->mark = 0;
+		thread->next = state->curr;
+		if (compare_and_exchange_ptr(&(state->curr), &(state->prev->next), node) == 0)
+		{
+			retval = 0;
+			break;
+		}
+	}
+	hptr_free(0);
+	hptr_free(1);
+	hptr_free(2);
+
+	return retval;
+}
+
+lt_thread_t * lt_thread_list_find(lt_thread_list_t * list, lt_thread_t * thread)
+{
+	lt_thread_list_state_t state;
+	state.prev = NULL;
+	state.curr = NULL;
+	state.cval = NULL;
+	state.cmark = 0;
+
+	return _lt_thread_list_find(&state, list, thread);
+}
+
 
