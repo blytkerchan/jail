@@ -1,3 +1,8 @@
+2003-01-07	blytkerchan
+	* intended_audience.html: removed - contents moved to index.html
+	* index.html: updated with intended audience info
+	* table.html: updated
+
 2003-01-06	blytkerchan
 	* poll.pl: take examples into account
 	* poll.css: ditto
