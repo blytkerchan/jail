@@ -40,4 +40,9 @@ preprocessor-libconf -d preprocessor/libconf libconf
 preprocessor-libconf-libreplace -d preprocessor/libconf/libreplace libreplace
 release-preprocessor -a preprocessor preprocessor-arch preprocessor-libcontain preprocessor-libreplace preprocessor-libcontain-libreplace preprocessor-libcontain-arch preprocessor-libconf
 
+libconf-libcontain -d libconf/libcontain libcontain
+libconf-libcontain-arch -d libconf/libcontain/arch arch
+libconf-libcontain-libreplace -d libconf/libcontain/libreplace libreplace
+libconf-libreplace -d libconf/libreplace libreplace
+release-libconf -a libconf libconf-libreplace libconf-libcontain libconf-libcontain-arch libconf-libcontain-libreplace
 

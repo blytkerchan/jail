@@ -1,4 +1,6 @@
 2004-04-05	blytkerchan
+	* modules: add release-libconf and dependencies
+
 	* modules: remove libmemory from the preprocessor - not used
 
 2004-03-30	blytkerchan
