@@ -3,14 +3,9 @@
 // includes go here
 // defines go here
 %}
-%union 	{
-    char * str;
-    int i;
-    double f;
-	}
 
 %token BEGIN_BLK END_BLK
-%token FUNCTION RETURN
+%token FUNCTION RETURN CLASS VAR TYPE ROOT 
 %token IF THEN WHILE DO ITER
 %token IDENTIFIER
 %token STR_LITERAL
@@ -33,8 +28,23 @@ block	  /* not empty */
 	| BEGIN_BLK exprs END_BLK
 	;
 
+func_param_val : /* empty */
+	| '=' expr
+	;
+
+func_param /* not empty */
+	: IDENTIFIER func_param_val
+	| IDENTIFIER TYPE func_param_val
+	;
+
+func_params /* not empty */
+	: func_param
+	| func_param ',' func_params
+	;
+
 function_dec /* not empty */
-	: FUNCTION IDENTIFIER '(' params ')'
+	: FUNCTION IDENTIFIER '(' func_params ')'
+	| FUNCTION IDENTIFIER '(' ')'
 	;
 
 function /* not empty */
