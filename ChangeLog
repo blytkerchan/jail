@@ -1,3 +1,8 @@
+2004-03-25	blytkerchan
+	* memdup.c: new file
+	* memdup.h: ditto
+	* macros.h: new file
+
 2004-02-10	blytkerchan
 	* strlwr.c (strlwr): fix endless loop
 
