@@ -1,4 +1,7 @@
 2004-08-11	blytkerchan
+	* fetch_and_add.c (fetch_and_add): call compare_and_exchange_int in
+	stead of compare_and_exchange
+
 	* compare_and_exchange.c (compare_and_exchange_ptr): move from
 	compare_and_exchange
 	(compare_and_exchange_int): new function
