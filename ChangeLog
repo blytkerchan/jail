@@ -1,4 +1,6 @@
 2004-10-18	blytkerchan
+	* hptr.h: include stdint.h
+
 	* hptr.h [hptr_local_data_t]: change type of flag member from int to
 	int32_t
 

@@ -34,6 +34,8 @@
 #ifndef _LIBMEMORY_HPTR_H
 #define _LIBMEMORY_HPTR_H
 
+#include <stdint.h>
+
 typedef struct _hptr_global_data_t
 {
 	pthread_key_t key;
