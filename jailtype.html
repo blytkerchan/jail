@@ -238,16 +238,59 @@ The String class cannot be used to contain binary data (whereas an array of
 characters could be used for that purpose).
 </td></tr>
 <tr><td class="subject" colspan=2 align="center">Container types</td></tr>
+<tr><td colspan=2><p id="summary">Containers are objects that
+can contain other objects. As such, they are mainly used as you would use a
+desk drawer: you simply put your objects in them and forget about them until 
+you need them - at which time you can simply retrieve them and do whatever 
+you need them for.<br/>
+When using a container, you should think, in advance, about what that container
+should do so you can pick the right container to start with.</p></td></tr>
 <tr><td class="subject">Array</td><td>An array is a statically dimensioned 
 container. This basically means you can only size it once, after which you will
-no longer be able to change its size.</td></tr>
-<tr><td class="subject">List</td><td></td></tr>
+no longer be able to change its size.<br/>
+There are no restrictions on the objects stored in an array that are not met
+by the Item object.</td></tr>
+<tr><td class="subject">Vector</td><td>A Vector is a dynamically dimentioned
+container, which is not sorted. There are no special restrictions or 
+requirements for the objects stored in a Vector. It is much like a class 
+except that the size is dynamic which means you will always be able to add
+new objects to the vector.<br/>
+Unlike vectors in some other languages, there are no guarantees on where the
+objects are placed in memory (i.e.: there is no guarantee that the objects
+placed in the vector occupy contiguous space in memory). This is mainly because
+there is no way for a Jail application to access memory directly, so these
+guarantees are not needed. Due to this fact, vectors in Jail can be optimised
+more easily.<br/>
+The order of elements in the vector is guaranteed to remain the same regardless
+of any actions (other than a sort) done on the vector - i.e. searching in
+a vector doesn't sort the vector (or at least not definitely).</td></tr>
+<tr><td class="subject">List</td><td>A List is a dynamically dimensioned
+container, sorted according to the value of the object. Hence, the objects in
+the list must have a <code>compare</code> function.<br/>
+Contrary to vectors and arrays, lists are sorted. This means that it is much 
+easier to search inside a list. Hence, lists are normally used when there is 
+searching to be done.</td></tr>
+<tr><td class="subject">Queue</td><td>A Queue is a dynamically sized container
+that allows adding at one end (the tail) and removing at the other end (the 
+head). It is much like a Vector except that it can't be sorted and you can 
+only read the head element.<br/>
+Queues are normally used for objects that have to "wait in line" to be used 
+(such as messages that need to be treated, etc.)</td></tr>
+<tr><td class="subject">DEQueue</td><td>A DEQueue is a Double-Ended Queue.
+It behaves exactly like the Queue class except that you can add and remove
+to/from either end of the queue.</td></tr>
+<tr><td class="subject">Stack</td><td>A stack is a dynamically sized container
+that allows adding and removing items on only one end (the top)<br/>
+A stack behaves a lot like a stack of towels: the last one you put on it is
+the first one you will use.</td></tr>
+<tr><td class="subject">Heap</td><td>A heap is much like a stack, in that you
+can put things on it and retrieve things from the top. The difference between
+a heap and a stack is that a heap is sorted in such a way that either the 
+smallest or the largest element is always on top. Objects stored in a heap 
+therefore need to have a <code>compare</code> function.</td></tr>
+<tr><td class="subject" colspan=2 align="center">Associative Container types</td></tr>
 <tr><td class="subject">Map</td><td></td></tr>
 <tr><td class="subject">Hash</td><td></td></tr>
-<tr><td class="subject">Heap</td><td></td></tr>
-<!--
-<tr><td class="subject"></td><td></td></tr>
--->
 </tbody>
 </table>
 </div>
@@ -263,6 +306,6 @@ width="210" height="62" border="0" align="right" alt=
 </tbody>
 </table>
 <div style="text-align: right; font-size: smaller;"<a href="#top">back to top</a></div>
-<div align="right">This page was last updated: $Date: 2004/01/27 17:24:56 $</div>
+<div align="right">This page was last updated: $Date: 2004/01/28 15:39:04 $</div>
 </body>
 </html>
