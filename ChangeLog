@@ -1,4 +1,10 @@
 2004-02-10	blytkerchan
+	* IniHash,cc: use libreplace in stead of libswing
+	* IniHash.h: don't expect libhash to be there
+	* Makefile.am: compile IniHash into libcontain
+	add testcases
+	* test5.cc: trivial fix
+
 	* configure.in: bump the patchlevel number and put alpha where it belongs
 	* Makefile.am: re-organize
 	* config.log: remove from CVS

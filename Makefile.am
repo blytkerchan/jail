@@ -10,6 +10,7 @@ libcontain_la_SOURCES = Hash.cc \
 			IntHash.cc \
 			c_interface.cc \
 			NocaseStringHash.cc \
+			IniHash.cc \
 			arch/@ARCH@/compare_and_exchange.c \
 			arch/@ARCH@/decrement.c \
 			arch/@ARCH@/increment.c \
@@ -19,6 +20,7 @@ libcontain_la_SOURCES = Hash.cc \
 pkginclude_HEADERS = 	Hash.h \
 			StringHash.h \
 			IntHash.h \
+			IniHash.h \
 			hash.h \
 			NocaseStringHash.h \
 			stack.h \
@@ -29,7 +31,20 @@ AM_CFLAGS = -g -Wall -Werror -Iarch/include
 AM_CXXFLAGS = -g -Wall -Werror -Iarch/include
 
 # testsuite
-#TESTS = test1 test2 test3 test6
+noinst_PROGRAMS=test1 test2 test3 test4 test5 test6
+TESTS = test1 test2 test3 test4 test5 test6
+test1_SOURCES=test1.cc
+test1_LDADD=libcontain.la
+test2_SOURCES=test2.cc
+test2_LDADD=libcontain.la
+test3_SOURCES=test3.cc
+test3_LDADD=libcontain.la
+test4_SOURCES=test4.cc
+test4_LDADD=libcontain.la
+test5_SOURCES=test5.cc
+test5_LDADD=libcontain.la
+test6_SOURCES=test6.cc
+test6_LDADD=libcontain.la
 
 # helper scripts for client programs
 bin_SCRIPTS=config-libcontain

@@ -1,4 +1,4 @@
-/* $Id: IniHash.h,v 1.2 2003/10/07 21:23:11 blytkerchan Exp $ */
+/* $Id: IniHash.h,v 1.3 2004/02/10 15:22:36 blytkerchan Exp $ */
 /* Jail: Just Another Interpreted Language
  * Copyright (c) 2003, Ronald Landheer-Cieslak
  * All rights reserved
@@ -42,7 +42,7 @@
 
 /*** 
 // Includes */
-#include <libhash/NocaseStringHash.h>
+#include "NocaseStringHash.h"
 
 /*** 
 // Defines */

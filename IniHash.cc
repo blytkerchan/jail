@@ -1,4 +1,4 @@
-/* $Id: IniHash.cc,v 1.2 2003/10/07 21:23:11 blytkerchan Exp $ */
+/* $Id: IniHash.cc,v 1.3 2004/02/10 15:22:36 blytkerchan Exp $ */
 /* Jail: Just Another Interpreted Language
  * Copyright (c) 2003, Ronald Landheer-Cieslak
  * All rights reserved
@@ -50,7 +50,7 @@
 #include "NocaseStringHash.h"
 #include "IniHash.h"
 #if !HAVE_STRLWR
-	#include <libswing/strlwr.h>
+	#include <libreplace/strlwr.h>
 #endif // !HAVE_STRLWR
 
 /*** 

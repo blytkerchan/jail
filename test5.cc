@@ -1,4 +1,4 @@
-/* $Id: test5.cc,v 1.2 2003/10/07 21:23:11 blytkerchan Exp $ */
+/* $Id: test5.cc,v 1.3 2004/02/10 15:22:36 blytkerchan Exp $ */
 /* Jail: Just Another Interpreted Language
  * Copyright (c) 2003, Ronald Landheer-Cieslak
  * All rights reserved
@@ -46,7 +46,7 @@
 #endif // rnd
 
 int main(void) {
-	IniHash *hash = new IniHash();
+	IniHash *hash = new IniHash;
 	int i, p, q;
 	char *pri_key[10], *sec_key[100], *buff_arr[10][100], *buffer;
 	key_list_type **keys;
