@@ -1,6 +1,9 @@
 2004-09-01	blytkerchan
-	* commitinfo: run cvstools/clearperms on commit
-	* cvstools/clearperms: new file
+	* checkoutlist: add clear_perms
+	* ChangeLog: fix type-os
+
+	* commitinfo: run cvstools/clear_perms on commit
+	* cvstools/clear_perms: new file
 	* cvstools/: new directory
 
 2004-08-10	blytkerchan

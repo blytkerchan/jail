@@ -5,4 +5,5 @@ if test x"$DIR" = x; then
 	DIR=/cvsroot/jail-ust
 fi
 find $DIR -type f -perm +0111 ! -name '*clear_perms' -exec chmod a-x \{\} \;
+true
 
