@@ -49,6 +49,7 @@ array_t * new_array(size_t size)
 	retval->num_entries = 0;
 	retval->increase = ARRAY_DEFAULT_INCREASE;
 	retval->sorted = 0;
+	retval->condensed = 1;
 	
 	return retval;
 }
@@ -69,15 +70,22 @@ void * array_get(array_t * array, size_t i)
 void array_put(array_t * array, size_t i, void * val)
 {
 	void * rv;
+	size_t increase;
 	
 	if (i >= array->size)
-		array_resize(array, array->size + array->increase);
+	{
+		increase = (((i - array->size) / array->increase) + 1) * array->increase;
+	
+		array_resize(array, array->size + increase);
+	}
 	rv = array_get(array, i);
 	while (compare_and_exchange(&rv, &(array->nodes[i].val), val) != 0);
 	if (rv == NULL)
+	{
 		array->num_entries++;
+		array->condensed = 0;
+	}
 	array->sorted = 0;
-	array->condensed = 0;
 }
 
 void array_push_back(array_t * array, void * val)

@@ -1,0 +1,97 @@
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook V4.0//EN">
+<refentry id="libcontain">
+
+<refmeta>
+<refentrytitle>libcontain</refentrytitle>
+<manvolnum>3</manvolnum>
+</refmeta>
+
+<refnamediv>
+<refname>libcontain</refname>
+<refpurpose>Provide a fast, thread-safe, easy to use set of abstract data types
+</refpurpose>
+</refnamediv>
+
+<refsect1>
+<title>Description</title>
+<para>Libcontain is a library of container objects, or abstract data types, 
+that is designed to be fast and thread-safe. It contains a growing number of 
+container typers currently including a stack, a queue, a list, an array and a 
+hash.</para>
+<para>The API of the library is intended to be consistent, but I admit that 
+this leaves a bit to be desired for the moment. It should stabilize to 
+something consistent soon enough, though. The current inconsistencies are 
+mostly found in the construction and destruction functions, which should become
+<function>TYPE_new(...)</function>, <function>TYPE_alloc(...)</function> and 
+<function>TYPE_free(...)</function> in which <function>TYPE_new(...)</function>
+allocates an object with all-default parameters whereas 
+<function>TYPE_alloc(...)</function> allows for more fine-tuning.</para>
+<para>Otherwise, the type's names are <function>TYPE_t</function> (e.g. 
+<function>hash_t</function>, <function>array_t</function>, etc.). A 
+<emphasis>handle</emphasis> for a container is a pointer to its type. You must 
+use it for all operations on the container. It is always expected as the first 
+argument to the function.</para>
+<para>More detailed descriptions of the different APIs are available in 
+separate manual pages</para>
+</refsect1>
+
+<refsect1>
+<title>Thread-Safety</title>
+<para>Generally, there are two approaches to thread-safety one can take: 
+re-entrancy and atomicity.</para>
+<para>Re-entrancy means storing all information about an object within the 
+object, making functions that handle the object re-entrant because they don't 
+store any information in static or global variables. All the fnctions in the 
+libcontain library are re-entrant: they do not modify any static or global 
+variables.</para>
+<para>Atomicity means using atomic, non-blocking operations to prevent having 
+to use mutual exclusion devices. The containers in the libcontain library are 
+intended to use atomic operations on all of the object's attributes as much as 
+possible. The boundary of what is possible is basically a question of whether a
+completely non-blocking algorithm for the container in question has been 
+invented yet.</para>
+<para>The current version is not completely atomic and there are no mutual 
+exclusion devices in place anywhere, so it should be considered re-entrant 
+only.</para>
+<para>The difference between the two approaches is thart with the first 
+approach, thread-safety is assured as far as one object is used only in one 
+thread at a time: you can safely manipulate different instances of the same 
+class, but you cannot manipulate the same instance from more than one thread 
+safely.</para>
+<para>In the case of atomic operations (or well-placed locks) you can safely 
+manipulate a single instance from many different threads at the same time. 
+Though this is the goal of the library, the first type of thread-safety 
+(thread-safety for manipulating different instances from different threads) is 
+the one currently attained.</para>
+</refsect1>
+
+<refsect1>
+<title>Data Ownership</title>
+<para>An important consideration when handling abstract data types is 
+<quote>who owns the data?</quote>. I.e. a consistent approach to which memory 
+is owned by what object helps prevent all kinds of errors, including memory 
+leaks.</para>
+<para>The objects in the libcontain library own only their own attributes: the 
+library will never free any memory iy did not allocate itself and it will not 
+attempt to copy any of the data passed to it. That means that it is up to you 
+to ascertain that keys and values are valid throughout the lifetime of the 
+container (or, more precisely, throughout the time the container might access 
+them: in some cases, you can safely free all of the values and keys contained 
+in the container before destroying the container itself).</para>
+</refsect1>
+
+<refsect1>
+<title>Authors</title>
+<para>The following is a list of authors and contributors:
+<itemizedlist>
+<listitem><para>Ronald Landheer-Cieslak</para></listitem>
+<listitem><para>...</para></listitem>
+</itemizedlist>
+</para>
+<para>OK, so I'm a poor, lonesome cowboy and I'm a long, long way from home... 
+I would really, <emphasis>really</emphasis> like to add some more people to 
+this list - hey, I'd like to add <emphasis>you</emphasis>! Please feel free to 
+contribute to this library :)
+</para>
+</refsect1>
+</refentry>

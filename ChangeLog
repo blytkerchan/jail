@@ -1,3 +1,10 @@
+2004-04-16	blytkerchan
+	* array.sgml: new file
+	* libcontain.sgml: ditto
+	* array.c (new_array): initialize condensed attribute to set
+	(array_put): calculate the size to increase the array with for the index to be in bounds (bugfix)
+	don't clear the condensed attribute unless we're not overwriting a value in the array (bugfix)
+
 2004-04-14	blytkerchan	prepare for distribution
 	* Makefile.am [DIST_SUBDIRS]: new variable
 	* TODO: re-organize
