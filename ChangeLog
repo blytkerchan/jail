@@ -1,3 +1,11 @@
+2003-01-21	blytkerchan
+	* *.html: link to jail.css stylesheet
+	set anchor named "top"
+	normalize use of headers (h1 for the first title, etc.)
+	* *.html (except table.html): make a "back to top" link at the bottom
+	* jail.css: new file
+	* jailop.html: ditto
+
 2003-01-20	blytkerchan
 	* index.html: roll back to revision 1.10
 	remove alignment from SF logo
