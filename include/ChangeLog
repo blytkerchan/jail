@@ -1,3 +1,6 @@
+2004-07-17	blytkerchan
+	* set.h (atomic_set): take void* as target argument in stead of void**
+
 2004-05-07	blytkerchan
 	* compare_and_exchange.h: add C++ guards
 	* set.h: ditto
