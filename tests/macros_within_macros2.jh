@@ -1,0 +1,6 @@
+!define IIRC If I Recall Correctly
+!undef IIRC
+!define OIIRC Only IIRC
+!define IIRC If I Recall Correctly
+OIIRC
+

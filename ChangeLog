@@ -1,3 +1,6 @@
+2004-04-02	blytkerchan
+	* tests/macros_within_macros2.jh: new file
+
 2004-03-25	blytkerchan	finish !include directive support
 	* tests/include.jh: new file
 	* preproc.c: include libgen
