@@ -1,3 +1,47 @@
+/* Jail: Just Another Interpreted Language
+ * Copyright (c) 2003-2004, Ronald Landheer-Cieslak
+ * All rights reserved
+ * 
+ * This is free software. You may distribute it and/or modify it and
+ * distribute modified forms provided that the following terms are met:
+ *
+ * * Redistributions of the source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer;
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in
+ *   the documentation and/or other materials provided with the distribution;
+ * * None of the names of the authors of this software may be used to endorse
+ *   or promote this software, derived software or any distribution of this 
+ *   software or any distribution of which this software is part, without 
+ *   prior written permission from the authors involved;
+ * * Unless you have received a written statement from Ronald Landheer-Cieslak
+ *   that says otherwise, the terms of the GNU General Public License, as 
+ *   published by the Free Software Foundation, version 2 or (at your option)
+ *   any later version, also apply.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+/* Some important implementation notes:
+ * The library is the owner if everything that is in each handle. That means 
+ * that every field in the handle is freed when the handle itself is freed. It
+ * also means that *this* library is the owner if everything that is in the 
+ * ADTs, because libcontain does not own what is in its containers (it only
+ * provides the containers). That means that whenever we copy an ADT, we have 
+ * to copy its contents as well - i.e. do a "deep" copy.
+ * Due to this policy, overwriting alread-entered entries in a hash will result
+ * in memory leaks as we currently don't check whether a value already exists in
+ * the hash before putting a new value in.
+ */
 #include <sys/types.h>
 #include <stdlib.h>
 #include <string.h>
@@ -17,41 +61,59 @@ libconf_t * libconf_init(
 	libconf_t * retval = (libconf_t *)malloc(sizeof(libconf_t));
 	memset(retval, 0, sizeof(libconf_t));
 
-	retval->global_config_filename = strdup(global_config_filename);
-	retval->local_config_filename = strdup(local_config_filename);
+	if (global_config_filename != NULL)
+		retval->global_config_filename = strdup(global_config_filename);
+	if (local_config_filename != NULL)
+		retval->local_config_filename = strdup(local_config_filename);
 	retval->options = new_hash(STRING_HASH, NULL, NULL);
 	t_options = libconf_defaultopts();
 	for (i = 0; t_options[i]; i++)
 	{
-		hash_put(retval->options, t_options[i]->co_name, t_options[i]);
+		hash_put(retval->options, strdup(t_options[i]->co_name), t_options[i]);
 	}
+	free(t_options); // note: shallow free because the contents is in the hash
 	t_options = libconf_optdup(options);
 	for (i = 0; t_options[i]; i++)
 	{
-		hash_put(retval->options, t_options[i]->co_name, t_options[i]);
+		hash_put(retval->options, strdup(t_options[i]->co_name), t_options[i]);
 	}
-	free(t_options);
+	free(t_options); // note: shallow free because the contents is in the hash
 	retval->option_hash = new_hash(STRING_HASH, NULL, NULL);
 	retval->tmp_hash = new_hash(STRING_HASH, NULL, NULL);
 	retval->argc = argc;
 	retval->argv = (char**)malloc((argc + 1) * sizeof(char*));
 	for (i = 0; i < argc; i++)
 		retval->argv[i] = strdup(argv[i]);
+	if (defaults)
+		retval->defaults = libconf_optparams_dup(defaults);
 
 	return retval;
 }
+
+void libconf_fini_helper(void * key, void * val, void * data)
+{
+	free(key);
+	free(val);
+}
+
 void libconf_fini(libconf_t * handle)
 {
 	int i;
 
 	free(handle->global_config_filename);
 	free(handle->local_config_filename);
+
+	hash_foreach(handle->options, libconf_fini_helper, NULL);
 	delete_hash(handle->options);
+	hash_foreach(handle->option_hash, libconf_fini_helper, NULL);
 	delete_hash(handle->option_hash);
+	hash_foreach(handle->tmp_hash, libconf_fini_helper, NULL);
 	delete_hash(handle->tmp_hash);
 	for (i = 0; i < handle->argc; i++)
 		free(handle->argv[i]);
 	free(handle->argv);
+	if (handle->defaults)
+		libconf_optparams_free(handle->defaults);
 	free(handle);
 }
 
@@ -129,7 +191,7 @@ int libconf_phase1(libconf_t * handle)
 							have_error = ET_EXPECTED_PARAM_TP_NOT_FOUND;
 						}
 					}
-					hash_put(handle->tmp_hash, option->co_name, param);
+					hash_put(handle->tmp_hash, strdup(option->co_name), param);
 				}
 				else
 				{
@@ -147,7 +209,7 @@ int libconf_phase1(libconf_t * handle)
 				}
 				param = libconf_optparam_new("-", PT_STRING, tmp_str);
 				free(tmp_str);
-				hash_put(handle->tmp_hash, "-", param);
+				hash_put(handle->tmp_hash, strdup("-"), param);
 				break;
 			default : /* we have a short option */
 				t_option.co_short_opt = argv[0][1];
@@ -203,7 +265,7 @@ int libconf_phase1(libconf_t * handle)
 							have_error = ET_EXPECTED_PARAM_TP_NOT_FOUND;
 						}
 					}
-					hash_put(handle->tmp_hash, option->co_name, param);
+					hash_put(handle->tmp_hash, strdup(option->co_name), param);
 				}
 				else
 				{
@@ -265,7 +327,7 @@ int libconf_phase2(libconf_t * handle)
 	int i;
 	
 	for (i = 0; handle->defaults[i]; i++)
-		hash_put(handle->option_hash, handle->defaults[i]->name, handle->defaults[i]);
+		hash_put(handle->option_hash, strdup(handle->defaults[i]->name), handle->defaults[i]);
 	
 	return 0; 
 }
@@ -284,7 +346,7 @@ int libconf_phase4(libconf_t * handle)
 static void libconf_phase5_helper(void * key, void * val, void * data)
 {
 	libconf_t * handle = (libconf_t *)data;
-	hash_put(handle->option_hash, key, val);
+	hash_put(handle->option_hash, strdup((char*)key), val);
 }
 int libconf_phase5(libconf_t * handle) 
 {

@@ -1,3 +1,22 @@
+2004-04-08	blytkerchan	license application & killing memory bugs
+	* libconf.c: apply license
+	(libconf_init): handle the possibility that the passed-in filenames are NULL
+	copy the defaults
+	copy the keys into the hashes (call strdup)
+	(libconf_fini_helper): new function
+	(libconf_fini): free the values of the hash before deleting the hash
+	free the defaults
+	(libconf_phase1): strdup the hash keys when putting them in the hash
+	(libconf_phase4): ditto
+	* libconf.h: apply license
+	(libconf_optparam_free): new function
+	(libconf_optparams_free): ditto
+	* libconf_config.h.in: apply license
+	* libconf_opt.c: ditto
+	* libconf_optparam.c: ditto
+	(libconf_optparam_free): new function
+	(libconf_optparams_free): ditto
+
 2004-04-05	blytkerchan
 	* tests/test1.c: new file
 	* tests/global_conf_test1: ditto
