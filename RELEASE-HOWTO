@@ -1,0 +1,12 @@
+This document briefly describes how to make a release of one of the sub-projects
+of the Jail project.
+
+To make a release of the libcontain containers library
+======================================================
+1. Check out release-libcontain (update CVSROOT/modules if need be)
+2. compile, run the tests, fix the bugs, etc.
+3. read https://sourceforge.net/docman/display_doc.php?docid=6445&group_id=1
+   and follow the instructions
+4. announce on the proper mailing lists
+
+
