@@ -1,3 +1,7 @@
+2004-10-25	blytkerchan
+	* modules (i486-libarch): move include dir to arch
+	move src dir to libarch
+
 2004-10-24	blytkerchan
 	* modules: add i486-libarch module
 

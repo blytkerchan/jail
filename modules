@@ -63,7 +63,7 @@ libthread-libmemory -d libthread/libmemory libmemory
 release-libthread -a libthread-config libthread-libthread libthread-arch libthread-libmemory libthread-libreplace
 
 libarch-config -d libarch config 
-libarch-arch-i486 -d libarch/src arch/i486
-libarch-arch-include -d libarch/include arch/include
+libarch-arch-i486 -d libarch/libarch arch/i486
+libarch-arch-include -d libarch/include arch/arch
 i486-libarch -a libarch-config libarch-arch-i486 libarch-arch-include
 
