@@ -1,4 +1,7 @@
 2003-01-07	blytkerchan
+	* jailust.examples.sql: name the table properly
+	fix the size of the example (make it TEXT in stead of VARCHAR)
+
 	* poll.pl: preparations for usage on a server (committed in earlier commit - forgot to mention it here)
 
 	* intended_audience.html: removed - contents moved to index.html

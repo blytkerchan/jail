@@ -8,11 +8,11 @@
 -- Table structure for table `questions`
 --
 
-DROP TABLE IF EXISTS questions;
-CREATE TABLE questions (
+DROP TABLE IF EXISTS examples;
+CREATE TABLE examples (
   uid int(16) NOT NULL default '0',
   question_id int(16) NOT NULL,
-  example VARCHAR(16) default NULL,
+  example TEXT default NULL,
   PRIMARY KEY  (uid)
 ) TYPE=MyISAM;
 
@@ -20,5 +20,5 @@ CREATE TABLE questions (
 -- Dumping data for table `questions`
 --
 
-INSERT INTO questions VALUES (0,'1','One example of an example');
-INSERT INTO questions VALUES (1,'1','Another example of an example');
+INSERT INTO examples VALUES (0,'1','One example of an example');
+INSERT INTO examples VALUES (1,'1','Another example of an example');
