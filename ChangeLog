@@ -1,4 +1,8 @@
 2003-01-26	blytkerchan
+	* jail.css: define caption style
+	* jailtype.html: add words about namespaces, classes, etc. and start
+	on pre-defined types
+
 	* TODO: new file
 	* jailtype.html: ditto
 	* jail.css: add definitions for h3, table.toc, p.notice, a.toc:link, a.toc:active and a.toc:visited.

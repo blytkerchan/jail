@@ -25,6 +25,12 @@ table.toc {
 table.intext {
 	border: thin groove black;
 }
+caption {
+	font-weight: bold;
+	color: #000080;
+	background: #FFFF80;
+	font-style: italic;
+}
 tr.title {
 	color: #0000FF;
 	background: #FFFFF0;
