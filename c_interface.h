@@ -49,6 +49,7 @@ void *cxx_hash_get(Hash * hash, const void *key);
 int cxx_hash_put(Hash * hash, const void *key, const void *value);
 int cxx_hash_remove(Hash * hash, const void *key);
 void ** cxx_hash_keys(Hash * hash);
+void cxx_hash_for_each(Hash * hash, hash_foreach_helper_func_t func, void * data);
 
 #ifdef __cplusplus
 }

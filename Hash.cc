@@ -1,4 +1,4 @@
-/* $Id: Hash.cc,v 1.3 2004/04/01 13:35:10 blytkerchan Exp $ */
+/* $Id: Hash.cc,v 1.4 2004/04/07 13:46:27 blytkerchan Exp $ */
 /* Jail: Just Another Interpreted Language
  * Copyright (c) 2003, Ronald Landheer-Cieslak
  * All rights reserved
@@ -434,7 +434,7 @@ void Hash::for_each(foreach_func_t func, void * user_data)
 	for (i = 0; i < Count; i++)
 	{
 		if (mappings[i].key)
-			func(mappings[i].key, mappings[i].val, user_data);
+			func(mappings[i].key, mappings[i].value, user_data);
 	}
 }
 

@@ -200,7 +200,7 @@ void hash_foreach(hash_t * hash, hash_foreach_helper_func_t func, void * data)
 #if ! DONT_USE_CXX
 	if (hash->cxx_hash)
 	{
-		hash->cxx_hash->for_each(func, data);
+		cxx_hash_for_each(hash->cxx_hash, func, data);
 		return;
 	}
 #endif
