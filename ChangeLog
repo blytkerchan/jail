@@ -1,4 +1,7 @@
 2003-01-07	blytkerchan
+	* jailust.questions.sql: add ask_email field
+	* poll_response.pl: new file
+
 	* poll.pl: update config settings
 	update URL of stylesheet
 	repair support of examples
