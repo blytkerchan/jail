@@ -40,6 +40,6 @@
  * This function guarantees that at the time (src_ptr) is assigned to
  * (*tar_ptr), the value of *tar_ptr is the same as that of *exp_ptr.  
  */
-int compare_and_exchange(void ** exp_ptr, void ** tar_ptr, const void * src_ptr);
+int compare_and_exchange(void * exp_ptr, void * tar_ptr, const void * src_ptr);
 
 #endif // _COMPARE_AND_EXCHANGE_H
