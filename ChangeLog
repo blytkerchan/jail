@@ -1,7 +1,21 @@
 2004-03-23	blytkerchan
+	* preproc.h: new file
+	* preproc.c: ditto
+	* preprocp.y: solve the macro redefinition problem
+	solve the macros within macros problem
+	* preprocl.l: ditto (both)
+	fix empty macro definitions
+	solve the conditional block problem for the !include directive
+	* tests/conditional_block.jh: new file
+	* tests/macro_redef.jh: ditto
+	* tests/macros_within_macros.jh: ditto
+	* ChangeLog: fix type-o
+	* Makefile.am [jailpp_SOURCES]: add preproc.c
+	[noinst_HEADERS]: new variable
+
 	* preprocp.y: solve the conditional block problem
 
-2004-03-22	blytlerchan
+2004-03-22	blytkerchan
 	* preprocl.l: define def_state2
 	use def_state2 for macro definition contents
 	return T_DEFINED token for macro definition contents

@@ -5,11 +5,14 @@
 #include <string.h>
 #include <libcontain/stack.h>
 #include "preprocp.h"
+#include "preproc.h"
 
 /* defines go gere */
 #define YY_INPUT(buf, result, max_size) { result = preprocl_getc(buf, max_size); }
 
 stack_t * include_stack = NULL;
+char * curr_file = NULL;
+extern FILE * dev_null;
 %}
 /* options go here */
 /* %option debug */
@@ -23,12 +26,13 @@ stack_t * include_stack = NULL;
 %x comment_state
 %x quoted_txt_state
 %x incl_state
-%x def_state
+%x def_state1
 %x def_state2
+%x def_state3
 %x cond_state
 
 /* class definitions go here */
-STR		[ \t\\\n[\"]+
+STR		[^ \t\\\n[\"]+
 FILENAME	[\.a-zA-Z0-9_][\.a-zA-Z0-9_/]+
 
 /* rules come after the next line */
@@ -36,7 +40,7 @@ FILENAME	[\.a-zA-Z0-9_][\.a-zA-Z0-9_/]+
 <INITIAL,comment_state>"["		{ yy_push_state(comment_state); fwrite(" ", 1, 1, yyout); }
 <INITIAL>\"		{ yy_push_state(quoted_txt_state); fwrite("\"", 1, 1, yyout); }
 <INITIAL>"!include"	{ yy_push_state(incl_state); }
-<INITIAL>"!define"	{ yy_push_state(def_state); }
+<INITIAL>"!define"	{ yy_push_state(def_state1); }
 <INITIAL>"!if"		{ yy_push_state(cond_state); return T_IF; }
 <INITIAL>"!ifdef"	{ return T_IFDEF; }
 <INITIAL>"!ifndef"      { return T_IFNDEF; }
@@ -51,7 +55,6 @@ FILENAME	[\.a-zA-Z0-9_][\.a-zA-Z0-9_/]+
 	default :	fwrite(yytext, 2, 1, yyout); break;
 	}
 			}
-<*>\n			{ yylineno++; ECHO; }
 
 <comment_state>"]"	{ yy_pop_state(); fwrite(" ", 1, 1, yyout); }
 <comment_state>.	{ fwrite(" ", 1, 1, yyout); }
@@ -61,23 +64,43 @@ FILENAME	[\.a-zA-Z0-9_][\.a-zA-Z0-9_/]+
 
 <incl_state>[ \t]*	/* forget the white space */
 <incl_state>[^ \t\n]+	{ /* the include filename */
-	if (include_stack == NULL)
-		include_stack = new_stack();
-	stack_push(include_stack, YY_CURRENT_BUFFER);
-	yyin = fopen(yytext, "r");
-	if (!yyin)
-		error("...");
-	yy_switch_to_buffer(yy_create_buffer(yyin, YY_BUF_SIZE));
-	yy_pop_state();
+	if (yyout != dev_null)
+	{
+		preproc_inputfile_t * curr = new_preproc_inputfile();
+		
+		if (include_stack == NULL)
+			include_stack = new_stack();
+		curr->filename = curr_file;
+		curr->lineno = yylineno;
+		curr->state = YY_CURRENT_BUFFER;
+		stack_push(include_stack, curr);
+		curr_file = strdup(yytext);
+		yyin = fopen(curr_file, "r");
+		if (!yyin)
+			error("...");
+		yy_switch_to_buffer(yy_create_buffer(yyin, YY_BUF_SIZE));
+		yylineno = 1;
+		yy_pop_state();
+	}
 			}
 
-<def_state,def_state2>[ \t]*	/* forget the white space */
-<def_state>[^ \t\n]+	{ /* the macro name */
+<def_state1>[ \t]*	/* forget the white space */
+<def_state1>[^ \t\n]+	{ /* the macro name */
 	yy_push_state(def_state2);
 	yylval.str = strdup(yytext);
 	return T_DEFINE;
 			}
-<def_state2>[^ \t\n]*	{
+<def_state2>\n          { 
+	yy_pop_state(); 
+	yy_pop_state(); 
+	yylval.str = strdup("");
+	return T_DEFINED;
+			}
+<def_state2>[ \t]*	{
+		yy_push_state(def_state3);
+	}
+<def_state3>[^\n]*	{
+	yy_pop_state();
 	yy_pop_state();
 	yy_pop_state();
 	yylval.str = strdup(yytext);
@@ -91,7 +114,7 @@ FILENAME	[\.a-zA-Z0-9_][\.a-zA-Z0-9_/]+
 			}
 
 <<EOF>>		{
-	YY_BUFFER_STATE curr;
+	preproc_inputfile_t * curr;
 
 	if (include_stack == NULL)
 	{
@@ -102,7 +125,9 @@ FILENAME	[\.a-zA-Z0-9_][\.a-zA-Z0-9_/]+
 	if (!curr)
 		yyterminate();
 	yy_delete_buffer(YY_CURRENT_BUFFER);
-	yy_switch_to_buffer(curr);
+	yy_switch_to_buffer(curr->state);
+	yylineno = curr->lineno;
+	curr_file = curr->filename;
 		}
 %%
 /* C code goes here */
@@ -111,4 +136,15 @@ int preprocl_getc(char * buffer, size_t max_size)
 	return read(fileno(yyin), buffer, max_size);
 }
 
-
+void preprocl_puts(const char * s)
+{
+	preproc_inputfile_t * curr = new_preproc_inputfile();
+		
+	if (include_stack == NULL)
+		include_stack = new_stack();
+	curr->filename = curr_file;
+	curr->lineno = yylineno;
+	curr->state = YY_CURRENT_BUFFER;
+	stack_push(include_stack, curr);
+	yy_switch_to_buffer(yy_scan_string(s));
+}

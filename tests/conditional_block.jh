@@ -1,0 +1,6 @@
+!define hello
+!ifndef hello 1
+!define hello world
+!endif
+hello
+

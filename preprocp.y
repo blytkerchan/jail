@@ -3,20 +3,23 @@
 /* includes go here */
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 #include <libcontain/hash.h>
 #include <libcontain/stack.h>
+#include "preproc.h"
 
 /* defines go here */
 #define YYDEBUG 1
 
 hash_t * token_hash = NULL;
+extern char * curr_file;
 int yylex(void);
 extern int yylineno;
 extern FILE * yyin;
 extern FILE * yyout;
 stack_t * outfile_stack = NULL;
 FILE * dev_null = NULL;
-char * curr;
+preproc_token_def_t * curr;
 
 void yyerror(char * s)
 {
@@ -45,7 +48,9 @@ token_def : T_TOKEN {
 		if (token_hash)
 		{
 			if ((curr = hash_get(token_hash, yylval.str)) != NULL)
-				fwrite(curr, strlen(curr), 1, yyout);
+			{
+				preprocl_puts(curr->val);
+			}
 			else
 				fwrite(yylval.str, strlen(yylval.str), 1, yyout);
 		}
@@ -63,11 +68,25 @@ macro_def : T_DEFINE {
 			}
 			curr = hash_get(token_hash, yylval.str);
 			if (curr != NULL)
-				fprintf(stderr, "Warning: redefinition of %s\n", yylval.str);
-			curr = yylval.str;
+			{
+				fprintf(stderr, "%s: %d: Warning: redefinition of %s\n", curr_file ? curr_file : "<stdin>", yylineno, yylval.str);
+				fprintf(stderr, "%s: %d: Warning: previous definition was here\n", curr->inputfile->filename, curr->inputfile->lineno);
+			}
+			else
+			{
+				curr = new_preproc_token_def();
+				curr->inputfile = new_preproc_inputfile();
+				curr->inputfile->filename = curr_file;
+				curr->inputfile->lineno = yylineno;
+			}
+			curr->name = yylval.str;
 		}
 	} 	T_DEFINED {
-		if (yyout != dev_null) hash_put(token_hash, curr, yylval.str);
+		if (yyout != dev_null) 
+		{
+			curr->val = strdup(yylval.str);
+			hash_put(token_hash, curr->name, curr);
+		}
 	}
 	;
 
@@ -125,7 +144,10 @@ int main(int argc, char ** argv)
 {
 //	yydebug = 1;
 	if (argc > 1)
+	{
+		curr_file = strdup(argv[1]);
 		yyin = fopen(argv[1], "r");
+	}
 	yyparse();
 }
 
