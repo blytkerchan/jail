@@ -116,6 +116,8 @@ void yyerror(char * str)
 %pure_parser
 /* note, we want a separate header files */
 %defines
+/* turn on parser debugging */
+%debug
 
 %token <str> T_UNKNOWN_OPTION T_TRUEFALSE T_YESNO T_NUMERIC T_STRING T_FILENAME
 %token <str> T_NUMERIC_LIST T_STRING_LIST T_FILENAME_LIST
@@ -148,8 +150,8 @@ config_def /* not empty */
 	;
 	
 list_val /* not empty */
-	: T_LISTVAL { setval(HANDLE->t_pt); }
-	| T_LISTVAL { setval(HANDLE->t_pt); } ':' list_val
+	: T_LISTVAL { setval(HANDLE->t_pt); } list_val
+	| ':' T_LISTVAL { setval(HANDLE->t_pt); } list_val
 	| T_ENDOFLIST
 	;
 %%

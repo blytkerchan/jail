@@ -1,3 +1,10 @@
+2004-04-12	blytkerchan
+	* Makefile.am: take MT_SAFE option into account
+	* confl.l: ditto
+	* confp.y: enable parser debugging
+	[list_val]: put the colon before the token to eliminate the need for an extra look-ahead character
+	* readconf.cc: take MT_SAFE option into account (make yyin use stdin in that case)
+
 2004-04-08	blytkerchan
 	* LCFlexLexer.cc: apply license
 	* LCFlexLexer.h: ditto

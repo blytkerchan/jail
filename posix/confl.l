@@ -33,13 +33,24 @@
  */
 %{
 /* includes go here */
+#ifdef MT_SAFE
 #define YY_DECL int LCFlexLexer::yylex(void)
 #include "LCFlexLexer.h"
+#define HANDLE handle
+#else // ! defined(MT_SAFE)
+#define YY_DECL int yylex(YYSTYPE * lvalp, void * handle)
+#include "../libconf.h"
+#include <confp.h>
+#define HANDLE ((libconf_t *)handle)
+#define yylval (*lvalp)
+#define yyinput input
+#endif // MT_SAFE
 /* defines go here */
 
 %}
 
 %option yylineno
+/* %option debug */
 
 alpha			[A-Za-z]
 digit			[0-9]
@@ -74,7 +85,7 @@ filename		([/]|{special}|{alpha}|{digit})+
 <INITIAL>{config_name}	{ /* OK, we just matched a token - let's see what it is :) */
 	libconf_opt_t * option;
 
-	option = (libconf_opt_t*)hash_get(handle->options, yytext);
+	option = (libconf_opt_t*)hash_get(HANDLE->options, yytext);
 	if (!option)
 	{
 		yylval.str = yytext;

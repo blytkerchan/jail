@@ -31,7 +31,16 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <sys/types.h>
+#include <sys/stat.h>
+#ifdef MT_SAFE
 #include <fstream>
+#else
+#include <stdio.h>
+extern FILE * yyin;
+extern int yydebug;
+#endif
+#include <libreplace/fexist.h>
 #include "readconf.h"
 
 // forward declaration - definition found in generated parser confp.c
@@ -39,13 +48,32 @@ extern "C" int yyparse(libconf_t * handle);
 
 static int libconf_readconf_worker(libconf_t * handle)
 {
+//	yydebug = 1;
+	if (handle->filename == NULL)
+		return 0;
 	try
 	{
 		if (handle->yyin != NULL)
+#if MT_SAFE
 			delete (std::istream*)handle->yyin;
-		handle->yyin = new std::fstream(handle->filename);
+#else
+			fclose((FILE*)handle->yyin);
+#endif
+		if (fexist(handle->filename) != 0)
+			return -1;
+#if MT_SAFE
+		handle->yyin = new std::ifstream(handle->filename);
+#else
+		handle->yyin = fopen(handle->filename, "r");
+		yyin = (FILE*)handle->yyin;
+#endif
 		yyparse(handle);
+#if MT_SAFE
 		delete (std::istream*)handle->yyin;
+#else
+		fclose((FILE*)handle->yyin);
+		yyin = NULL;
+#endif
 		handle->yyin = NULL;
 	}
 	catch (...)
