@@ -1,3 +1,7 @@
+2004-01-29	blytkerchan
+	* compare_and_exchange.c: use atomic_increment and atomic_decrement to\
+	at least do *that* atomically.
+
 2003-10-18	blytkerchan
 	* compare_and_exchange.c: new file
 

@@ -32,6 +32,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <unistd.h>
+#include "increment.h"
+#include "decrement.h"
 
 /* As of the i486, x86 processors have a compare and exchange function
  * which will evidently be called with the same prototype of i486+ 
@@ -48,7 +50,7 @@ int compare_and_exchange(void ** exp_ptr, void ** tar_ptr, const void * src_ptr)
 	static int lock = 0;
 	int rv;
 
-	lock++;
+	atomic_increment(&lock);
 	while (lock != 1) sleep(0);
 
 	if (*exp_ptr != *tar_ptr)
@@ -62,7 +64,7 @@ int compare_and_exchange(void ** exp_ptr, void ** tar_ptr, const void * src_ptr)
 		rv = 0;
 	}
 	
-	lock--;
+	atomic_decrement(&lock);
 	return(rv);
 }
 
