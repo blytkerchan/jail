@@ -1,3 +1,6 @@
+2004-07-17	blytkerchan
+	* modules: add release-libthread and dependencies
+
 2004-07-15	blytkerchan
 	* modules: fix type-o in release-libcontain module
 
