@@ -1,3 +1,7 @@
+2004-10-28	blytkerchan
+	* preproc.c: include license
+	* preproc.h: ditto
+
 2004-10-20	blytkerchan
 	* preprocp.y: include hash_helpers.h
 	prefer local includes to installed ones for libcontain'
