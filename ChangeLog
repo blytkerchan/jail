@@ -1,3 +1,6 @@
+2004-07-22	blytkerchan
+	* modules: remove libcontain-libmemory-arch - don't need it
+
 2004-07-19	blytkerchan
 	* loginfo: have a mail sent to jail-ust-cvs on each repo change
 
