@@ -1,0 +1,60 @@
+How critical sections work
+==========================
+The critical sections implemented in files critical_section.c and
+critical_section.h rely on the following things:
+1. the thread descriptor used by this library contains a "next" field of the
+   type of the thread descriptor, reserved for the sole purpose of the use
+   of these critical sections
+2. thread descriptors are unique to threads
+3. lt_thread_self() returns a value that, when compared to a previously 
+   returned value (returned by this function) using lt_thread_eq() will
+   compare as being equal
+
+The problem intended to be solved by this implementation is the following:
+* to ensure that no two threads can run the same critical section of code 
+  at the same time
+* to ensure that all threads that try to enter the critical section eventually 
+  do
+
+The former is commonly known as "mutual exclusion". The latter ensures the
+absence of deadlock for each thread.
+
+This implementation further has some restrictions worth noting:
+* being a "generic" implementation, no operating system-specific assumptions
+  and no architecture-specific assumptions are made *except* that the
+  architecture-specific functions used (most notably compare-and-swap) can be
+  implemented for all target architectures (this is the case for most modern
+  architectures, though compare-and-swap will sometimes have to be implemented
+  as load-locked/store-conditional
+* most notable under the OS-specific assumptions that are not made is that
+  semaphores are not assumed to be guaranteed to be released at some point in
+  time if there is a thread that releases them.
+  This has motivated the use of private per-thread semaphores in stead of a
+  global one that would guard the critical section: this allows the thread to
+  wait efficiently (i.e. depending on the underlying implementation, the OS
+  may not schedule the thread at all while it won't be able to run).
+  There is also an implementation that doesn't use semaphores at all, but uses
+  live locks in stead.
+
+The implementation is really a rather simple one if one looks at it through
+the logic of the algorithm: when a thread tries to enter a critical section of
+code, it calls the critical_section_enter() function with a handle that is
+unique to the critical section of code in question, obtained from the
+critical_section_new() function (which is run only once, at startup). This
+function enqueues the current thread's identifier in a shared queue that uses
+a non-blocking queue algorithm borrowed and adapted from libcontain (the
+adaption in question is that we *know* that only one thread will dequeue an
+item at any time). Once the threads identifier is enqueued, the thread will
+wait for its identifier to be at the head of the queue at which time it will
+leave the critical_section_enter() function, leaving the thread's identifier
+at the head of the queue.
+To leave the critical section, the thread will call critical_section_leave()
+which will dequeue the thread's identifier, thus enabling another thread to
+enter.
+
+AFAIK, this is the first time a critical section problem has been solved in
+this manner.
+
+rlc
+
+

@@ -1,0 +1,11 @@
+2004-07-17	blytkerchan
+	* ChangeLog: new file
+	* Makefile: ditto
+	* barrier.c: ditto
+	* barrier.h: ditto
+	* critical_section.c: ditto
+	* critical_section.h: ditto
+	* how_critical_sections_work.txt: ditto
+	* thread.c: ditto
+	* thread.h: ditto
+
