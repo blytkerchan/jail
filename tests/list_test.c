@@ -55,7 +55,7 @@ int main(void)
 	hptr_init();
 	smr_thread_init();
 	
-	list_t * list = new_list(compare_func);
+	list_t * list = list_new(compare_func);
 	int i;
 	
 	for (i = 0; strings[i]; i++)

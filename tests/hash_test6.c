@@ -53,7 +53,7 @@ void test_glib(void)
 		"this is another key",	// this one gets the same index as the first one
 		NULL
 	};
-	hash_t * hash = new_hash(GLIB_HASH, hash_func, compare_func);
+	hash_t * hash = hash_new(GLIB_HASH, 0, hash_func, compare_func);
 	int i;
 	char * key;
 	
