@@ -1,3 +1,16 @@
+2004-10-28	blytkerchan
+	* array.c: canonicalize the arch-specific includes
+	canonicalize libmemory includes
+	* binomial_tree.c: ditto
+	* hash.c: ditto
+	* heap.c: ditto
+	* list.c: ditto
+	* list_node.c: ditto
+	* map.c: ditto
+	* queue.c: ditto
+	* stack.c: ditto
+	* vector.c: ditto
+
 2004-10-22	blytkerchan
 	* hash.c (hash_remove): implement
 

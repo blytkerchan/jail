@@ -32,9 +32,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <stdlib.h>
-#include "arch/include/compare_and_exchange.h"
-#include "arch/include/increment.h"
-#include "arch/include/decrement.h"
+#include "arch/compare_and_exchange.h"
+#include "arch/increment.h"
+#include "arch/decrement.h"
 #include "heap.h"
 #include "binomial_tree.h"
 #include "binary.h"

@@ -36,8 +36,8 @@
 #include <unistd.h>
 #include "libmemory/smr.h"
 #include "libmemory/hptr.h"
-#include "arch/include/compare_and_exchange.h"
-#include "arch/include/increment.h"
+#include "arch/compare_and_exchange.h"
+#include "arch/increment.h"
 #include "hash.h"
 
 typedef struct _hash_node_t

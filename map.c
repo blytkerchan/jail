@@ -33,7 +33,7 @@
  */
 #include <assert.h>
 #include <stdlib.h> /* for NULL */
-#include "arch/include/compare_and_exchange.h"
+#include "arch/compare_and_exchange.h"
 #include "binomial_tree.h"
 #include "map.h"
 

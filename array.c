@@ -33,12 +33,12 @@
  */
 #include <stdlib.h>
 #include <string.h>
-#include <libmemory/smr.h>
-#include <libmemory/hptr.h>
-#include "arch/include/set.h"
-#include "arch/include/compare_and_exchange.h"
-#include "arch/include/increment.h"
-#include "arch/include/decrement.h"
+#include "libmemory/smr.h"
+#include "libmemory/hptr.h"
+#include "arch/set.h"
+#include "arch/compare_and_exchange.h"
+#include "arch/increment.h"
+#include "arch/decrement.h"
 #include "array.h"
 #include "binary.h"
 #include "thread.h"

@@ -32,9 +32,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <stdlib.h>
-#include <libmemory/smr.h>
-#include <libmemory/hptr.h>
-#include "arch/include/compare_and_exchange.h"
+#include "libmemory/smr.h"
+#include "libmemory/hptr.h"
+#include "arch/compare_and_exchange.h"
 #include "binomial_tree.h"
 #include "binary.h"
 

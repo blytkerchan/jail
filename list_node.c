@@ -32,9 +32,9 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <stdlib.h>
-#include "arch/include/compare_and_exchange.h"
-#include <libmemory/smr.h>
-#include <libmemory/hptr.h>
+#include "arch/compare_and_exchange.h"
+#include "libmemory/smr.h"
+#include "libmemory/hptr.h"
 #include "list_node.h"
 
 void list_node_free(list_node_t * node)

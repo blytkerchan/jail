@@ -34,7 +34,7 @@
 #include <stdlib.h>
 #include "libmemory/smr.h"
 #include "libmemory/hptr.h"
-#include "arch/include/compare_and_exchange.h"
+#include "arch/compare_and_exchange.h"
 #include "stack.h"
 
 /* This one is easy: we are the only ones working on the stack because it 
