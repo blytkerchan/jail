@@ -34,6 +34,8 @@
 #ifndef _arch_fetch_and_add_h
 #define _arch_fetch_and_add_h
 
+#include <stdint.h>
+
 int32_t fetch_and_add(int32_t * val, int32_t add);
 
 #endif // _arch_fetch_and_add_h

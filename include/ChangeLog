@@ -1,3 +1,6 @@
+2004-08-03	blytkerchan
+	* fetch_and_add.h: include stdint.h
+
 2004-08-02	blytkerchan
 	* fetch_and_add.h: new file
 
