@@ -1,3 +1,28 @@
+2004-08-11	blytkerchan
+	* array.c (array_put): use compare_and_exchange_ptr in stead of
+	obsolete compare_and_exchange
+	* binomial_tree.c (binomial_tree_get): ditto
+	(binomial_tree_set_root): ditto
+	(binomial_tree_node_set_left): ditto
+	(binomial_tree_node_set_right): ditto
+	(binomial_tree_node_set_value): ditto
+	* list.c (list_find): ditto
+	(list_delete): ditto
+	* map.c (map_remove): ditto
+	* queue.c (queue_enq): ditto
+	(queue_deq): ditto
+	* stack.c (free_stack): ditto
+	(stack_pop): ditto
+	(stack_push): ditto
+	* heap.c (heap_select_node): use uint32_t for exp
+	use compare_and_exchange_int in stead of obsolete compare_and_exchange
+	(heap_fix): ditto (both)
+	(heap_add): use uint32_t for o_n, n and exp
+	use compare_and_exchange_int in stead of obsolete compare_and_exchange
+	* heap.h: include stdint.h
+	[heap_node_t]: use uint32_t for flag in stead of int
+	[heap_t]: ditto for N and flag
+
 2004-08-10	blytkerchan	compile with gcc 2.95.4
 	* array.c (array_sort_worker): move declaration for t_array up a bit
 	* hash.c (hash_get): move variable declarations before optional code

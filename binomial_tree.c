@@ -62,7 +62,7 @@ binomial_tree_node_t * binomial_tree_get_root(binomial_tree_t * handle)
 		while ((top = handle->trunk) == NULL)
 		{	/* create a trunk if need be */
 			curr = binomial_tree_node_new(NULL);
-			if (compare_and_exchange(&top, &(handle->trunk), curr) != 0)
+			if (compare_and_exchange_ptr(&top, &(handle->trunk), curr) != 0)
 			{
 				binomial_tree_node_free(curr);
 			}
@@ -95,9 +95,9 @@ int binomial_tree_set_root(binomial_tree_t * tree, binomial_tree_node_t * exp, b
 {
 	binomial_tree_node_t * o_parent = val->parent;
 	
-	if (compare_and_exchange(&exp, &(tree->trunk), val) == 0)
+	if (compare_and_exchange_ptr(&exp, &(tree->trunk), val) == 0)
 	{
-		compare_and_exchange(&o_parent, &(val->parent), NULL);
+		compare_and_exchange_ptr(&o_parent, &(val->parent), NULL);
 		return 0;
 	}
 	return 1;
@@ -156,9 +156,9 @@ int binomial_tree_node_set_left(binomial_tree_node_t * node, binomial_tree_node_
 {
 	binomial_tree_node_t * o_parent = nval->parent;
 	
-	if (compare_and_exchange(&exp, &(node->left), nval) == 0)
+	if (compare_and_exchange_ptr(&exp, &(node->left), nval) == 0)
 	{
-		compare_and_exchange(&o_parent, &(nval->parent), node);
+		compare_and_exchange_ptr(&o_parent, &(nval->parent), node);
 		return 0;
 	}
 	
@@ -169,9 +169,9 @@ int binomial_tree_node_set_right(binomial_tree_node_t * node, binomial_tree_node
 {
 	binomial_tree_node_t * o_parent = nval->parent;
 	
-	if (compare_and_exchange(&exp, &(node->right), nval) == 0)
+	if (compare_and_exchange_ptr(&exp, &(node->right), nval) == 0)
 	{
-		compare_and_exchange(&o_parent, &(nval->parent), node);
+		compare_and_exchange_ptr(&o_parent, &(nval->parent), node);
 		return 0;
 	}
 	
@@ -214,7 +214,7 @@ void * binomial_tree_node_get_value(binomial_tree_node_t * node)
 
 int binomial_tree_node_set_value(binomial_tree_node_t * node, void * curr, void * val)
 {
-	return compare_and_exchange(&curr, &(node->val), val);
+	return compare_and_exchange_ptr(&curr, &(node->val), val);
 }
 
 static binomial_tree_node_t * binomial_tree_node_select(binomial_tree_node_t * root, unsigned int level, unsigned int nodeind)

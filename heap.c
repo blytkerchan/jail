@@ -111,7 +111,7 @@ static binomial_tree_node_t * heap_select_node(binomial_tree_node_t * root, size
 {
 	heap_node_t * node;
 	size_t k, r;
-	int exp;
+	uint32_t exp;
 	
 	if (n == 0)
 	{
@@ -125,7 +125,7 @@ static binomial_tree_node_t * heap_select_node(binomial_tree_node_t * root, size
 				return root;
 		}
 		exp = 0;
-		if (compare_and_exchange(&exp, &(((heap_node_t*)(root->val))->flag), (void*)1) != 0)
+		if (compare_and_exchange_int(&exp, &(((heap_node_t*)(root->val))->flag), 1) != 0)
 			return NULL;
 		return root;
 	}
@@ -140,20 +140,21 @@ static binomial_tree_node_t * heap_select_node(binomial_tree_node_t * root, size
 
 void heap_add(heap_t * handle, void * val)
 {
-	size_t o_n;
-	size_t n;
+	uint32_t o_n;
+	uint32_t n;
 	binomial_tree_node_t * node = NULL;
 	binomial_tree_node_t * parent;
 	heap_node_t * heap_node;
 	heap_node_t * heap_parent_node;
-	int exp, rc;
+	uint32_t exp;
+	int rc;
 
 	SOFT_LOCK(handle);
 	do
 	{
 		o_n = handle->N;
 		n = o_n + 1;
-	} while (compare_and_exchange(&o_n, &(handle->N), (void*)n));
+	} while (compare_and_exchange_int(&o_n, &(handle->N), n));
 	/* these two should never fail.. */
 	node = heap_select_node(binomial_tree_get_root(handle->tree), lg(n) + 1, n - 1);
 	heap_node = binomial_tree_node_get_value(node);
@@ -171,7 +172,7 @@ void heap_add(heap_t * handle, void * val)
 			}
 			if ((heap_parent_node = (heap_node_t*)binomial_tree_node_get_value(parent)) == NULL)
 				continue;
-		} while (compare_and_exchange(&exp, &(((heap_node_t*)(parent->val))->flag), (void*)1) != 0);
+		} while (compare_and_exchange_int(&exp, &(((heap_node_t*)(parent->val))->flag), 1) != 0);
 		rc = handle->heap_val_cmp_func(heap_node->val, heap_parent_node->val);
 		if (rc <= 0)
 		{
@@ -221,7 +222,7 @@ static void heap_fix(heap_t * handle, binomial_tree_node_t * root)
 	heap_node_t * left_node;
 	heap_node_t * right_node;
 	heap_node_t * largest_child_node;
-	int exp;
+	int32_t exp;
 
 	if ((root_node = binomial_tree_node_get_value(root)) == NULL)
 		return;
@@ -241,13 +242,13 @@ static void heap_fix(heap_t * handle, binomial_tree_node_t * root)
 			root_node->flag = 0;
 			return;
 		}
-	} while (compare_and_exchange(&exp, &(left_node->flag), (void*)1) != 0);
+	} while (compare_and_exchange_int(&exp, &(left_node->flag), 1) != 0);
 	do
 	{
 		exp = 0;
 		if ((right_node = binomial_tree_node_get_value(right)) == NULL)
 			break;
-	} while (compare_and_exchange(&exp, &(right_node->flag), (void*)1));
+	} while (compare_and_exchange_int(&exp, &(right_node->flag), 1));
 
 	largest_child = left;
 	largest_child_node = left_node;

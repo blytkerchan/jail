@@ -259,7 +259,7 @@ map_remove_start:
 		{
 			exp = 0;
 			/* found the node to delete.. */
-			if (compare_and_exchange(&exp, &(cval->flag), (void*)1))
+			if (compare_and_exchange_ptr(&exp, &(cval->flag), (void*)1))
 			{
 				binomial_tree_node_release(curr);
 				goto map_remove_start;
@@ -274,7 +274,7 @@ map_remove_start:
 	map_remove_helper_data.handle = handle;
 	binomial_tree_node_foreach(root, map_remove_helper, &map_remove_helper_data);
 	exp = 1;
-	assert(compare_and_exchange(&exp, &(cval->flag), (void*)2) == 0);
+	assert(compare_and_exchange_ptr(&exp, &(cval->flag), (void*)2) == 0);
 	
 	/* step 3 */
 	rchild = binomial_tree_node_get_right(curr);

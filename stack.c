@@ -58,7 +58,7 @@ void free_stack(stack_t * stack)
 
 	/* we atomically put the current top in cur_top and set it to NULL. When
 	 * done, we're guaranteed to have the latest top in cur_top. */
-	while (compare_and_exchange(&curr, &(stack->top), NULL) != 0);
+	while (compare_and_exchange_ptr(&curr, &(stack->top), NULL) != 0);
 
 	/* now for each node in the stack, we delete it */
 	while (curr)
@@ -114,7 +114,7 @@ int stack_pop(stack_t * stack)
 			hptr_register(1, next);
 			if ((next != curr->next) || (curr != stack->top))
 				continue;
-			if (compare_and_exchange(&curr, &(stack->top), curr->next) == 0)
+			if (compare_and_exchange_ptr(&curr, &(stack->top), curr->next) == 0)
 			{
 				free(curr);
 				retval = 1;
@@ -143,5 +143,5 @@ void stack_push(stack_t * stack, void * val)
 		top = stack->top;
 		new_node->val = val;
 		new_node->next = top;
-	} while (compare_and_exchange(&top, &(stack->top), new_node) != 0);
+	} while (compare_and_exchange_ptr(&top, &(stack->top), new_node) != 0);
 }

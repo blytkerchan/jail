@@ -118,7 +118,7 @@ int array_put(array_t * array, size_t i, void * val)
 		/* we want to know what value we replaced, in order to know whether the
 		 * entry count should be increment and whether we can assume to still be
 		 * condensed. */
-		while (compare_and_exchange(&rv, &(nodes[i].val), val) != 0);
+		while (compare_and_exchange_ptr(&rv, &(nodes[i].val), val) != 0);
 	} while (nodes != array->nodes);
 	/* when we get here, the node has been set/replaced and we know it is still
 	 * linked to the array, so the actual work is done. */

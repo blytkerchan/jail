@@ -34,6 +34,7 @@
 #ifndef _LIBCONTAIN_HEAP_H
 #define _LIBCONTAIN_HEAP_H
 
+#include <stdint.h>
 #include "libcontain_config.h"
 
 #define HEAP_DEFAULT_SIZE 	100
@@ -44,16 +45,16 @@
 
 typedef struct {
 	void * val;
-	int flag;
+	uint32_t flag;
 } heap_node_t;
 
 typedef struct 
 {
 	binomial_tree_t * tree;
 	libcontain_cmp_func_t heap_val_cmp_func;
-	size_t N;
+	uint32_t N;
 	unsigned int workers;
-	int flag;
+	uint32_t flag;
 } heap_t;
 
 heap_t * heap_new(libcontain_cmp_func_t heap_val_cmp_func);

@@ -83,13 +83,13 @@ void queue_enq(queue_t * queue, void * data)
 		if (old_tail != queue->tail) continue;
 		if (old_next != NULL)
 		{
-			compare_and_exchange(&old_tail, &(queue->tail), old_next);
+			compare_and_exchange_ptr(&old_tail, &(queue->tail), old_next);
 			continue;
 		}
-		if (compare_and_exchange(&old_next, &(old_tail->next), n_node) == 0)
+		if (compare_and_exchange_ptr(&old_next, &(old_tail->next), n_node) == 0)
 			break;
 	}
-	compare_and_exchange(&old_tail, &(queue->tail), n_node);
+	compare_and_exchange_ptr(&old_tail, &(queue->tail), n_node);
 	hptr_free(0);
 }
 
@@ -128,11 +128,11 @@ void * queue_deq(queue_t * queue)
 				hptr_free(2);
 				return NULL;
 			}
-			compare_and_exchange(&old_tail, &(queue->tail), old_next);
+			compare_and_exchange_ptr(&old_tail, &(queue->tail), old_next);
 			continue;
 		}
 		retval = old_next->data;
-		if (compare_and_exchange(&old_head, &(queue->head), old_next) == 0)
+		if (compare_and_exchange_ptr(&old_head, &(queue->head), old_next) == 0)
 			break;
 	}
 	free(old_head);

@@ -106,7 +106,7 @@ try_again:
 		}
 		else
 		{
-			if (compare_and_exchange(&(state->curr), &(state->prev->next), state->next) == 0)
+			if (compare_and_exchange_ptr(&(state->curr), &(state->prev->next), state->next) == 0)
 				free(state->curr);
 			else goto try_again;
 		}
@@ -135,7 +135,7 @@ static int list_node_insert(list_t * list, list_node_t * node)
 		}
 		node->mark = 0;
 		node->next = state->curr;
-		if (compare_and_exchange(&(state->curr), &(state->prev->next), node) == 0)
+		if (compare_and_exchange_ptr(&(state->curr), &(state->prev->next), node) == 0)
 		{
 			retval = 0;
 			break;
@@ -181,9 +181,9 @@ int list_delete(list_t * list, void * val)
 		}
 		cmark = 0;
 		nmark = 1;
-		if (compare_and_exchange(&cmark, &(state->curr->mark), (void*)nmark) != 0)
+		if (compare_and_exchange_ptr(&cmark, &(state->curr->mark), (void*)nmark) != 0)
 			continue;
-		if (compare_and_exchange(&(state->curr), &(state->prev->next), state->next) == 0)
+		if (compare_and_exchange_ptr(&(state->curr), &(state->prev->next), state->next) == 0)
 		{
 			list_node_free(state->curr);
 			retval = 0;
