@@ -56,62 +56,67 @@ void array_foreach(array_t * array, array_foreach_func_t array_foreach_func, voi
 <listitem><para>Allocate a new array of size SIZE.</para>
 <para>This function allocates a new array of the given size. The new array is 
 empty and is guaranteed to have enough space for at least SIZE elements. On
-error, NULL is returned.</para></listitem></varlistentry>
+error, NULL is returned.</para>
+<para>This function may safely be called from any number of threads at a time.</para>
+</listitem></varlistentry>
 
 <varlistentry><term><function>void free_array(array_t * array)</function></term>
 <listitem><para>Free and destroy the array ARRAY.</para>
+<para>This function destroys the array and frees any memory associated with
+it. It does not use or free anything it contains.</para>
 <para>As of the moment this function starts, all other operations on array 
-ARRAY have undefined results. This function destroys the array and frees any
-memory associated with it. It does not use or free anything it contains.
-</para></listitem></varlistentry>
+ARRAY have undefined results.</para>
+</listitem></varlistentry>
 
 <varlistentry><term><function>void * array_get(array_t * array, size_t i)</function></term>
 <listitem><para>Retrieve the item stored in ARRAY at index I.</para>
-<para>You may safely call this function on a single array from more than one 
-thread at a time. If I is out of bounds or if the array does not contain 
-anything at index I, NULL is returned.
-</para></listitem></varlistentry>
+<para>If I is out of bounds or if the array does not contain anything at index
+I, NULL is returned.</para>
+<para>This function may safely be combined with any other function in this API 
+on the same ARRAY object.</para>
+</listitem></varlistentry>
 
 <varlistentry><term><function>void array_put(array_t * array, size_t i, void * val)</function></term>
 <listitem><para>Store the value VAL at index I in array ARRAY</para>
-<para><emphasis>Iff</emphasis> I is within bounds, this function may safely be
-called from more than one thread at the same time on a single array. If I is
-not within bounds, this function may not be combined with any other function 
-in the array implementation's API on the same array. If I is not within bounds,
-the array is grown by its default increase size an integer number of times to
-make I fall within bounds.</para></listitem></varlistentry>
+<para>This function puts the value VAL at index I in array ARRAY and grows
+the array so I is in bounds if need be. If VAL is NULL, the number of entries
+in the array is decrement iff there was a value at index I.</para>
+<para>This array may safely be combined with any other function in the API on 
+the same array object.</para></listitem></varlistentry>
 
 <varlistentry><term><function>void array_push_back(array_t * array, void * val)</function></term>
 <listitem><para>Push a value VAL on the end of array ARRAY.</para>
-<para><emphasis>Iff</emphasis> the number of entries in the array is infiriour 
-to the size of the array <emphasis>and</emphasis> the array is condensed, this
-function can safely be called on a single array from different threads at the
-same time. If either condition is false, the array will be grown and/or 
-condensed, in which case the function should be the only one called on the
-array at the time.
-</para></listitem></varlistentry>
+<para>This function pushes the value VAL to the end of the array. It will 
+condense the array if it isn't condensed yet and it will grow the array if the
+size isn't enough for another value.</para>
+<para>This function may be combined with any call to any function in this API
+on a single object. However, if you combine this with a call to 
+<function>array_put</function> (where I is out-of-bounds), 
+<function>array_resize</function> or <function>array_push_back</function> (where
+the array is not big enough to add another value), there is a slight chance of 
+the value being added to the array more than once (i.e. this chance only
+exists if the array is resized by any of these functions).</para></listitem>
+</varlistentry>
 
 <varlistentry><term><function>size_t array_get_size(array_t * array)</function></term>
 <listitem><para>Get the size of the array ARRAY</para>
 <para>Returns the size of the array - the number of entries the array may 
-contain. This function may safely be called from any number of threads on
-a single array at any time, even if a non-safe call to 
-<function>array_put</function> or <function>array_push_back</function> is in
-progress.</para></listitem></varlistentry>
+contain.</para>
+<para>This function may safely be called from any number of threads on
+a single array at any time.</para></listitem></varlistentry>
 
 <varlistentry><term><function>size_t array_get_numentries(array_t * array)</function></term>
 <listitem><para>Get the number of entries currently in the array ARRAY</para>
-<para>Returns the number of entries currently stored in the array.
-This function may safely be called from any number of threads on
-a single array at any time, even if a non-safe call to
-<function>array_put</function> or <function>array_push_back</function> is in
-progress.</para></listitem></varlistentry>
+<para>Returns the number of entries currently stored in the array.</para>
+<para>This function may safely be called from any number of threads on
+a single array at any time</para>
+</listitem></varlistentry>
 
 <varlistentry><term><function>void array_resize(array_t * array, size_t size)</function></term>
 <listitem><para>Resize the array ARRAY to be able to hold at least SIZE elements.</para>
-<para>This function can not safely be called in combination with 
-<emphasis>any</emphasis> other function on the same array.
-</para></listitem></varlistentry>
+<para>This function can safely be called in combination with any other function
+in the API, including itself. If more than one resize is in progress, the one
+that results in the largest array will <quote>win</quote></para></listitem></varlistentry>
 
 <varlistentry><term><function>array_t * array_copy(array_t * array)</function></term>
 <listitem><para>Copy the array ARRAY.</para>
@@ -119,19 +124,8 @@ progress.</para></listitem></varlistentry>
 handle. On error, it returns NULL. It does not copy the elements it contains 
 but does copy the pointers to the new array. To copy whatever the pointers 
 point to, use the <function>array_deep_copy</function> function.</para>
-<para>This function can not safely be called in combination with
-<emphasis>any</emphasis> other function on the same array.
-</para></listitem></varlistentry>
-
-<varlistentry><term><function>array_t * array_merge(array_t * array1, array_t * array2, array_cmp_func_t cmp_func)</function></term>
-<listitem><para>Merge two arrays into a third.</para>
-<para>This function creates a new array containing the pointers of ARRAY1 and 
-ARRAY2 while remaining sorted. Both arrays are assumed to be sorted (and 
-condensed). Otherwise, the results are undefined. The CMP_FUNC function is used
-to compare the elements in the two arrays.</para>
-<para>This function can not safely be called in combination with
-<emphasis>any</emphasis> other function on the same array.
-</para></listitem></varlistentry>
+<para>This function can safely be called in combination with any other function
+on the same array.</para></listitem></varlistentry>
 
 <varlistentry><term><function>array_t * array_deep_copy(array_t * array, array_valcopy_func_t array_valcopy_func)</function></term>
 <listitem><para>Make a copy of array ARRAY and call ARRAY_VALCOPY_FUNC for 
@@ -139,9 +133,19 @@ each value to copy it.</para>
 <para>This creates a new array and returns a pointer to it. It
 returns NULL on error. The ARRAY_VALCOPY_FUNC is only called on non-NULL 
 elements in the array and is expected to never fail.</para>
-<para>This function can not safely be called in combination with
-<emphasis>any</emphasis> other function on the same array.
-</para></listitem></varlistentry>
+<para>This function can safely be called in combination with any other function
+on the same array.</para></listitem></varlistentry>
+
+<varlistentry><term><function>array_t * array_merge(array_t * array1, array_t * array2, array_cmp_func_t cmp_func)</function></term>
+<listitem><para>Merge two arrays into a third.</para>
+<para>This function creates a new array containing the pointers of ARRAY1 and 
+ARRAY2 while remaining sorted. Both arrays are assumed to be sorted (and 
+condensed). Otherwise, the results are undefined. The CMP_FUNC function is used
+to compare the elements in the two arrays.</para>
+<para>This function can safely be combined with any of the reading functions of
+this API. Writing to one of the two arrays while this function is in progress
+will cause unspecified results in the third array - the one produced by this
+function.</para></listitem></varlistentry>
 
 <varlistentry><term><function>void array_condense(array_t * array)</function></term>
 <listitem><para>Condense the array ARRAY</para>
@@ -149,9 +153,11 @@ elements in the array and is expected to never fail.</para>
 order of the elements is undefined, but after this operation, all elements are
 guaranteed to follow eachother, which makes the 
 <function>array_push_back</function> and sort functions faster.</para>
-<para>This function can not safely be called in combination with
-<emphasis>any</emphasis> other function on the same array.
-</para></listitem></varlistentry>
+<para>For concurrent calls to this function on the same array, this function is
+as thread-safe as the underlying qsort(3) implementation. Otherwise, this 
+function can safely be combined with any of the other functions in this API, 
+but condensing may not work properly if values are added or removed during the
+condensing operation.</para></listitem></varlistentry>
 
 <varlistentry><term><function>void array_sort(array_t * array, array_cmp_func_t cmp_func)</function></term>
 <listitem><para>Sort the array in ascending order.</para>
@@ -161,22 +167,22 @@ QuickSort, which is Omega(n^2) whereas the binary merge sort is O(n lg(n)).
 However, I have not emperically proven that it is really faster (which would 
 be rather difficult to prove as QuickSort is randomized). I am more than 
 willing to entertain discussions and testcases on this matter.</para>
-<para>This function can not safely be called in combination with
-<emphasis>any</emphasis> other function on the same array.
+<para>This function can safely be called in combination with any of the reading
+functions, but writing to an array while it is being sorted will result in
+unspecified results in the array.
 </para></listitem></varlistentry>
 
 <varlistentry><term><function>void * array_search(array_t * array, void * val, array_cmp_func_t cmp_func)</function></term>
 <listitem><para>Search the array ARRAY for the value VAL with compare function
 CMP_FUNC.</para>
-<para>Because the stored type may be a structure of which CMP_FUNC need not 
-examine the entire contents, this function may be useful for finding a value
-in the array without knowing the entire contents of the value.</para>
-<para>This function uses a binary search algorithm <emphasis>iff</emphasis> 
-the array is sorted. Otherwise, it uses a linear search algorithm. CMP_FUNC
-is only called on non-NULL elements. This function returns NULL of the value
-VAL is not found on the array.</para>
-<para>This function may safely be called in combination with other functions on
-the same array.
+<para>This function uses one of two search algorithms depending on whether the
+array is sorted. If it is sorted, this function uses the binary search 
+algorithm. If it is not sortedm this function uses a linear search algorithm.
+</para>
+<para>This function can safely be combined with any other function in the API
+on the same array object. However, it is not guaranteed to return the proper
+results of the array contents is changed during the search and may, in that
+case, return false negatives.
 </para></listitem></varlistentry>
 
 <varlistentry><term><function>void array_set_default_increase(array_t * array, size_t increase)</function></term>
@@ -196,9 +202,20 @@ write operations.</para>
 <title>Thread-Safety</title>
 <para>The implementation is completely re-entrant. You can therefore safely use
 any number of <emphasis>different</emphasis> instances in different threads at
-the same time. The implementation does not provide for thread-safety to use a
-single instance from different threads at the same time at the moment. Results
-of such use are undefined.</para>
+the same time. This implementation is also intended to be thread-safe in that 
+you can use almost any combination of functions on a single array object without
+thread-safety problems. Exceptions on this are that writing to an array while it
+is being sorted may result in undefined values being stored in the array; 
+condensing an array from more than one thread at a time is no more thread-safe
+that the underlying qsort implementation from the CRTL is for sorting the same
+array from different threads at the same time.</para>
+<para>Resizing an array presents a small problem with regards to thread-safety:
+there is a bug in the current implementation (see the Bugs section) that could
+result in information being lost of you write while the array is being resized.
+</para>
+<para>Basically, if your array is big enough, you can any of the functions that
+only read from the array with eachother, and with one of the functions that
+write to the array, without problems.</para>
 </refsect1>
 
 <refsect1>
@@ -221,35 +238,16 @@ changed, DATA may be altered.</para>
 
 <refsect1>
 <title>Bugs</title>
-<para>Version 0.1-alpha1 of libcontain, interface version 1:0:0, contains the 
-following bugs in the array implementation:
-<variablelist>
-<varlistentry><term>In function <function>array_put</function></term>
-<listitem><para>found and fixed on 2004-04-16; versions after this date do not 
-contain this bug.</para>
-<para>The function did not consistently grow the array enough if the given 
-index was out of bounds. The bug may result in undefined behaviour for 
-out-of-bounds indices on this function.
-</para></listitem></varlistentry>
-
-<varlistentry><term>The attribute <function>condensed</function></term>
-<listitem><para>found and fixed on 2004-04-16; versions after this date do not 
-contain this bug.</para>
-<para>The <function>condensed</function> attribute was not initialized at array
-allocation, possibly leading to condensation of the array without need. This
-bug may slow down the implementation. but should not cause any real problems.
-</para></listitem></varlistentry>
-
-<varlistentry><term>In function <function>array_put</function></term>
-<listitem><para>found and fixed on 2004-04-16; versions after this date do not
-contain this bug.</para>
-<para>The <function>condensed</function> attribute was cleared even if the
-array remained condensed after the put operation, possibly leading to 
-condensation of the array without need. This bug may slow down the 
-implementation. but should not cause any real problems.
-</para></listitem></varlistentry>
-</variablelist>
-</para>
+<para>There is a race condition in <function>array_resize</function> which 
+causes any changes made to the array between the time its contents is copied
+to the new array and the time the new array is hooked into the descriptor
+to be lost. This race condition has no solution yet, which means that any
+operation that resizes the array (out-of-bounds indices in 
+<function>array_put</function> or <function>array_push_back</function> or
+calls to <function>array_resize</function>) combined with any operations 
+that changes the array (calls to <function>array_put</function> or <function>
+array_push_back</function>) may cause loss of information.</para>
 </refsect1>
 
 </refentry>
+

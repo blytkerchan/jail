@@ -1,3 +1,26 @@
+2004-04-29	blytkerchan	using libmemory in array implementation
+	* how_arrays_work: new file
+	* thread.h: ditto
+	* libcontain_config.h: ditto
+	* array.c: include libmemory header files
+	(array_get): rewrite to use hazard pointers and atomic actions (where applicable)
+	(array_put): ditto
+	(array_push_back): ditto
+	(array_resize): ditto
+	(array_merge): ditto
+	(array_condense): ditto
+	(array_sort): ditto
+	(array_search): ditto
+	(array_default_increase): ditto
+	(array_deep_copy): ditto
+	(array_foreach): ditto
+	(array_copy): ditto
+	(array_get_size): rewrite to handle size temporarily being 0
+	(array_binary_search): re-format leading comment
+	(array_merge2): re-format function parameters
+	* array.h [array_t]: add flag attribute
+	* array.sgml: update regarding thread-safety
+	
 2004-04-28	blytkerchan
 	* Makefile.am [SUBDIRS]: add libmemory (both instances)
 	[libcontain_la_SOURCES]: add binary.c
