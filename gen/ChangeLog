@@ -1,3 +1,6 @@
+2004-04-08	blytkerchan
+	* compare_and_exchange.c: add 2004 to the license years
+
 2004-01-29	blytkerchan
 	* compare_and_exchange.c: use atomic_increment and atomic_decrement to\
 	at least do *that* atomically.
