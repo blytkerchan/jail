@@ -61,8 +61,12 @@ size_t array_get_numentries(array_t * array)
 void array_resize(array_t * array, size_t size)
 {
 	array_node_t * new_nodes = calloc(size, sizeof(array_node_t));
+	array_node_t * o_nodes;
+	
 	memcpy(new_nodes, array->nodes, (array->size < size ? array->size : size) * sizeof(array_node_t));
+	o_nodes = array->nodes;
 	array->nodes = new_nodes;
+	free(o_nodes);
 	array->size = size;
 }
 
@@ -282,6 +286,7 @@ static void array_sort_worker(array_node_t * array_nodes, size_t n, array_cmp_fu
 		array_sort_worker(array_nodes + m + n % 2, m, cmp_func);
 		array_t * t_array = array_merge1(array_nodes, array_nodes + m + n % 2, m + n % 2, m, cmp_func);
 		memcpy(array_nodes, t_array->nodes, n * sizeof(array_node_t));
+		free_array(t_array);
 	}
 	else if (n == 2)
 	{

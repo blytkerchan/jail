@@ -3,7 +3,7 @@
 
 int array_test1_sort_helper(const void * ptr1, const void * ptr2)
 {
-	return ptr2 - ptr1;
+	return ptr1 - ptr2;
 }
 
 void array_test1(void)
@@ -20,6 +20,8 @@ void array_test1(void)
 	for (i = 0; i < 2 * ARRAY_DEFAULT_SIZE; i++)
 		fprintf(stderr, "%.3d, ", (int)array_get(array, i));
 	fprintf(stderr, "\n");
+
+	free_array(array);
 }
 
 int main(void)

@@ -1,3 +1,9 @@
+2004-03-27	blytkerchan
+	* array.c (array_resize): fix memory leak
+	(array_sort_worker): ditto
+	* tests/array_test.c (array_test1): ditto
+	(array_test1_sort_helper): invert sort order
+
 2004-03-25	blytkerchan
 	* array.h: new file
 	* array.c: ditto
