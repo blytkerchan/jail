@@ -29,6 +29,9 @@ The CVS repository currently contains five "modules":
     for the Hash library classes
   - C
     for the C interface
+* preprocessor
+  The files for the preprocessor. If you want to work on this, the required 
+  skills (the ones you have or want to learn) are the same as for the compiler.
 * standards
   This directory contains the coding and other standards applicable to the
   project. You can't work on this unless you're a project admin.
@@ -56,7 +59,6 @@ possible (alias modules).
 
 Some directories that don't exist yet at the time of writing, but will soon:
 
-preprocessor	the files for the preprocessor
 libdb		the files for the shared database manager
 arch		architecture-dependant code
 config		configuration (and IDE project) files
