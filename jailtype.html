@@ -191,16 +191,60 @@ just about anything. Those types are:</p>
 <caption>Jail pre-defined types</caption>
 <tbody>
 <tr class="title"><td>Type</td><td>Description</td></tr>
-<tr><td class="subject">Item</td><td></td></tr>
+<tr><td class="subject">Item</td><td>This is the "superclass": the class from
+which all other classes inherit. The only use for this class as a type is for
+variables for which the type is unknown at the time they're defined.<br/>
+Every class that does not explicitly extend another class implicitly extends
+the Item class. Any class that explicitly extends another class has no direct
+link with the Item class unless it is explicitly extended as well.<br/>
+There is no need to explicitly extend the Item class in any case: it doesn't
+add anything to any class that any other class doesn't already have in any 
+case, as all it does is define the default semantics of a number of functions
+(operators, mostly).</td></tr>
 <tr><td class="subject" colspan=2 align="center">Scalar types</td></tr>
-<tr><td class="subject">Scalar</td><td></td></tr>
-<tr><td class="subject">Number</td><td></td></tr>
-<tr><td class="subject">Integer</td><td></td></tr>
-<tr><td class="subject">String</td><td></td></tr>
+<tr><td class="subject">Scalar</td><td>The Scalar class is a class that can 
+contain any scalar value. Scalar values are numeric values or string values.
+In Jail, references are not scalar values as they are in some other languages
+(notably Perl). All the following scalar-type classes inherit from this class.
+<br/>
+Unlike in some other languages, Scalars cannot be considered Containers in 
+Jail: a Container is an object that contains other objects. Scalars in Jail
+are objects that contains primitives. They are the only objects that can do
+so and all primitives are wrapped in a scalar class - there is no way you can
+use a primitive without using the Scalar wrapper class as the compiler will
+simply not support it (you can, of course, implement your own wrapper class
+around a native function, which is how Scalar classes are made).</td></tr>
+<tr><td class="subject">Number</td><td>Objects of this type can store any
+numeric value.</td></tr>
+<tr><td class="subject">Integer</td><td>Objects of this type can store any
+integer value. This class inherits from the Number class and can be up-cast
+to it without loss of data. Casting a Number to an Integer is not possible,
+though, because you would loose the data behind the decimal dot.</td></tr>
+<tr><td class="subject">Character</td><td>Object of this type store printable
+and non-printable characters. Many of the characteristics of this class are the
+same as those of Integer but casting doesn't quite work the same way: casting
+a character to a number or an integer interpretes the character and gives you
+its numeric value (not its ASCII value).<br/>
+This class can store any character defined in Unicode. There is no guarantee 
+on how the character is stored internally (i.e. how many bits it uses, etc.).
+</td></tr>
+<tr><td class="subject">String</td><td>This is a bit of a special scalar, as
+it is also a container of sorts.<br/>
+The String class is basically an array of characters, which has many of the 
+same characteristics as a normal array, except for the fact that it can only
+contain characters and that strings are terminated by the NUL character (a
+special non-printable character that exists only to denote the end of strings).<br/>
+The String class cannot be used to contain binary data (whereas an array of 
+characters could be used for that purpose).
+</td></tr>
 <tr><td class="subject" colspan=2 align="center">Container types</td></tr>
-<tr><td class="subject">Array</td><td></td></tr>
-
-
+<tr><td class="subject">Array</td><td>An array is a statically dimensioned 
+container. This basically means you can only size it once, after which you will
+no longer be able to change its size.</td></tr>
+<tr><td class="subject">List</td><td></td></tr>
+<tr><td class="subject">Map</td><td></td></tr>
+<tr><td class="subject">Hash</td><td></td></tr>
+<tr><td class="subject">Heap</td><td></td></tr>
 <!--
 <tr><td class="subject"></td><td></td></tr>
 -->
@@ -219,6 +263,6 @@ width="210" height="62" border="0" align="right" alt=
 </tbody>
 </table>
 <div style="text-align: right; font-size: smaller;"<a href="#top">back to top</a></div>
-<div align="right">This page was last updated: $Date: 2004/01/27 09:46:48 $</div>
+<div align="right">This page was last updated: $Date: 2004/01/27 17:24:56 $</div>
 </body>
 </html>
