@@ -1,0 +1,10 @@
+00-index		this file
+24319101.pdf		i486 instruction reference, downloaded from 
+			http://developer.intel.com/design/pentium/manuals/24319101.pdf
+			PLEASE NOTE: this file is *not* covered under the Jail
+			license: it belongs to Intel and is only here because
+			it is useful as a reference in the arch/i486 
+			development. It can be freely downloaded from the 
+			indicated address.
+ChangeLog		change log for this directory
+
