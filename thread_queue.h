@@ -39,7 +39,8 @@
 typedef struct _lt_thread_queue_t 
 {
 	lt_thread_t * head;
-	void * tail;
+	lt_thread_t * tail;
+	lt_thread_t * dummy;
 } lt_thread_queue_t;
 
 lt_thread_queue_t * lt_thread_queue_new(void);

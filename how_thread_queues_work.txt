@@ -1,0 +1,44 @@
+How thread queues work
+======================
+
+The problem:
+-----------
+To create a queue of thread descriptors
+* using the thread descriptors as nodes
+* making sure that once the thread descriptor has been de-queued, it is really 
+  no longer in the queue (i.e. don't use it as a stub node)
+* without using locks
+
+The rationale of the problem:
+----------------------------
+We want to use thread descriptors as nodes to avoid chicken-and-egg problems 
+and memory allocation overheads: the chicken-and-egg problem would occur if 
+the queue were used in a lock that were used for the memory allocation used
+by the queue, for example.
+We don't want the thread descriptor to "hang around" in the queue after being 
+de-queued because it may have to be used in another queue.
+We don't want to use locks because we want to be fast, robust, etc. - and 
+because we're implementing this queue to use for implementing locks, so we
+want to avoid chicken-and-egg problems again.
+
+The solution - step one:
+-----------------------
+Adopt and adapt the queue algorithm from libcontain, using thread descriptors
+as nodes: the algorithm doesn't use locks but does keep a node around when 
+de-queued. Hence, the real problem to solve is how to make sure the nodes we
+dequeue don't stick around.
+
+The solution - step two:
+-----------------------
+Add a dummy node! This node will always be in the queue, and will be added to 
+the queue every time it is popped off. Hence:
+* an empty queue only contains the dummy node
+  i.e. head == tail == dummy && dummy^.next == NULL
+* if a deq de-queues the dummy, we re-queue it and de-queue another node
+* where we'd free a node in the original queue algorithm, we've actually found
+  the node we want
+Now, only one dummy node may not be enough for concurrent deq's: if we deq the
+dummy another thread may deq another node while we enq the dummy, so deq-ing
+the dummy should enq a new dummy first. Hence the lt_thread_t::flag should be
+tagged "dummy" (or, appropriately, 0xdeadbeef) :)
+

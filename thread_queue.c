@@ -57,34 +57,9 @@ lt_thread_t * lt_thread_queue_first(lt_thread_queue_t * queue)
 
 lt_thread_t * lt_thread_queue_deq(lt_thread_queue_t * queue)
 {
-	lt_thread_t * retval;
-
-	return retval;
 }
 
 void lt_thread_queue_enq(lt_thread_queue_t * queue, lt_thread_t * thread)
 {
-	lt_thread_t * old_tail = NULL;
-	lt_thread_t * old_next = NULL;
-	
-	while (1)
-	{
-		do
-		{
-			old_tail = queue->tail;
-			hptr_register(0, old_tail);
-		} while (old_tail != queue->tail);
-		old_next = old_tail->next;
-		if (old_tail != queue->tail) continue;
-		if (old_next != NULL)
-		{
-			compare_and_exchange_ptr(&old_tail, &(queue->tail), old_next);
-			continue;
-		}
-		if (compare_and_exchange_ptr(&old_next, &(old_tail->next), thread) == 0)
-			break;
-	}
-	compare_and_exchange_ptr(&old_tail, &(queue->tail), thread);
-	hptr_free(0);
 }
 

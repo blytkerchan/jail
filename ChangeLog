@@ -1,3 +1,10 @@
+2004-08-19	blytkerchan
+	* how_thread_queues_work.txt: new file
+	* thread_queue.c (lt_thread_queue_deq): remove dead code
+	(lt_thread_queue_enq): ditto
+	* thread_queue.h [lt_thread_queue_t]: new dummy field
+	make tail field an lt_thread_t again
+
 2004-08-18	blytkerchan
 	* thread_list.c: new file
 	* thread_queue.c: ditto
