@@ -1,3 +1,6 @@
+2004-02-10	blytkerchan
+	* strlwr.c (strlwr): fix endless loop
+
 2004-02-03	blytkerchan
 	* strlwr.h: new file
 

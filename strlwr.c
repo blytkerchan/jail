@@ -38,6 +38,7 @@ char * strlwr (char * str)
 	{
 		if (*ptr >= 'A' && *ptr <= 'Z')
 			*ptr -= 'A' - 'a';
+		ptr++;
 	}
 
 	return str;
