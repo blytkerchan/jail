@@ -147,6 +147,8 @@ FILENAME	[\.a-zA-Z0-9_][\.a-zA-Z0-9_/]+
 	yylineno = curr->lineno;
 	curr_file = curr->filename;
 		}
+
+<*>.	{ return yytext[0]; }
 %%
 /* C code goes here */
 int preprocl_getc(char * buffer, size_t max_size)

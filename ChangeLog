@@ -1,4 +1,6 @@
 2004-03-24	blytkerchan
+	* preprocl.l: add default rule to return unmatched characters to the parser
+
 	* preprocp.y: implement !else directive
 	lay the groundworks for a better !include implementation
 	* preprocl.l: ditto (both)
