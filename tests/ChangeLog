@@ -1,0 +1,14 @@
+2004-04-08	blytkerchan
+	* array_test.c: apply license
+	* hash_test6.c: ditto
+	* list_test.c: ditto
+	* queue_test.c: ditto
+	* stack_test.c: ditto
+	* hash_test1.cc: add 2004 to license years
+	* hash_test2.cc: ditto
+	* hash_test3.cc: ditto
+	* hash_test4.cc: ditto
+	* hash_test5.cc: ditto
+	* test.h: ditto
+	
+	

@@ -1,6 +1,6 @@
-/* $Id: hash_test2.cc,v 1.1 2004/03/09 18:48:09 blytkerchan Exp $ */
+/* $Id: hash_test2.cc,v 1.2 2004/04/08 15:01:19 blytkerchan Exp $ */
 /* Jail: Just Another Interpreted Language
- * Copyright (c) 2003, Ronald Landheer-Cieslak
+ * Copyright (c) 2003-2004, Ronald Landheer-Cieslak
  * All rights reserved
  * 
  * This is free software. You may distribute it and/or modify it and
