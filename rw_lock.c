@@ -34,16 +34,13 @@
 #include <assert.h>
 #include <stdlib.h>
 #include "arch/include/compare_and_exchange.h"
+#include "arch/include/swap.h"
 #include "rw_lock.h"
 
 #define READER 1
 #define WRITER 2
 
 static void lt_rwlock_schedule(lt_rwlock_t * lock);
-
-static void lt_thread_wake(lt_thread_t * thread);
-static int atomic_swap_ptr(volatile void * ptr1, volatile void * ptr2);
-static void lt_thread_suspend(lt_thread_t * thread);
 
 lt_rwlock_t * lt_rwlock_new(void)
 {

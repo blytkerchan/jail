@@ -1,4 +1,29 @@
 2004-09-01	blytkerchan
+	* rw_lock.c: include arch/include/swap.h
+	remove static declarations of functions we don't define
+	* rw_lock.h: include thread_queue.h
+	* thread.h (lt_thread_wake): new function
+	(lt_thread_suspend): new function
+	* thread_list.c: include libmemory/smr.h
+	include libmemory/hptr.h
+	include arch/include/compare_and_exchange.h
+	[lt_thread_list_state_t]: rename field cmarl to cmark
+	(lt_thread_list_remove): fix compile errors
+	(lt_thread_list_insert): return int
+	fix compile errors
+	(lt_thread_list_find): ditto (latter)
+	* thread_list.h: include thread.h
+	(lt_thread_list_move): fix declaration
+	(lt_thread_list_insert): ditto
+	(lt_thread_list_find): ditto
+	* thread_queue.c: include stdlib.h
+	include libmemory/smr.h
+	include libmemory/hptr.h
+	include arch/include/compare_and_exchange.h
+	(lt_thread_queue_new): remove n_node declaration
+	fix compile errors
+	* thread_queue.h (lt_thread_queue_free): rename from lt_thread_free
+  
 	* Makefile: remove
 
 2004-08-23	blytkerchan

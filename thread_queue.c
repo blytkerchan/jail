@@ -31,19 +31,22 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <stdlib.h>
+#include "libmemory/smr.h"
+#include "libmemory/hptr.h"
 #include "thread_queue.h"
 #include "arch/include/increment.h"
+#include "arch/include/compare_and_exchange.h"
 
 #define DUMMY_MAGIC 0xdeadbeef
 
 lt_thread_queue_t * lt_thread_queue_new(void)
 {
 	lt_thread_queue_t * retval;
-	lt_thread_t * n_node;
 
 	retval = malloc(sizeof(lt_thread_queue_t));
 	retval->head = malloc(sizeof(lt_thread_t));
-	retval->head->flag = MAGIC;
+	retval->head->flag = DUMMY_MAGIC;
 	retval->head->next = NULL;
 	retval->tail = retval->head;
 	

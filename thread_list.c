@@ -31,6 +31,10 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include "libmemory/smr.h"
+#include "libmemory/hptr.h"
+#include "arch/include/compare_and_exchange.h"
+
 #include "thread_list.h"
 #define DUMMY_MAGIC 0xdeadbeef;
 
@@ -40,7 +44,7 @@ typedef struct _lt_thread_list_state_t
 	lt_thread_t * curr;
 	lt_thread_t * next;
 	int pmark;
-	int cmarl;
+	int cmark;
 } lt_thread_list_state_t;
 
 static lt_thread_t * _lt_thread_list_find(lt_thread_list_state_t * state, lt_thread_list_t * list, lt_thread_t * thread)
@@ -120,12 +124,11 @@ int lt_thread_list_remove(lt_thread_list_t * list, lt_thread_t * entry)
 	lt_thread_list_state_t state;
 	state.prev = NULL;
 	state.curr = NULL;
-	state.cval = NULL;
 	state.cmark = 0;
 
 	while (1)
 	{
-		if (_lt_thread_list_find(&state, list, val) == NULL)
+		if (_lt_thread_list_find(&state, list, entry) == NULL)
 		{
 			retval = -1;
 			break;
@@ -230,26 +233,24 @@ void lt_thread_list_for_each(lt_thread_list_t * list, void (*function)(lt_thread
 	hptr_free(2);
 }
 
-void lt_thread_list_insert(lt_thread_list_t * list, lt_thread_t * thread)
+int lt_thread_list_insert(lt_thread_list_t * list, lt_thread_t * thread)
 {
-	void * val;
 	int retval;
-	list_state_t state;
+	lt_thread_list_state_t state;
 	state.prev = NULL;
 	state.curr = NULL;
-	state.cval = NULL;
 	state.cmark = 0;
 
 	while (1)
 	{
-		if (list_find(state, list, thread) != NULL)
+		if (_lt_thread_list_find(&state, list, thread) != NULL)
 		{
 			retval = -1;
 			break;
 		}
 		thread->mark = 0;
-		thread->next = state->curr;
-		if (compare_and_exchange_ptr(&(state->curr), &(state->prev->next), node) == 0)
+		thread->next = state.curr;
+		if (compare_and_exchange_ptr(&(state.curr), &(state.prev->next), thread) == 0)
 		{
 			retval = 0;
 			break;
@@ -267,7 +268,6 @@ lt_thread_t * lt_thread_list_find(lt_thread_list_t * list, lt_thread_t * thread)
 	lt_thread_list_state_t state;
 	state.prev = NULL;
 	state.curr = NULL;
-	state.cval = NULL;
 	state.cmark = 0;
 
 	return _lt_thread_list_find(&state, list, thread);

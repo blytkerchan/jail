@@ -35,6 +35,7 @@
 #define _libthread_rwlock_h_
 #include "thread.h"
 #include "thread_list.h"
+#include "thread_queue.h"
 
 typedef struct _lt_rwlock_t {
 	lt_thread_list_t * readers[2]; /* lists of threads */

@@ -34,6 +34,8 @@
 #ifndef _libthread_thread_list_h_
 #define _libthread_thread_list_h_
 
+#include "thread.h"
+
 typedef struct _lt_thread_list_t 
 {
 	lt_thread_t * head;
@@ -43,10 +45,10 @@ lt_thread_list_t * lt_thread_list_new(void);
 void lt_thread_list_free(lt_thread_list_t * list);
 int lt_thread_list_remove(lt_thread_list_t * list, lt_thread_t * entry);
 int lt_thread_list_empty(lt_thread_list_t * list);
-void lt_thread_list_move(lt_thread_list_t * to, lt_thread_t * from);
+void lt_thread_list_move(lt_thread_list_t * to, lt_thread_list_t * from);
 void lt_thread_list_for_each(lt_thread_list_t * list, void (*)(lt_thread_t * thread));
-void lt_thread_list_insert(lt_thread_list_t * list, lt_thread_t * thread);
-lt_thread_t * lt_thread_list_find(lt_thread_list_t * list, lt_rwlock_t * thread);
+int lt_thread_list_insert(lt_thread_list_t * list, lt_thread_t * thread);
+lt_thread_t * lt_thread_list_find(lt_thread_list_t * list, lt_thread_t * thread);
 
 #endif
 
