@@ -158,3 +158,13 @@ void hptr_free(unsigned int index)
 	while (compare_and_exchange(&exp, &(local_data->hp[index]), NULL));
 }
 
+void * hptr_get(unsigned int index)
+{
+	void * retval;
+	hptr_local_data_t * local_data;
+
+	local_data = hptr_get_local_data();
+	retval = local_data->hp[index];
+
+	return retval;
+}

@@ -50,6 +50,7 @@ int hptr_init(void);
 void hptr_fini(void);
 
 int hptr_register(unsigned int index, void * ptr);
+void * hptr_get(unsigned int index);
 void hptr_free(unsigned int index);
 
 #endif // _LIBMEMORY_HPTR_H
