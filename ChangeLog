@@ -1,4 +1,7 @@
-2004-08-18	blytkerchan
+2004-10-19	blytkerchan
+	* avail: give iconsaint access to the preprocessor
+
+2004-10-18	blytkerchan
 	* modules: add preprocessor-libthread to preprocessor
 
 2004-09-01	blytkerchan
