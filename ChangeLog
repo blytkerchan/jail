@@ -1,3 +1,7 @@
+2004-08-03	blytkerchan
+	* rw_spinlock.c: new file
+	* rw_spinlock.h: ditto
+
 2004-07-27	blytkerchan
 	* barrier.c (barrier_wait): replace thread_interrupt with lt_thread_interrupt
 
