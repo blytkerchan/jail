@@ -34,9 +34,15 @@
 #include <pthread.h>
 #include <signal.h>
 #include "semaphore.h"
+#include "arch/include/set.h"
+#include "arch/include/compare_and_exchange.h"
+#include "arch/include/increment.h"
+#include "arch/include/decrement.h"
+#include "libmemory/smr.h"
+#include "libmemory/hptr.h"
 
-static thread_t * lt_sem_first(lt_sem_t * sem);
-static void lt_sem_enq(lt_sem_t * sem, thread_t * thread);
+static lt_thread_t * lt_sem_first(lt_sem_t * sem);
+static void lt_sem_enq(lt_sem_t * sem, lt_thread_t * thread);
 static void lt_sem_deq(lt_sem_t * sem);
 
 /* Initialize the given semaphore to the given value
@@ -45,7 +51,7 @@ static void lt_sem_deq(lt_sem_t * sem);
  * obscenity) */
 void lt_sem_init(lt_sem_t * semaphore, uint32_t val)
 {
-	atomic_set(&(semaphore->value), val);
+	atomic_set(&(semaphore->value), (void*)val);
 }
 
 /* Create a new semaphore with the given value */
@@ -75,9 +81,9 @@ void lt_sem_wait(lt_sem_t * sem)
 	
 	// set the signal mask for the calling thread. This prevents SIGCONT\
 	// signals from being ignored in the waiting loop
-	sigemptyset(mask);
-	sigaddset(mask, SIGCONT);
-	pthtread_sigmask(SIG_BLOCK, mask, o_mask);
+	sigemptyset(&mask);
+	sigaddset(&mask, SIGCONT);
+	pthtread_sigmask(SIG_BLOCK, &mask, &o_mask);
 
 	// this is the waiting loop. When we get out of this,
 	// the semaphore is ours
@@ -99,13 +105,13 @@ void lt_sem_wait(lt_sem_t * sem)
 	}
 	
 	// set the old mask back
-	pthread_sigmask(SIG_SETMASK, o_mask, NULL);
+	pthread_sigmask(SIG_SETMASK, &o_mask, NULL);
 }
 
 void lt_sem_release(lt_sem_t * sem)
 {
 	uint32_t value;
-	thread_t * first;
+	lt_thread_t * first;
 
 	// check whether we were ever queued - if so, we're the first in the queue
 	if (thread_eq(lt_sem_first(sem), thread_self()) == 0)
@@ -121,10 +127,10 @@ void lt_sem_release(lt_sem_t * sem)
 	// done
 }
 
-static void lt_sem_enq(lt_sem_t * sem, thread_t * thread)
+static void lt_sem_enq(lt_sem_t * sem, lt_thread_t * thread)
 {
-	thread_t * old_tail;
-	thread_t * old_next;
+	lt_thread_t * old_tail;
+	lt_thread_t * old_next;
 	
 	while (1)
 	{
@@ -152,8 +158,8 @@ static void lt_sem_enq(lt_sem_t * sem, thread_t * thread)
  * thread will call this function at any time! */
 static void lt_sem_deq(lt_sem_t * sem)
 {
-	thread_t * first;
-	thread_t * next;
+	lt_thread_t * first;
+	lt_thread_t * next;
 	
 	first = sem->first;
 	next = first->next;
@@ -162,9 +168,9 @@ static void lt_sem_deq(lt_sem_t * sem)
 		atomic_set(&(sem->tail), NULL);
 }
 
-static thread_t * lt_sem_first(lt_sem_t * sem)
+static lt_thread_t * lt_sem_first(lt_sem_t * sem)
 {
-	thread_t * first;
+	lt_thread_t * first;
 	
 	do
 	{

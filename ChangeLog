@@ -1,4 +1,15 @@
 2004-07-23	blytkerchan
+	* module.mk: don't compile semaphores if we don't have pthread_sigmask
+	* barrier.c (barrier_wait): cast atomic_increment parameter to uint32_t*
+	* semaphore.c: include necessary headers
+	s/thread_t/lt_thread_t/g
+	(lt_sem_init): cast second arg of atomic_set to void*
+	(lt_sem_wait): repair calls to sigemptyset, sigaddset and
+	pthread_sigmask
+	* semaphore.h: include thread.h
+	[lt_sem_t]: add tail member
+	s/thread_t/lt_thread_t/g
+
 	* semaphore.c (lt_sem_create): take new member tail into account
 	(lt_sem_enq): implement
 	(lt_sem_deq): re-implement and assume only one caller at a time

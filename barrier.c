@@ -106,7 +106,7 @@ void barrier_wait(barrier_t * barrier)
 	// go through the necessary stages to assure every other process is there
 	for (stage = 0; stage < barrier->stages; stage++)
 	{
-		atomic_increment(&(barrier->arrive[index]));
+		atomic_increment((uint32_t*)&(barrier->arrive[index]));
 		neighbour_offs = pow2(stage);
 		while (barrier->arrive[(index + neighbour_offs) % barrier->num_threads])
 			thread_interrupt();
