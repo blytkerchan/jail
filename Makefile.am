@@ -1,5 +1,6 @@
 # Makefile.am - process with automake and configure script..
 # stuff we need
+DIST_SUBDIRS=libreplace glib tests
 if GLIB
 SUBDIRS=libreplace glib . tests
 else

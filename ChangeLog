@@ -1,3 +1,7 @@
+2004-04-14	blytkerchan	prepare for distribution
+	* Makefile.am [DIST_SUBDIRS]: new variable
+	* TODO: re-organize
+	
 2004-04-12	blytkerchan	making the array atmomically correct
 	* Makefile.am [libcontain_la_SOURCES]: add arch/@ARCH@/set.c
 	* array.c: include arch/include/set.h 

@@ -1,7 +1,13 @@
-* make the hash thread-safe
-* add heaps, etc.
-* add a hash that uses lists in its buckets (as opposed to linear hashing)
-* Document (section 3 manpages)
-* In the HASH, HASS and HASI file formats: add the number of entries in the hash and grow the hash to fit on read
-* Make a template interface for each container
+Milestone | Mission
+----------+------------------------------------------------------------------
+0.1-alpha2| * repair ``make distcheck''
+0.2       | * make hash thread-safe
+          | * add heap
+0.3       | * add a hash implementation that uses lists as buckets
+          | * deprecate the use of NULL as helper functions in hash interface
+	  | * deprecate the use of the C++ implementation of the hash with the
+	  |   C interface
+0.4	  | * in the HASH, HASS and HASI file formats, add the number of entries
+          |   in the hash and grow to fit on read
+???       | * Make a template interface for each container
 
