@@ -112,7 +112,7 @@ try_again:
 			return -1;
 		cmark = 0;
 		nmark = 1;
-		if (compare_and_exchange(&cmark, &(list->curr->mark), nmark) != 0)
+		if (compare_and_exchange(&cmark, &(list->curr->mark), (void*)nmark) != 0)
 			continue;
 		if (compare_and_exchange(&(list->curr), &(list->prev->next), list->curr->next) == 0)
 			list_free_node(list->curr);

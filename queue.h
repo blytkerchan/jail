@@ -48,7 +48,7 @@ typedef struct _queue_t
 
 queue_t * new_queue(void);
 void free_queue(queue_t * queue);
-int queue_enq(queue_t * queue, void * data);
+void queue_enq(queue_t * queue, void * data);
 void * queue_deq(queue_t * queue);
 
 #endif // ! _LIBCONTAIN_QUEUE_H

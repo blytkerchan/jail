@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.57)
-AC_INIT([libcontain],[0.0-1],[ronald@landheer.com])
+AC_INIT([libcontain],[0.0-alpha2],[ronald@landheer.com])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([Hash.cc])
 AC_CONFIG_HEADER([config.h])

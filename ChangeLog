@@ -1,4 +1,10 @@
 2004-02-10	blytkerchan
+	* configure.in: bump the patchlevel number and put alpha where it belongs
+	* Makefile.am: re-organize
+	* config.log: remove from CVS
+	* list.c: minor bugfix
+	* queue.h: ditto
+
 	* NEWS: add words on the prev. version.
 
 	* list.c: new file
