@@ -1,3 +1,26 @@
+2004-08-16	blytkerchan	continue translation to C
+	* rw_lock.c (lt_rwlock_read_unlock): use lt_rwlock_queue_empty on
+	writers - not lt_rwlock_list_empty
+	use lt_rwlock_list_empty on readers[1]
+	use lt_thread_wake in stead of awake
+	(lt_rwlock_write_unlock): use lt_rwlock_queue_deq, not
+	lt_wrlock_queue_deq
+	use lt_rwlock_list_move in stead of move
+	use lt_rwlock_list_for_each in stead of for_each
+	(lt_rwlock_schedule): use lt_rwlock_queue_enq in stead of enq
+	use lt_rwlock_queue_first in stead of first
+	use lt_thread_suspend in stead of suspend
+	fix comments - make them C comments
+	use compare_and_exchange in stead of CAS
+	use lt_rwlock_queue_empty in stead of empty
+	use lt_rwlock_queue_deq in stead of deq
+	use lt_thread_wake in stead of awake
+	use lt_rwlock_list_insert in stead of insert
+	use lt_rwlock_queue_enq in stead of enq
+	use lt_rwlock_list_empty in stead of empty, where applicable
+	ditto for lt_rwlock_queue_empty
+	use lt_thread_suspend in stead of suspend
+
 2004-08-15	blytkerchan	start translating how_rwlocks_work into C
 	* rw_lock.c: new file
 	* rw_lock.h: ditto

@@ -70,11 +70,11 @@ void lt_rwlock_read_unlock(lt_rwlock_t * lock)
 	/* now, if the readers list is empty, there are no more active readers
 	 * and a writer is therefore eligable for the lock. Otherwise, we're
 	 * done */
-	if (lt_rwlock_list_empty(lock->writers) != 0) 
+	if (lt_rwlock_queue_empty(lock->writers) != 0) 
 	{
-		if (empty(lock->readers[1]) == 0) 
+		if (lt_rwlock_list_empty(lock->readers[1]) == 0) 
 		{
-			awake(lt_rwlock_queue_first(lock->writers));
+			lt_thread_wake(lt_rwlock_queue_first(lock->writers));
 		}
 	}
 }
@@ -94,7 +94,7 @@ void lt_rwlock_write_unlock(lt_rwlock_t * lock)
 	atomic_swap(lock->readers[0], place_holder);
 	/* place_holder now contains readers[0]
 	 * we now de-queue ourselves */
-	assert(lt_thread_eq(lt_wrlock_queue_deq(lock->writers), lt_thread_self()) == 0);
+	assert(lt_thread_eq(lt_rwlock_queue_deq(lock->writers), lt_thread_self()) == 0);
 	/* if the writers queue is empty, it will schedule into readers[1];
 	 * if not, it will continue scheduling into readers[0], which is now the
 	 * place-holder. */
@@ -109,9 +109,9 @@ void lt_rwlock_write_unlock(lt_rwlock_t * lock)
 	 * queue (which may have made it possible to schedule into readers[1]
 	 * to readers[1]. If the scheduler is still scheduling into readers[0],
 	 * these threads just got lucky */
-	move(lock->readers[1], place_holder);
+	lt_rwlock_list_move(lock->readers[1], place_holder);
 	/* now, we awake everyone in readers[1] */
-	for_each(lock->readers[1], awake);
+	lt_rwlock_list_for_each(lock->readers[1], awake);
 	/* and we're done */
 }
 
@@ -121,66 +121,73 @@ void lt_rwlock_schedule(lt_rwlock_t * lock)
 
 	/* now, the local thread is enqueued in the general queue. This guarantees
 	 * that at some time in the future, it will be scheduled */
-	enq(lock->general, lt_thread_self());
+	lt_rwlock_queue_enq(lock->general, lt_thread_self());
 
 	/* now, if it's not the first one in the queue, it should do its own
 	 * scheduling. Otherwise, some other thread will take care of it and
 	 * we can suspend ourselves. */
-	if (lt_thread_eq(first(lock->general), lt_thread_self()) != 0) 
+	if (lt_thread_eq(lt_rwlock_queue_first(lock->general), lt_thread_self()) != 0) 
 	{
-		suspend(lt_thread_self())
+		lt_thread_suspend(lt_thread_self())
 	}
 	else 
 	{
-		# we were the first, so either someone is already scheduling is, or we 
-		# start scheduling everybody behind us until the general queue is empty.
+		/* we were the first, so either someone is already scheduling is, or 
+		 * we start scheduling everybody behind us until the general queue is
+		 * empty. */
+		void * exp;
 
-		# try to become the scheduler
-		if (CAS(NULL, lock->scheduler, lt_thread_self) != OK) {
-			# some other thread is already scheduling - let him do the work
-			suspend(lt_thread_self())
+		/* try to become the scheduler */
+		exp = NULL;
+		if (compare_and_exchange(&exp, &(lock->scheduler), lt_thread_self()) != 0) {
+			/* some other thread is already scheduling - let him do the work */
+			lt_thread_suspend(lt_thread_self())
 		} else {
 			/* we're the scheduler. Because of this, we know we're the only thread
 			 * adding to the two readers lists and the writers queue, and removing
 			 * from the general queue. */
 
-			while (!empty(lock->general)) 
+			while (!lt_rwlock_queue_empty(lock->general)) 
 			{
 				/* get the next thread to schedule */
-				curr = deq(lock->general)
+				curr = lt_rwlock_queue_deq(lock->general);
 				/* note that we don't handle ourselves specially here: when we're
 				 * done, we'll see where we are and act accordingly */
 				switch (curr->flag)
 				{
 				case reader :
-					if (empty(lock->writers)) {
+					if (lt_rwlock_queue_empty(lock->writers)) 
+					{
 						/* if there are no writers, the thread (which is a reader) 
 						 * goes to the second readers list and can go on 
 						 * immediatly. */
-						insert(lock->readers[1], curr);
-						awake(curr);
-					} else {
+						lt_thread_list_insert(lock->readers[1], curr);
+						lt_thread_wake(curr);
+					} 
+					else 
+					{
 						/* if there are writers, the thread will have to continue 
 						 * sleeping until the writers are done. */
-						insert(lock->readers[0], curr);
+						lt_rwlock_list_insert(lock->readers[0], curr);
 					}
 					break;
 				case writer :
 					/* in any case, we enqueue the writer */
-					enq(lock->writers, curr);
+					lt_rwlock_queue_enq(lock->writers, curr);
 					/* we then look whether there are any active readers (in 
 					 * lock->readers[1]). If not, we wake the writer */
-					if (empty(lock->readers[1])) 
-						awake(curr);
+					if (lt_rwlock_list_empty(lock->readers[1])) 
+						lt_thread_wake(curr);
 					break;
 				}
 			}
 			/* now, there are no more threads to schedule, so we're done. */
-			assert(CAS(lt_thread_self, lock->scheduler, NULL) == OK);
+			exp = lt_thread_self();
+			assert(compare_and_exchange(&exp, &(lock->scheduler), NULL) == 0);
 			/* if there are any threads in the general queue now, we wake up the
 			 * first and let him handle the scheduling */
-			if (!empty(lock->general))
-				awake(first(lock->general));
+			if (!lt_thread_queue_empty(lock->general))
+				lt_thread_wake(first(lock->general));
 		}
 	}	
 
@@ -192,19 +199,19 @@ void lt_rwlock_schedule(lt_rwlock_t * lock)
 		{
 		case reader :
 			/* readers can continue if they're in the second list */
-			if (find(lock->readers[1], lt_thread_self()) == OK)
+			if (lt_rwlock_list_find(lock->readers[1], lt_thread_self()) == 0)
 				return; /* break out of the endless loop */
 			break;
 		case writer :
 			/* writers can continue if they're the first one in the queue
 			 * and the second readers list is empty */
-			if (empty(lock->readers[1]) && 
-				(lt_thread_eq(lt_thread_self(), first(lock->writers)) == 0))
+			if (lt_rwlock_list_empty(lock->readers[1]) && 
+				(lt_thread_eq(lt_thread_self(), lt_rwlock_queue_first(lock->writers)) == 0))
 				return; /* break out of the endless loop */
 			break;
 		}
 		/* we didn't break out of the loop, so we sleep */
-		suspend(lt_thread_self());
+		lt_thread_suspend(lt_thread_self());
 	}
 }
 
