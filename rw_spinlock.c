@@ -101,3 +101,15 @@ void rw_spinlock_write_unlock(rw_spinlock_t * handle)
 	fetch_and_add(&(handle->curr), EXCL);
 }
 
+void rw_spinlock_upgrade(rw_spinlock_t * handle)
+{
+	int wait; /* wait ticket */
+
+	// get the ticket for a write lock
+	wait = fetch_and_add(&(handle->next), EXCL);
+	// release the read lock
+	fetch_and_add(&(handle->curr), SHRD);
+	// wait for the write lock
+	while (wait != handle->curr);
+}
+

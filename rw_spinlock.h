@@ -53,5 +53,6 @@ void rw_spinlock_read_lock(rw_spinlock_t * handle);
 void rw_spinlock_read_unlock(rw_spinlock_t * handle);
 void rw_spinlock_write_lock(rw_spinlock_t * handle);
 void rw_spinlock_write_unlock(rw_spinlock_t * handle);
+void rw_spinlock_upgrade(rw_spinlock_t * handle);
 
 #endif
