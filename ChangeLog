@@ -1,4 +1,6 @@
 2003-01-08	blytkerchan
+	* jailust.questions.sql: fix syntax error
+
 	* jailust.answers.sql: use checkbox in stead of radio
 	* jailust.questions.sql: make question commentable
 
