@@ -32,8 +32,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <stdlib.h>
-#include <libmemory/smr.h>
-#include <libmemory/hptr.h>
+#include "libmemory/smr.h"
+#include "libmemory/hptr.h"
 #include "arch/include/compare_and_exchange.h"
 #include "stack.h"
 

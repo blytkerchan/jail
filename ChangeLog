@@ -1,3 +1,7 @@
+2004-07-20	blytkerchan
+	* module.mk: new file
+	* stack.c: don't use already-installed libmemory headers for compile
+
 2004-07-18	blytkerchan
 	* Makefile.am: don't compile stuff in test
 	* array.h (array_put): fix prototype
