@@ -31,6 +31,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <assert.h>
 #include "../libconf.h"
 
 void test1(void)
@@ -46,11 +47,18 @@ void test1(void)
 		{ NULL, 0, TP_NO, PT_NONE, NULL, TP_NO, PT_NONE, NULL, DOE_ERROR }
 	};
 	int argc = 2;
+	int rc = 0;
 	libconf_t * handle = NULL;
 	libconf_opt_t ** t_options = libconf_optconst(options);
 	
-	handle = libconf_init("global_conf_test1", NULL, t_options, NULL, argc, argv);
+	handle = libconf_init(SRCDIR"/global_conf_test1", NULL, t_options, NULL, argc, argv);
 	free(t_options);
+	if (!rc) rc = libconf_phase1(handle);
+	if (!rc) rc = libconf_phase2(handle);
+	if (!rc) rc = libconf_phase3(handle);
+	if (!rc) rc = libconf_phase4(handle);
+	if (!rc) rc = libconf_phase5(handle);
+	assert(!rc);
 	libconf_fini(handle);
 }
 

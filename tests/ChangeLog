@@ -1,3 +1,9 @@
+2004-04-12	blytkerchan
+	* Makefile.am: add SRCDIR define to test1's compile flags
+	* test1.c: include assert.h
+	(test1): test result of libconf functions
+	go through the phases
+
 2004-04-08	blytkerchan
 	* test1.c: apply license
 	(test1): copy defaults to a temp variable
