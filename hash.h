@@ -36,25 +36,18 @@
 
 #include <sys/types.h>
 #include "types.h"
-#include "list.h"
+#include "list_node.h"
 
 #define HASH_DEFAULT_BUCKETS 7
 
 typedef struct _hash_t
 {
-	list_t ** buckets;
+	list_node_t ** buckets;
 	size_t n_buckets;
+	uint32_t n_entries; // hint value only
 	libcontain_cmp_func_t cmp;
 	libcontain_hash_func_t hash;
 } hash_t;
-
-typedef struct _hash_node_t
-{
-	unsigned int hash;
-	void * key;
-	void * val;
-	libcontain_cmp_func_t cmp;
-} hash_node_t;
 
 hash_t * hash_new(
 	size_t n_buckets,
@@ -63,7 +56,7 @@ hash_t * hash_new(
 );
 void hash_free(hash_t * hash);
 void *hash_get(hash_t * hash, void *key);
-int hash_put(hash_t * hash, void *key, void *value);
+void hash_put(hash_t * hash, void *key, void *value);
 int hash_remove(hash_t * hash, void *key);
 void ** hash_keys(hash_t * hash);
 

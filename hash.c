@@ -34,10 +34,19 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-#include <libmemory/smr.h>
-#include <libmemory/hptr.h>
-
+#include "libmemory/smr.h"
+#include "libmemory/hptr.h"
+#include "arch/include/compare_and_exchange.h"
+#include "arch/include/increment.h"
 #include "hash.h"
+
+typedef struct _hash_node_t
+{
+	unsigned int hash;
+	void * key;
+	void * val;
+	libcontain_cmp_func_t cmp;
+} hash_node_t;
 
 hash_node_t * hash_node_new(void)
 {
@@ -73,19 +82,14 @@ hash_t * hash_new(
 
 	if (n_buckets == 0)
 		n_buckets = HASH_DEFAULT_BUCKETS;
-	retval->buckets = (list_t**)calloc(n_buckets, sizeof(list_t*));
+	retval->buckets = calloc(n_buckets, sizeof(list_node_t*));
 	for (i = 0; i < n_buckets; i++)
-		retval->buckets[i] = list_new(hash_node_cmp);
+		retval->buckets[i] = list_node_new(NULL);
 	retval->cmp = compare_func;
 	retval->hash = hash_func;
 	retval->n_buckets = n_buckets;
 
 	return retval;
-}
-
-void hash_free_helper(const void * val, void * data)
-{
-	hash_node_free((hash_node_t*)val);
 }
 
 void hash_free(hash_t * hash)
@@ -94,44 +98,86 @@ void hash_free(hash_t * hash)
 	
 	for (i = 0; i < hash->n_buckets; i++)
 	{
-		list_foreach(hash->buckets[i], hash_free_helper, NULL);
-		list_free(hash->buckets[i]);
+		list_node_t * curr;
+		list_node_t * next;
+
+		curr = hash->buckets[i];
+		while (curr)
+		{
+			next = curr->next;
+			hash_node_free((hash_node_t*)curr->val);
+			curr = next;
+		}
 	}
 	free(hash);
 }
 
-void *hash_get(hash_t * hash, void *key)
+void * hash_get(hash_t * hash, void *key)
 {
 	void * retval;
 	unsigned int _hash;
-	list_t * list;
-	hash_node_t * node;
-	hash_node_t * rnode;
-
+	list_node_t * list_node;
+	hash_node_t * temp_node;
+	hash_node_t * ret_node;
+	list_state_t list_state;
+	
+	memset(&list_state, 0, sizeof(list_state_t));
+	temp_node = hash_node_new();
+	temp_node->key = key;
 	_hash = hash->hash(key);
-	list = hash->buckets[_hash % hash->n_buckets];
-	node = hash_node_new();
-	node->key = key;
-	/* the following searches the list twice. I don't especially like that but
-	 * in this setup we need a hazardous reference to the hash node, which 
-	 * means that once we've registered it, we need to know it is still OK */
-	while ((rnode = list_search(list, node)) != hptr_get(3))
+	list_node = hash->buckets[_hash % hash->n_buckets];
+	list_node = list_node_find(&list_state, list_node, hash_node_cmp, temp_node);
+	do
 	{
-		hptr_register(3, rnode);
-	} 
-	if (rnode)
-		retval = rnode->val;
+		ret_node = list_node->val;
+		hptr_register(0, ret_node);
+	} while (ret_node != list_node->val);
+	hptr_free(1);
+	hptr_free(2);
+	if (ret_node)
+		retval = ret_node->val;
 	else
 		retval = NULL;
-	hptr_free(3);
-	hash_node_free(node);
+	hptr_free(0);
+	hash_node_free(temp_node);
 	
 	return retval;
 }
 
-int hash_put(hash_t * hash, void *key, void *value)
+void hash_put(hash_t * hash, void *key, void *value)
 {
-	return -1;
+	unsigned int _hash;
+	list_node_t * list_node;
+	list_node_t * new_node;
+	list_state_t list_state;
+	hash_node_t * hash_node;
+	hash_node_t * old_node;
+	
+	memset(&list_state, 0, sizeof(list_state_t));
+	hash_node = hash_node_new();
+	_hash = hash->hash(key);
+	list_node = hash->buckets[_hash % hash->n_buckets];
+	new_node = NULL;
+	while (1)
+	{
+		new_node = list_node_find(&list_state, list_node, hash_node_cmp, hash_node);
+		if (new_node == NULL)
+			new_node = list_node_new(hash_node);
+		else
+		{
+			old_node = new_node->val;
+			if (compare_and_exchange_ptr(&old_node, &(new_node->val), hash_node) == 0)
+			{
+				hash_node_free(old_node);
+				break;
+			}
+		}
+		if (list_node_insert(list_node, hash_node_cmp, new_node) == 0)
+			break;
+		list_node_free(new_node);
+	}
+
+	atomic_increment(&(hash->n_entries));
 }
 
 int hash_remove(hash_t * hash, void *key)
@@ -141,7 +187,62 @@ int hash_remove(hash_t * hash, void *key)
 
 void ** hash_keys(hash_t * hash)
 {
-	return NULL;
+	void ** retval;
+	uint32_t allocated = hash->n_entries + 1;
+	uint32_t index = 0;
+	uint32_t bucket;
+	
+	/* use the hint value to allocate the first array of keys */
+	retval = calloc(allocated, sizeof(void*));
+	for (bucket = 0; bucket < hash->n_buckets; bucket++)
+	{
+		/* as in list_node_find, hptr0 contains prev; hptr1 contains
+		 * curr; hptr2 contains next. Also: hptr3 contains the hash
+		 * node in curr */
+		list_node_t * prev = NULL;
+		list_node_t * curr;
+		list_node_t * next;
+		hash_node_t * hash_node;
+
+		do
+		{
+			curr = hash->buckets[bucket];
+			hptr_register(1, curr);
+		} while (curr != hash->buckets[bucket]);
+		while (1)
+		{
+			do
+			{
+				next = curr->next;
+				hptr_register(2, next);
+			} while (next != curr->next);
+			prev = curr;
+			hptr_register(0, prev);
+			curr = next;
+			if (curr == NULL)
+			{
+				hptr_free(0);
+				hptr_free(1);
+				hptr_free(2);
+				hptr_free(3);
+				break;
+			}
+			do
+			{
+				hash_node = curr->val;
+				hptr_register(3, hash_node);
+			} while (hash_node != curr->val);
+			retval[index++] = hash_node->key;
+			if (index == allocated)
+			{
+				allocated++;
+				retval = realloc(retval, allocated * sizeof(void*));
+			}
+		}
+	}
+	retval[index] = NULL;
+	
+	return retval;
 }
 
 struct hash_search_t
@@ -172,6 +273,28 @@ void * hash_search(hash_t * hash, void * searchfor, libcontain_cmp_func_t compar
 	return hash_search_data.retval;
 }
 
+struct hash_foreach_helper_data_t
+{
+	libcontain_foreach2_func_t func;
+	void * data;
+};
+
+static void hash_foreach_helper(const void * val, void * data)
+{
+	struct hash_foreach_helper_data_t * hash_foreach_helper_data = (struct hash_foreach_helper_data_t*)data;
+	
+	hash_node_t * node = (hash_node_t*)val;
+	hash_foreach_helper_data->func(node->key, node->val, hash_foreach_helper_data->data);
+}
+
 void hash_foreach(hash_t * hash, libcontain_foreach2_func_t func, void * data)
 {
+	uint32_t bucket;
+	struct hash_foreach_helper_data_t hash_foreach_helper_data;
+	
+	hash_foreach_helper_data.func = func;
+	hash_foreach_helper_data.data = data;
+	for (bucket = 0; hash->n_buckets; bucket++)
+		list_node_foreach(hash->buckets[bucket], hash_foreach_helper, &hash_foreach_helper_data);
 }
+

@@ -134,26 +134,6 @@ void list_free(list_t * list)
 
 void list_foreach(list_t * list, libcontain_foreach_func_t helper, void * data)
 {
-	list_node_t * curr;
-	list_node_t * next;
-	
-	do
-	{
-		curr = list->head;
-		hptr_register(0, curr);
-	} while (curr != list->head);
-	while (curr != NULL)
-	{
-		helper(curr->val, data);
-		do
-		{
-			next = curr->next;
-			hptr_register(1, next);
-		} while (next != curr->next);
-		curr = next;
-		hptr_register(0, curr);
-	}
-	hptr_free(0);
-	hptr_free(1);
+	list_node_foreach(list->head, helper, data);
 }
 

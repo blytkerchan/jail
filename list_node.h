@@ -58,5 +58,6 @@ void list_node_free(list_node_t * node);
 list_node_t * list_node_new(void * val);
 list_node_t * list_node_find(list_state_t * state, list_node_t * head, libcontain_cmp_func_t cmp_func, void * val);
 int list_node_insert(list_node_t * head, libcontain_cmp_func_t cmp_func, list_node_t * node);
+void list_node_foreach(list_node_t * head, libcontain_foreach_func_t helper, void * data);
 
 #endif // LIBCONTAIN_LIST_NODE_H

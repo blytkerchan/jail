@@ -52,6 +52,8 @@ list_node_t * list_node_new(void * val)
 	return retval;
 }
 
+/* a hazardous reference to the return value is held by hptr 1; its prev in 
+ * hptr 0 and its next in hptr 2 */
 list_node_t * list_node_find(list_state_t * state, list_node_t * head, libcontain_cmp_func_t cmp_func, void * val)
 {
 	int rv;
@@ -137,3 +139,29 @@ int list_node_insert(list_node_t * head, libcontain_cmp_func_t cmp_func, list_no
 
 	return retval;
 }
+
+void list_node_foreach(list_node_t * head, libcontain_foreach_func_t helper, void * data)
+{
+	list_node_t * curr;
+	list_node_t * next;
+	
+	do
+	{
+		curr = head;
+		hptr_register(0, curr);
+	} while (curr != head);
+	while (curr != NULL)
+	{
+		helper(curr->val, data);
+		do
+		{
+			next = curr->next;
+			hptr_register(1, next);
+		} while (next != curr->next);
+		curr = next;
+		hptr_register(0, curr);
+	}
+	hptr_free(0);
+	hptr_free(1);
+}
+
