@@ -1,0 +1,11 @@
+2003-08-19	blytkerchan
+	* progress.html: new file
+	* grammar.msg: ditto
+	* index.html: add reference to progress.html
+	* empty.html: ditto
+	* tech_arch.html: ditto
+	* design.html: ditto
+	remove empty line from left-hand link table
+	* ChangeLog: new file
+	* AUTHORS: ditto
+
