@@ -1,3 +1,6 @@
+2004-08-10	blytkerchan
+	* fetch_and_add.c (fetch_and_add): make first param volatile
+
 2004-08-03	blytkerchan
 	* fetch_and_add.c: use full path for headers
 	(fetch_and_add): cast last argument for compare_and_exchange to void*

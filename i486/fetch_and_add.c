@@ -34,7 +34,7 @@
 #include "arch/include/fetch_and_add.h"
 #include "arch/include/compare_and_exchange.h"
 
-int32_t fetch_and_add(int32_t * val, int32_t add)
+int32_t fetch_and_add(volatile int32_t * val, int32_t add)
 {
 	int32_t retval = *val;
 	int32_t newval;
