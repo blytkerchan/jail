@@ -1,4 +1,8 @@
-2004-08-10	blytkerchan
+2004-08-10	blytkerchan	compile with gcc-2.95.4
+	* rw_spinlock.c: move includes up
+	include stdlib.h for calloc
+	* rw_spinlock.h: include stdint.h
+
 	* rw_spinlock.h (rw_spinlock_upgrade): new function
 	* rw_spinlock.c: ditto
 

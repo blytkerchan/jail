@@ -31,11 +31,12 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#define EXCL 1
-#define SHRD 0x10000
-
+#include <stdlib.h>
 #include "rw_spinlock.h"
 #include "arch/include/fetch_and_add.h"
+
+#define EXCL 1
+#define SHRD 0x10000
 
 /* This file contains an abstracted implementation of the starvation-free 
  * read/write spinlock algorith as posted by Joe Seigh in 

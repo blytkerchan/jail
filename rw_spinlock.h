@@ -34,6 +34,8 @@
 #ifndef _libthread_rw_spinlock_h_
 #define _libthread_rw_spinlock_h_
 
+#include <stdint.h>
+
 /* This file contains an abstracted implementation of the starvation-free 
  * read/write spinlock algorith as posted by Joe Seigh in 
  * http://tinyurl.com/4ar25, reproduced with his permission 
