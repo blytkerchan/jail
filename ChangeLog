@@ -1,4 +1,11 @@
-2004-05-11	blytkerchan
+2004-05-11	blytkerchan	make libmemory optional for compilation (parent might have it)
+	* Makefile.am [HAVE_LIBMEMORY]: new conditional
+	[DIST_SUBDIRS]: conditionally add libmemory
+	[libcontain_la_LIBADD]: conditionally search for libmemory in parent dir
+	[AM_CXXFLAGS]: remove arch/include, add $(top_srcdir)
+	* configure.in: check that libmemory is in this dir. define automake conditional HAVE_LIBMEMORY accordingly
+	re-indent
+
 add missing files..
 	* types.h: new file
 

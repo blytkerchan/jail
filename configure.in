@@ -66,7 +66,24 @@ dnl AC_FUNC_MALLOC
 AC_FUNC_MEMCMP
 AC_CHECK_FUNCS([memset strchr strdup])
 AC_REPLACE_FUNCS([strlwr])
+if test -d libmemory; then
 AC_CONFIG_SUBDIRS([libmemory])
-AC_CONFIG_FILES([Makefile config-libcontain README.in libreplace/Makefile glib/Makefile hash_config.h tests/Makefile])
+AM_CONDITIONAL(HAVE_LIBMEMORY, true)
+else
+AM_CONDITIONAL(HAVE_LIBMEMORY, false)
+if test -d ../libmemory; then
+CFLAGS="$CFLAGS -I../\$(top_srcdir)"
+else
+echo "Warning: libmemory library not found in . or .."
+fi
+fi
+AC_CONFIG_FILES([
+	Makefile 
+	config-libcontain 
+	README.in 
+	libreplace/Makefile 
+	glib/Makefile 
+	hash_config.h 
+	tests/Makefile])
 AC_OUTPUT
 

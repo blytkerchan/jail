@@ -1,10 +1,22 @@
 # Makefile.am - process with automake and configure script..
 # stuff we need
+if HAVE_LIBMEMORY
+DIST_SUBDIRS=libreplace glib tests libmemory
+else
 DIST_SUBDIRS=libreplace glib tests
+endif
 if GLIB
+if HAVE_LIBMEMORY
 SUBDIRS=libreplace glib libmemory . tests 
 else
+SUBDIRS=libreplace glib . tests
+endif
+else
+if HAVE_LIBMEMORY
 SUBDIRS=libreplace libmemory . tests 
+else
+SUBDIRS=libreplace . tests
+endif
 endif
 EXTRA_DIST=Hash.7 README.in Hash.7.pod arch hash_config.h.in
 
@@ -50,10 +62,14 @@ pkginclude_HEADERS =	hash_config.h \
 			heap.h \
 			list.h $(libcontain_la_CXXHEADERS)
 noinst_HEADERS = c_interface.h binary.h prime.h
+if HAVE_LIBMEMORY
 libcontain_la_LIBADD=libreplace/libreplace.la glib/libglib.la libmemory/libmemory.la
+else
+libcontain_la_LIBADD=libreplace/libreplace.la glib/libglib.la ../libmemory/libmemory.la
+endif
 libcontain_la_LDFLAGS=-version-info 2:0:1
-AM_CFLAGS = -g -Wall -Werror -I$(top_srcdir)/arch/include
-AM_CXXFLAGS = -g -Wall -Werror -I$(top_srcdir)/arch/include
+AM_CFLAGS = -g -Wall -Werror -I$(top_srcdir)
+AM_CXXFLAGS = -g -Wall -Werror -I$(top_srcdir)
 
 # helper scripts for client programs
 bin_SCRIPTS=config-libcontain
