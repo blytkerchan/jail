@@ -1,0 +1,6 @@
+2003-01-06	blytkerchan
+	* increment.h: new file
+	* decrement.h: ditto
+
+2003-10-18	blytkerchan
+	* compare_and_exchange.h: moved from ../i486
