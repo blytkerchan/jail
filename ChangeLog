@@ -1,4 +1,6 @@
 2004-07-22	blytkerchan
+	* version: new file
+
 	* semaphore.c: new file
 	* semaphore.h: ditto
 	* module.mk: ditto
