@@ -32,8 +32,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <unistd.h>
-#include "increment.h"
-#include "decrement.h"
+#include "arch/increment.h"
+#include "arch/decrement.h"
 
 /* As of the i486, x86 processors have a compare and exchange function
  * which will evidently be called with the same prototype of i486+ 
