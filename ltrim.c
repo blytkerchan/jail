@@ -1,9 +1,9 @@
 #include <sys/types.h>
 #include <stdlib.h>
+#include <string.h>
 
 char * ltrim(char * str)
 {
-	size_t len;
 	char * ptr = str;
 
 	while (strchr(" \t\n\r", *ptr) != NULL)

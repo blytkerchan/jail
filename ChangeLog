@@ -1,3 +1,8 @@
+2004-07-22	blytkerchan
+	* module.mk: update
+	* ltrim.c: include <string.h>
+	* rtrim.h: ditto
+
 2004-07-20	blytkerchan
 	* module.mk: new file
 
