@@ -9,13 +9,19 @@ h1 {
 h2 {
 	font-size: large;
 }
-
+h3 {
+	font-size: normal;
+}
 #summary {
 	font-style: italic;
 	width: 80%;
 	padding-left: 10%;
 }
 
+table.toc {
+	border: thin groove black;
+	background: #FFFFF0;
+}
 table.intext {
 	border: thin groove black;
 }
@@ -35,4 +41,23 @@ td.subject {
 code {
 	font-family: monospace;
 }
+p.notice {
+	font-weight: bold;
+	font-style: italic;
+	font-size: larger;
+	background: #FFFF00;
+	color: #800000; 
+	text-align: center;
+	border: thin outset #800000;
+}
+a.toc:link {
+	color: #0000FF;
+}
+a.toc:active {
+	color: #0000FF;
+	font-variant: small-caps;
+}
 
+a.toc:visited {
+	color: #0000FF;
+}

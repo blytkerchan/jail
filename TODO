@@ -1,0 +1,9 @@
+For the polling program (poll*.pl), we should be able to ask for the users 
+E-mail address, either on the first page (poll.pl) or on the second one 
+(poll_response.pl). The option is already in the database. The E-mail address
+should be bound to the response and stored in the same record in the table.
+
+To prevent multiple answers from the same person, we should store a cookie
+"chez lui" that contains information on whether or not he's already answered
+the question and which questions) have been answered..
+

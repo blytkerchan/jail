@@ -1,0 +1,132 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>JAIL: Just Another Interpreted Language</title>
+<meta http-equiv="content-type" content=
+"text/html; charset=us-ascii">
+</head>
+<body>
+<link href="jail.css" rel=stylesheet type="text/css"/>
+<a name="top"/>
+<div align="center"><img src="jail-banner.png" alt=
+"Just Another Interpreted Language">
+</div>
+<table style="width: 100%"> 
+<tbody>
+<tr>
+<td style="width: 20%;" valign="top">
+<iframe src="table.html" type="text/html" width="100%" height="800" frameborder=0>
+<p>The TOC should be here..</p>
+</iframe>
+</td>
+<td valign="top">
+<div align="justify">
+<h1>Types in Jail</h1>
+<h2>Introduction</h2>
+<p>By far most of the discussion on the Jail Language discussion list has been
+about types in Jail: the way types are handled is of primordial importance to
+the design of the language, as the way data is abstracted determines what you
+can do with that data.</p>
+<h3>A brief history of types</h3>
+<p>In the beginning, when I first started thinking of this language and what
+it should be like, I though no typing at all would be the best way to get rid
+of the most common types of errors in programs, which are type errors. After
+a very short while, I came to the conclusion that it is simply not possible to
+forego typing altogether, as it would pretty soon become impossible to do 
+anything without abstracting the data to be handled. (I pretty much knew that 
+already, but sometimes you don't know you know something until you contest that
+knowledge.)</p>
+<p>Hence came the idea of making everything an object of some sort - an 
+<i>Item</i>. As in real life, everything would be an item of some sort which
+you can do pretty much anything with. Apples, cups of coffee, loafs of bread, 
+etc.: they all share a number of attributes - you can pick them up, they are
+physical, etc. The same should go for items in a computer: anything is just
+an abstraction of something else when it comes to a computer - the computer
+never actually deals with reality, but always deals with some abstraction of
+that reality. Keeping that in mind, there is no reason for a programming 
+language to not do exactly the same thing.</p>
+<p>When I started talking about this idea on the jail-ust-lang group, another
+member of the group quoted Bjarne Stoustrup (the original designer of one of
+the most popular object-oriented, imperical programming languages today, being
+C++) saying it's not much use to be able to put a battleship in a matchbox.</p>
+<p>Though it might be useful for world peace, it would only be useful if you
+can actually see the difference between a match and a battleship (before you
+light your cigare with a battleship and blow your nose off).</p>
+<p>I then remembered St Paul and his gardening in his letter to the Romans 
+(the one in which we, Christian gentiles, are simply twigs grafted onto 
+the Jewish olive tree). As in information/computer science, we often talk
+about trees and forests when there is a hierarchy to be constructed, the link
+suddenly became obvious: if we have a tree of objects that all inherit from
+Item (the Adam-object), that doesn't mean that all objectss are compatible
+with eachother: someone may well have cut off a branch and planted it as a
+separate tree. In effect, any object may have become the root of a new tree
+at some point!</p>
+<p>Hence, four new keywords were needed and described in a mail on 
+<a href="http://sourceforge.net/mailarchive/forum.php?forum_id=34463&max_rows=25&style=flat&viewmonth=200309&viewday=1">Tue, Sept 2</a>.
+</p>
+<h3>A revised vision of the Jail object model</h3>
+<p>Everything is still an "Item" and directly or indirectly inherits from the
+Item type, just like we are all human and all indirectly inherit from the first
+of all humans - Adam. This has one immediate consequence, as stated on 
+<a href="http://sourceforge.net/mailarchive/forum.php?forum_id=34463&max_rows=25&style=flat&viewmonth=200308&viewday=18">Tue, Aug. 19</a>: 
+<i>"if everything is an object, the mere fact that it's an object means it has 
+certain attributes in common with everything else"</i></p>
+<p>These attributes are the attributes the object inherits from the Item object.
+Most notable consequences of this statement are the facts that:<ul>
+<li>every object is constructable<br/>
+But the moment at which an object is constructed is undefined: it won't be
+constructed until it is needed.</li>
+<li>every object is destructable<br/>
+But the moment at which an object is destroyed is undefined: it may never be
+destroyed at all - even if it has gone out of scope. In fact, if the interpreter
+thinks it is too costly to destroy the object (because it is too busy doing 
+something else) there is no reason why it should destroy the object.</li>
+<li>the program never actually works on the class (type) itself, but always on
+an instance of the class<br/>
+This basically means that if you change some attribute in one object, the same
+attribute in another object is not changed</li>
+<li>every object is executable<br/>
+In the Jail model, even functions are objects - as are statements. This 
+basically means you can assign a block of code to a variable without executing
+the block of code.</li>
+<li>every object is an abstraction of data<br/>
+This basically means that even functions are abstractions of some data. In the
+case of a function, that data is the compiler-generated bytecode. This implies
+that you can change the contents of a function <i>at run-time</i> which means
+you can change its behaviour at run-time..</li>
+<li>different types of access the different objects are restrictable<br/>
+You can change the access restructions to objects at compile-time and at 
+run-time. You can't make the access restrictions more permissive, though: 
+if you have blocked write-access to an object, the compiler/interpreter 
+will not allow you to write to the object <i>ever again</i> (and will be 
+able to use that restriction to optimise your use of the object)
+</li>
+<li>there are no primitive, non-object types<br/>
+This is actually not really true: behind the scenes, there are some primitive
+types (including pointers) used by the platform on which the Jail program is
+run - it would become almost impossible to translate the language to something
+the machine can understand otherwise. It is true, however, that you can't
+directly <i>use</i> the primitive types - at least not without using the 
+"native" features (i.e. implementing a Jail function or class in some language
+other than Jail)</li>
+</ul>
+</p>
+<h2>Classes vs. namespaces</h2>
+<h2>Pre-defined types</h2>
+
+</div>
+</td>
+<td width="210" valign="top">
+<a href=
+"http://sourceforge.net"><img src=
+"http://sourceforge.net/sflogo.php?group_id=85312&amp;type=5"
+width="210" height="62" border="0" align="right" alt=
+"SourceForge.net Logo"></a>
+</td>
+</tr>
+</tbody>
+</table>
+<div style="text-align: right; font-size: smaller;"<a href="#top">back to top</a></div>
+<div align="right">This page was last updated: $Date: 2004/01/26 11:26:11 $</div>
+</body>
+</html>

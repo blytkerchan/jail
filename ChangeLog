@@ -1,3 +1,11 @@
+2003-01-26	blytkerchan
+	* TODO: new file
+	* jailtype.html: ditto
+	* jail.css: add definitions for h3, table.toc, p.notice, a.toc:link, a.toc:active and a.toc:visited.
+	* jailop.html: add a lot of words :)
+	* table.html: use the ``toc'' table class to define the style
+	add a link to jailtype.html
+
 2003-01-21	blytkerchan
 	* *.html: link to jail.css stylesheet
 	set anchor named "top"
