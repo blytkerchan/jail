@@ -1,4 +1,6 @@
 2004-07-26	blytkerchan
+	* how_semaphores_work.txt: update
+
 	* semaphore.c: fix spelling errors and type-os
 	prefix all calls to libthread functions with lt_
 	fix all compiler warnings and errors

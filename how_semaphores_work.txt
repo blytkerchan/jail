@@ -45,42 +45,48 @@ lt_sem_t : struct {
 	value : int >= 0;				# the curr value of the semaphore
 	queue : queue of thread_t;	# queue of waiting threads
 }
-lt_sem_wait(sem : lt_sem_t) {
-	value : int >= 0;				# local copy of the curr value of the semaphore
-	mask, o_mask : sigset_t;	# signal mask (new & old)
-	action, o_action : sigaction;
+lt_sem_wait(sem : lt_sem_t)
+{
+	uint32_t value;		# local copy of the sem value
+	sigset_t mask, o_mask;	# signal masks we work on (new & old)
+	
+	# set the signal mask for the calling thread. This prevents SIGCONT
+	# signals from being ignored in the waiting loop
+	sigemptyset(&mask);
+	sigaddset(&mask, SIGCONT);
+	pthread_sigmask(SIG_BLOCK, &mask, &o_mask);
 
-	# set the signal mask for the calling thread. This prevents SIGCONT signals
-	# from being ignored in the waiting loop
-	sigemptyset(mask);
-	sigaddset(mask, SIGCONT);
-	pthtread_sigmask(SIG_BLOCK, mask, o_mask);
-
-	# this is the waiting loop. When we get out of this, the semaphore is ours
+	# first, put us on the queue. This ensures we don't miss any
+	# wake-up calls and nobody will miss us. It also ensures FIFO on the
+	# semaphore, making it fair.
+	lt_sem_enq(sem, lt_thread_self());
+	# this is the waiting loop. When we get out of this,
+	# the semaphore is ours
 	while (1) {
-		# get the current value of the semaphore
-		value = sem^.value;
-		if (value > 0) {
-			# try to get the semaphore
-			if (CAS(value, sem^.value, value - 1) != OK) {
-				continue;	# try again
-			} else break;	# OK
-		} else {	# semaphore is locked
-			# wait for it to be unlocked
-			enq(sem^.queue, thread_self);
-			sigsuspend(mask);
+		# now, see if we're the first on the list
+		if (lt_thread_eq(lt_sem_first(sem), lt_thread_self()) == 0)	{
+			# once we're the first in the list, that will always be the case 
+			# until we remove ourselves. No other thread has the right to do
+			# that
+			
+			# get the current value of the semaphore
+			value = sem^.value;
+			if (value > 0) {
+				# try to get the semaphore
+				if (compare_and_exchange(value, sem^.value, value - 1) != OK) {
+					continue;	# try again
+				} else break;	# OK
+			}
+		} else {	# semaphore is locked and/or we're not the first waiting
+					# wait for it to be unlocked
+			sigsuspend(&mask);
 		}
 	}
+	
 	# set the old mask back
-	pthread_sigmask(SIG_SETMASK, o_mask, NULL);
+	pthread_sigmask(SIG_SETMASK, &o_mask, NULL);
 }
-Though this favours FIFO wrt the fact that the current thread is queued (and
-won't be signalled by lt_sem_release described below unless it is the first in 
-the queue), but does not guarantee it because it may be that an arriving thread
-takes the semaphore before a newly awoken one.. This has the potential of 
-starving waiting threads(!). An alternative would be to pass the baton without
-releasing the semaphore, but that would mean that the awoken thread would have
-some other way of knowing it was awoken for the semaphore, and nothing else.
+This guarantees a fair, FIFO queued semaphore.
 
 lt_sem_release() releases a semaphore when it's done with it. It awakes a 
 waiting thread, but does not guarantee that that thread will actually get the
@@ -90,7 +96,7 @@ lt_sem_release(sem : lt_sem_t) {
 
 	# check whether we were ever queued - if so, we're the first in the queue
 	if (first(sem^.queue) == thread_self()) {
-		deq(sem^.queue);
+		lt_sem_deq(sem^.queue);
 	}
 	# release the semaphore
 	atomic_increment(sem^.value);
@@ -103,4 +109,8 @@ Note: SUSv3 doesn't specify what happens if we sigsuspend() waiting for a signal
 that is ignored. It would be silly to ignore SIGCONT, but it can be done. Doing
 so will cause unspecified behaviour in this implementation.
 
+The lt_sem_enq and lt_sem_deq algorithms above are derived from the lock-free
+queue algorithm used for libcontain's queue implementation, with an
+optimization for the fact that lt_sem_deq can only be called from one thread
+at a time - namely the one that is at the head of the queue.
 
