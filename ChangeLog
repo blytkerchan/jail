@@ -1,3 +1,43 @@
+2004-04-22	blytkerchan
+	* binomial_tree.c: new file
+	* Makefile.am [libcontain_la_SOURCES]: add map.c and binomial_tree.c
+	[pkginclude_HEADERS]: add map.h and binomial_tree.h
+	[libcontain_la_LDFLAGS]: bump interface version number to 2:0:1
+	* binomial_tree.h: comments added throughout
+	[binomial_tree_node_t]: add tag for structure
+	add left and right child nodes
+	add parent node
+	[binomial_tree_node_foreach_func_t]: new type
+	(binomial_tree_head): rename to binomial_tree_get_root
+	(binomial_tree_get_root): rename from binomial_tree_head
+	(binomial_tree_node_leftchild): rename to binomial_tree_node_get_left
+	(binomial_tree_node_rightchild): rename to binomial_tree_node_get_right
+	(binomial_tree_node_get_left): rename from binomial_tree_node_leftchild
+	(binomial_tree_node_get_right: rename from binomial_tree_node_rightchild
+	(binomial_tree_set_root): new function
+	(binomial_tree_node_new): ditto
+	(binomial_tree_node_free): ditto
+	(binomial_tree_node_set_left): ditto
+	(binomial_tree_node_set_right): ditto
+	(binomial_tree_node_get_parent): ditto
+	(binomial_tree_node_register): ditto
+	(binomial_tree_node_get_value): ditto
+	(binomial_tree_node_set_value): ditto
+	(binomial_tree_node_foreach): ditto
+	* binomial_tree.sgml: add words pertaining to binomial tree implementation
+	remove words pertaining to array implementation
+	* configure.in: bump version to 0.2-alpha1
+	* map.c: add copyright notice
+	add includes
+	(map_insert): implement
+	(map_get): ditto
+	(map_remove): ditto
+	[map_remove_helper_data_t]: new type
+	(map_remove_helper): new function
+	(map_node_new): ditto
+	(map_node_free): ditto
+	* map.h [map_node_t]: new field flag
+	
 2004-04-20	blytkerchan
 	* map.c: new file
 	* map.h: ditto

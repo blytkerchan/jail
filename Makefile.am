@@ -34,16 +34,20 @@ libcontain_la_SOURCES = arch/@ARCH@/compare_and_exchange.c \
 			queue.c \
 			hash.c \
 			array.c \
+			map.c \
+			binomial_tree.c \
 			list.c $(libcontain_la_CXXSOURCES)
 pkginclude_HEADERS =	hash_config.h \
 			hash.h \
 			stack.h \
 			queue.h \
 			array.h \
+			map.h \
+			binimial_tree.h \
 			list.h $(libcontain_la_CXXHEADERS)
 noinst_HEADERS = c_interface.h
 libcontain_la_LIBADD=libreplace/libreplace.la glib/libglib.la
-libcontain_la_LDFLAGS=-version-info 1:0:0
+libcontain_la_LDFLAGS=-version-info 2:0:1
 AM_CFLAGS = -g -Wall -Werror -I$(top_srcdir)/arch/include
 AM_CXXFLAGS = -g -Wall -Werror -I$(top_srcdir)/arch/include
 

@@ -1,3 +1,4 @@
+
 /* Jail: Just Another Interpreted Language
  * Copyright (c) 2004, Ronald Landheer-Cieslak
  * All rights reserved
@@ -31,28 +32,47 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _LIBCONTAIN_MAP_H
-#define _LIBCONTAIN_MAP_H
+binomial_tree_t * binomial_tree_new(void)
+{
+	binomial_tree_t * retval = (binomial_tree_t*)calloc(1, sizeof(binomial_tree_t));
 
-#include "binomial_tree.h"
+	return retval;
+}
 
-typedef int (*map_key_cmp_func_t)(void * k1, void * k2);
+void binomial_tree_free(binomial_tree_t * tree)
+{
+	free(tree);
+}
 
-typedef struct _map_node_t {
-	void * key;
-	void * val;
-	int flag;
-} map_node_t;
+binomial_tree_node_t * binomial_tree_head(binomial_tree_t * handle)
+{
+	binomial_tree_node_t * top;
+	binomial_tree_node_t * curr;
+	
+	while ((top = handle->trunk) == NULL)
+	{
+		curr = binomial_tree_node_new(NULL);
+		if (!compare_and_exchange(&top, &(handle->trunk), curr))
+		{
+			binomial_tree_node_free(curr);
+		}
+	}
 
-typedef struct _map_t {
-	binomial_tree_t * tree;
-	map_key_cmp_func_t cmp_func;
-} map_t;
+	return top;
+}
 
-map_t * map_new(map_key_cmp_func_t cmp_func);
-void map_free(map_t * handle);
-void map_insert(map_t * handle, void * key, void * val);
-void * map_get(map_t * handle, void * key);
-void map_remove(map_t * handle, void * key);
+binomial_tree_node_t * binomial_tree_node_new(binomial_tree_node_t * parent)
+{
+	binomial_tree_node_t * retval = (binomial_tree_node_t*)calloc(1, sizeof(binomial_tree_node_t));
+	retval->parent = parent;
 
-#endif // _LIBCONTAIN_MAP_H
+	return retval;
+}
+
+void binomial_tree_node_free(binomial_tree_node_t * handle)
+{
+	free(handle);
+}
+
+
+

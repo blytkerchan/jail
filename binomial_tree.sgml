@@ -27,6 +27,24 @@ access to individual nodes and will allow you to handle those nodes.</para>
 <refsect1>
 <title>Synopsis</title>
 <para><screen><![CDATA[
+#include <libcontain/binomial_tree.h>
+
+binomial_tree_t * binomial_tree_new(void);
+void binomial_tree_free(binomial_tree_t * tree);
+binomial_tree_node_t * binomial_tree_get_root(binomial_tree_t * tree);
+int binomial_tree_set_root(binomial_tree_t * tree, binomial_tree_node_t * exp, binomial_tree_node_t * val);
+binomial_tree_node_t * binomial_tree_node_new(void);
+void binomial_tree_node_free(binomial_tree_node_t * handle);
+binomial_tree_node_t * binomial_tree_node_get_left(binomial_tree_node_t * node);
+binomial_tree_node_t * binomial_tree_node_get_right(binomial_tree_node_t * node);
+int binomial_tree_node_set_left(binomial_tree_node_t * node, binomial_tree_node_t * exp, binomial_tree_node_t * nval);
+int binomial_tree_node_set_right(binomial_tree_node_t * node, binomial_tree_node_t * exp, binomial_tree_node_t * nval);
+binomial_tree_node_t * binomial_tree_node_get_parent(binomial_tree_node_t * node);
+void binomial_tree_node_register(binomial_tree_node_t * node, int reg);
+void binomial_tree_node_release(binomial_tree_node_t * node);
+void * binomial_tree_node_get_value(binomial_tree_node_t * node);
+int binomial_tree_node_set_value(binomial_tree_node_t * node, void * curr, void * val);
+void binomial_tree_node_foreach(binomial_tree_node_t * root, binomial_tree_node_foreach_func_t func, void * data);
 ]]></screen></para>
 </refsect1>
 
@@ -34,204 +52,148 @@ access to individual nodes and will allow you to handle those nodes.</para>
 <title>Functions</title>
 <para>
 <variablelist>
-<varlistentry><term><function>array_t * new_array(size_t size)</function></term>
-<listitem><para>Allocate a new array of size SIZE.</para>
-<para>This function allocates a new array of the given size. The new array is 
-empty and is guaranteed to have enough space for at least SIZE elements. On
-error, NULL is returned.</para></listitem></varlistentry>
 
-<varlistentry><term><function>void free_array(array_t * array)</function></term>
-<listitem><para>Free and destroy the array ARRAY.</para>
-<para>As of the moment this function starts, all other operations on array 
-ARRAY have undefined results. This function destroys the array and frees any
-memory associated with it. It does not use or free anything it contains.
-</para></listitem></varlistentry>
+<!--
+<varlistentry><term><function>
+function name</function></term>
+<listitem><para>one-liner function description</para>
+<para>more verbose function description</para>
+<para>info pertaining thread-safety</para>
+</listitem></varlistentry>
+-->
 
-<varlistentry><term><function>void * array_get(array_t * array, size_t i)</function></term>
-<listitem><para>Retrieve the item stored in ARRAY at index I.</para>
-<para>You may safely call this function on a single array from more than one 
-thread at a time. If I is out of bounds or if the array does not contain 
-anything at index I, NULL is returned.
-</para></listitem></varlistentry>
+<varlistentry><term><function>binomial_tree_t * binomial_tree_new(void)</function></term>
+<listitem><para>one-liner function description</para>
+<para>more verbose function description</para>
+<para>info pertaining thread-safety</para>
+</listitem></varlistentry>
 
-<varlistentry><term><function>void array_put(array_t * array, size_t i, void * val)</function></term>
-<listitem><para>Store the value VAL at index I in array ARRAY</para>
-<para><emphasis>Iff</emphasis> I is within bounds, this function may safely be
-called from more than one thread at the same time on a single array. If I is
-not within bounds, this function may not be combined with any other function 
-in the array implementation's API on the same array. If I is not within bounds,
-the array is grown by its default increase size an integer number of times to
-make I fall within bounds.</para></listitem></varlistentry>
+<varlistentry><term><function>void binomial_tree_free(binomial_tree_t * tree)</function></term>
+<listitem><para>one-liner function description</para>
+<para>more verbose function description</para>
+<para>info pertaining thread-safety</para>
+</listitem></varlistentry>
 
-<varlistentry><term><function>void array_push_back(array_t * array, void * val)</function></term>
-<listitem><para>Push a value VAL on the end of array ARRAY.</para>
-<para><emphasis>Iff</emphasis> the number of entries in the array is infiriour 
-to the size of the array <emphasis>and</emphasis> the array is condensed, this
-function can safely be called on a single array from different threads at the
-same time. If either condition is false, the array will be grown and/or 
-condensed, in which case the function should be the only one called on the
-array at the time.
-</para></listitem></varlistentry>
+<varlistentry><term><function>binomial_tree_node_t * binomial_tree_get_root(binomial_tree_t * tree)</function></term>
+<listitem><para>one-liner function description</para>
+<para>more verbose function description</para>
+<para>info pertaining thread-safety</para>
+</listitem></varlistentry>
 
-<varlistentry><term><function>size_t array_get_size(array_t * array)</function></term>
-<listitem><para>Get the size of the array ARRAY</para>
-<para>Returns the size of the array - the number of entries the array may 
-contain. This function may safely be called from any number of threads on
-a single array at any time, even if a non-safe call to 
-<function>array_put</function> or <function>array_push_back</function> is in
-progress.</para></listitem></varlistentry>
+<varlistentry><term><function>int binomial_tree_set_root(binomial_tree_t * tree, binomial_tree_node_t * exp, binomial_tree_node_t * val)</function></term>
+<listitem><para>one-liner function description</para>
+<para>more verbose function description</para>
+<para>info pertaining thread-safety</para>
+</listitem></varlistentry>
 
-<varlistentry><term><function>size_t array_get_numentries(array_t * array)</function></term>
-<listitem><para>Get the number of entries currently in the array ARRAY</para>
-<para>Returns the number of entries currently stored in the array.
-This function may safely be called from any number of threads on
-a single array at any time, even if a non-safe call to
-<function>array_put</function> or <function>array_push_back</function> is in
-progress.</para></listitem></varlistentry>
+<varlistentry><term><function>binomial_tree_node_t * binomial_tree_node_new(void)</function></term>
+<listitem><para>one-liner function description</para>
+<para>more verbose function description</para>
+<para>info pertaining thread-safety</para>
+</listitem></varlistentry>
 
-<varlistentry><term><function>void array_resize(array_t * array, size_t size)</function></term>
-<listitem><para>Resize the array ARRAY to be able to hold at least SIZE elements.</para>
-<para>This function can not safely be called in combination with 
-<emphasis>any</emphasis> other function on the same array.
-</para></listitem></varlistentry>
+<varlistentry><term><function>void binomial_tree_node_free(binomial_tree_node_t * handle)</function></term>
+<listitem><para>one-liner function description</para>
+<para>more verbose function description</para>
+<para>info pertaining thread-safety</para>
+</listitem></varlistentry>
 
-<varlistentry><term><function>array_t * array_copy(array_t * array)</function></term>
-<listitem><para>Copy the array ARRAY.</para>
-<para>This function makes an exact copy of the array ARRAY and returns its 
-handle. On error, it returns NULL. It does not copy the elements it contains 
-but does copy the pointers to the new array. To copy whatever the pointers 
-point to, use the <function>array_deep_copy</function> function.</para>
-<para>This function can not safely be called in combination with
-<emphasis>any</emphasis> other function on the same array.
-</para></listitem></varlistentry>
+<varlistentry><term><function>binomial_tree_node_t * binomial_tree_node_get_left(binomial_tree_node_t * node)</function></term>
+<listitem><para>one-liner function description</para>
+<para>more verbose function description</para>
+<para>info pertaining thread-safety</para>
+</listitem></varlistentry>
 
-<varlistentry><term><function>array_t * array_merge(array_t * array1, array_t * array2, array_cmp_func_t cmp_func)</function></term>
-<listitem><para>Merge two arrays into a third.</para>
-<para>This function creates a new array containing the pointers of ARRAY1 and 
-ARRAY2 while remaining sorted. Both arrays are assumed to be sorted (and 
-condensed). Otherwise, the results are undefined. The CMP_FUNC function is used
-to compare the elements in the two arrays.</para>
-<para>This function can not safely be called in combination with
-<emphasis>any</emphasis> other function on the same array.
-</para></listitem></varlistentry>
+<varlistentry><term><function>binomial_tree_node_t * binomial_tree_node_get_right(binomial_tree_node_t * node)</function></term>
+<listitem><para>one-liner function description</para>
+<para>more verbose function description</para>
+<para>info pertaining thread-safety</para>
+</listitem></varlistentry>
 
-<varlistentry><term><function>array_t * array_deep_copy(array_t * array, array_valcopy_func_t array_valcopy_func)</function></term>
-<listitem><para>Make a copy of array ARRAY and call ARRAY_VALCOPY_FUNC for 
-each value to copy it.</para>
-<para>This creates a new array and returns a pointer to it. It
-returns NULL on error. The ARRAY_VALCOPY_FUNC is only called on non-NULL 
-elements in the array and is expected to never fail.</para>
-<para>This function can not safely be called in combination with
-<emphasis>any</emphasis> other function on the same array.
-</para></listitem></varlistentry>
+<varlistentry><term><function>int binomial_tree_node_set_left(binomial_tree_node_t * node, binomial_tree_node_t * exp, binomial_tree_node_t * nval)</function></term>
+<listitem><para>one-liner function description</para>
+<para>more verbose function description</para>
+<para>info pertaining thread-safety</para>
+</listitem></varlistentry>
 
-<varlistentry><term><function>void array_condense(array_t * array)</function></term>
-<listitem><para>Condense the array ARRAY</para>
-<para>Condense the array so that all elements in the array are consecutive. The
-order of the elements is undefined, but after this operation, all elements are
-guaranteed to follow eachother, which makes the 
-<function>array_push_back</function> and sort functions faster.</para>
-<para>This function can not safely be called in combination with
-<emphasis>any</emphasis> other function on the same array.
-</para></listitem></varlistentry>
+<varlistentry><term><function>int binomial_tree_node_set_right(binomial_tree_node_t * node, binomial_tree_node_t * exp, binomial_tree_node_t * nval)</function></term>
+<listitem><para>one-liner function description</para>
+<para>more verbose function description</para>
+<para>info pertaining thread-safety</para>
+</listitem></varlistentry>
 
-<varlistentry><term><function>void array_sort(array_t * array, array_cmp_func_t cmp_func)</function></term>
-<listitem><para>Sort the array in ascending order.</para>
-<para>Comparisons are done with the CMP_FUNC function, see below. The sorting
-algorithm used is a binary merge sort. It should theoretically be faster than
-QuickSort, which is Omega(n^2) whereas the binary merge sort is O(n lg(n)). 
-However, I have not emperically proven that it is really faster (which would 
-be rather difficult to prove as QuickSort is randomized). I am more than 
-willing to entertain discussions and testcases on this matter.</para>
-<para>This function can not safely be called in combination with
-<emphasis>any</emphasis> other function on the same array.
-</para></listitem></varlistentry>
+<varlistentry><term><function>binomial_tree_node_t * binomial_tree_node_get_parent(binomial_tree_node_t * node)</function></term>
+<listitem><para>one-liner function description</para>
+<para>more verbose function description</para>
+<para>info pertaining thread-safety</para>
+</listitem></varlistentry>
 
-<varlistentry><term><function>void * array_search(array_t * array, void * val, array_cmp_func_t cmp_func)</function></term>
-<listitem><para>Search the array ARRAY for the value VAL with compare function
-CMP_FUNC.</para>
-<para>Because the stored type may be a structure of which CMP_FUNC need not 
-examine the entire contents, this function may be useful for finding a value
-in the array without knowing the entire contents of the value.</para>
-<para>This function uses a binary search algorithm <emphasis>iff</emphasis> 
-the array is sorted. Otherwise, it uses a linear search algorithm. CMP_FUNC
-is only called on non-NULL elements. This function returns NULL of the value
-VAL is not found on the array.</para>
-<para>This function may safely be called in combination with other functions on
-the same array.
-</para></listitem></varlistentry>
+<varlistentry><term><function>void binomial_tree_node_register(binomial_tree_node_t * node, int reg)</function></term>
+<listitem><para>one-liner function description</para>
+<para>more verbose function description</para>
+<para>info pertaining thread-safety</para>
+</listitem></varlistentry>
 
-<varlistentry><term><function>void array_set_default_increase(array_t * array, size_t increase)</function></term>
-<listitem><para>Set the size by which the array ARRAY is grown for out-of-bounds
-write operations.</para>
-<para>This function may safely be called in combination with other functions on the same array.</para></listitem></varlistentry>
+<varlistentry><term><function>void binomial_tree_node_release(binomial_tree_node_t * node)</function></term>
+<listitem><para>one-liner function description</para>
+<para>more verbose function description</para>
+<para>info pertaining thread-safety</para>
+</listitem></varlistentry>
 
-<varlistentry><term><function>void array_foreach(array_t * array, array_foreach_func_t array_foreach_func, void * data)</function></term>
-<listitem><para>For each non-null element in array ARRAY, call function ARRAY_FOREACH_FUNC with the value and the user data DATA.</para>
-<para>This function may safely be called in combination with other functions on the same array.</para></listitem></varlistentry>
+<varlistentry><term><function>void * binomial_tree_node_get_value(binomial_tree_node_t * node)</function></term>
+<listitem><para>one-liner function description</para>
+<para>more verbose function description</para>
+<para>info pertaining thread-safety</para>
+</listitem></varlistentry>
+
+<varlistentry><term><function>int binomial_tree_node_set_value(binomial_tree_node_t * node, void * curr, void * val)</function></term>
+<listitem><para>one-liner function description</para>
+<para>more verbose function description</para>
+<para>info pertaining thread-safety</para>
+</listitem></varlistentry>
+
+<varlistentry><term><function>void binomial_tree_node_foreach(binomial_tree_node_t * root, binomial_tree_node_foreach_func_t func, void * data)</function></term>
+<listitem><para>one-liner function description</para>
+<para>more verbose function description</para>
+<para>info pertaining thread-safety</para>
+</listitem></varlistentry>
 
 </variablelist>
 </para>
-</refsect1>
-
-<refsect1>
-<title>Thread-Safety</title>
-<para>The implementation is completely re-entrant. You can therefore safely use
-any number of <emphasis>different</emphasis> instances in different threads at
-the same time. The implementation does not provide for thread-safety to use a
-single instance from different threads at the same time at the moment. Results
-of such use are undefined.</para>
 </refsect1>
 
 <refsect1>
 <title>Helper functions</title>
-<para>The implementation needs a number of helper functions at a number of 
-occasions. These helper functions are defined according to types 
-<function>array_cmp_func_t</function>, 
-<function>array_valcopy_func_t</function> and 
-<function>array_foreach_func_t</function></para>
-<para><function>array_cmp_func_t</function> compare two values, K1 and K2, so
-that if K1 < K2; array_cmp_func_t(K1, K2) < 0; if K1 == K2; 
-array_cmp_func_t(K1, K2) == 0 and if K1 > K2; array_cmp_func_t(K1, K2) > 0. 
-Neither K1 nor K2 will be NULL.</para>
-<para><function>array_valcopy_func_t</function> makes a copy of the value VAL. 
-It is expected to never fail. Its return value is not checked.</para>
-<para><function>array_foreach_func_t</function> is called only on non-NULL 
-elements and has two parameters: VAL and DATA. VAL is expected to not be 
-changed, DATA may be altered.</para>
+<para>The binary tree uses only one callback function, of type <function>binomial_tree_node_foreach_func_t</function>. This function is called for each non-NULL value stored in the tree as of the given root node, and is handed the function's data parameter as well as the value of the node.</para>
+</refsect1>
+
+<refsect1>
+<title>Thread Safety</title>
+<para>There are no locks on the nodes in the binary tree, nor are there any on
+the tree itself. However, that doesn't mean the binary tree implementation is
+not thread-safe: it has been designed to use only atomic writes and the API is
+rich enough to do just about anything with the tree, atomically.</para>
+<para>As the binomial tree implementation does not implement any of the 
+algorithmic logic needed to implement an actual container, most of the 
+thread-safety concerns lie with the user. The restrictions on the API do allow
+for the implementation of non-blocking thread-safe containers, however: for 
+example: new nodes are created whenever a non-existant node is asked for. That
+may be the root of the tree or a child of a leaf node. Hence, the way to 
+recognize a leaf node is to check whether both of its children are empty (i.e.
+don't contain a value). Though that makes for two extra nodes to allocate, 
+that also takes the allocation and grafting of nodes on the tree away from the
+<quote>client</quote> implementation. Grafting a node onto any place in the
+tree is impossible if you do not know what the current child node is: you can't
+simply cut off a branch of the tree without knowing it.</para>
+<para>All the write operations on the nodes are atomic and it is impossible to
+replace a value on a node without first knowing the current value of the node.
+hence, it is impossible to mistakenly remove a value from the tree unless the 
+client code is really messed up.</para>
 </refsect1>
 
 <refsect1>
 <title>Bugs</title>
-<para>Version 0.1-alpha1 of libcontain, interface version 1:0:0, contains the 
-following bugs in the array implementation:
-<variablelist>
-<varlistentry><term>In function <function>array_put</function></term>
-<listitem><para>found and fixed on 2004-04-16; versions after this date do not 
-contain this bug.</para>
-<para>The function did not consistently grow the array enough if the given 
-index was out of bounds. The bug may result in undefined behaviour for 
-out-of-bounds indices on this function.
-</para></listitem></varlistentry>
-
-<varlistentry><term>The attribute <function>condensed</function></term>
-<listitem><para>found and fixed on 2004-04-16; versions after this date do not 
-contain this bug.</para>
-<para>The <function>condensed</function> attribute was not initialized at array
-allocation, possibly leading to condensation of the array without need. This
-bug may slow down the implementation. but should not cause any real problems.
-</para></listitem></varlistentry>
-
-<varlistentry><term>In function <function>array_put</function></term>
-<listitem><para>found and fixed on 2004-04-16; versions after this date do not
-contain this bug.</para>
-<para>The <function>condensed</function> attribute was cleared even if the
-array remained condensed after the put operation, possibly leading to 
-condensation of the array without need. This bug may slow down the 
-implementation. but should not cause any real problems.
-</para></listitem></varlistentry>
-</variablelist>
-</para>
+<para>Certainly there are some.. you tell me!</para>
 </refsect1>
 
 </refentry>
