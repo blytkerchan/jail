@@ -1,4 +1,7 @@
 2004-02-03	blytkerchan
+	* Makefile.am: new file
+	* memcmp.c: ditto
+
 	* strlwr.c: new file
 	* AUTHORS: ditto
 
