@@ -1,4 +1,15 @@
-2004-05-05	blytkerchan	debug session
+2004-05-05	blytkerchan	
+debug session & implementing use of libmemory
+	* heap_test.c (test1): write heap contents to stderr
+	* list_test.c: include libmemory headers
+	(main): initialize and finilize libmemory
+	* queue_test.c: include libmemory headers
+	(queue_test1): fix memory leak
+	(main): initialize and finilize libmemory
+	* stack_test.c: include libmemory headers
+	(main): initialize and finilize libmemory
+
+debug session
 	* heap_test.c: new file
 	* Makefile.am [TESTS]: add heap_test
 	[heap_test_LDADD]: new variable

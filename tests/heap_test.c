@@ -55,7 +55,7 @@ void test1(void)
 		heap_add(heap, values[i]);
 	while (rv = (char*)heap_top(heap))
 	{
-		printf(rv);
+		fprintf(stderr, rv);
 		heap_pop(heap);
 	}
 

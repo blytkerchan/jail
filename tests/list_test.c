@@ -31,6 +31,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <libmemory/smr.h>
+#include <libmemory/hptr.h>
 #include "test.h"
 #include "../list.h"
 
@@ -49,6 +51,10 @@ int main(void)
 	static char * keys[] = {
 		"Hel", "Bye", NULL
 	};
+	smr_init(LIBCONTAIN_MIN_HPTRS);
+	hptr_init();
+	smr_thread_init();
+	
 	list_t * list = new_list(compare_func);
 	int i;
 	
@@ -58,6 +64,10 @@ int main(void)
 	for (i = 0; strings[i]; i++)
 		if (strcmp(strings[i], list_search(list, keys[i])))
 			abort();
+
+	smr_thread_fini();
+	hptr_fini();
+	smr_fini();
 
 	return 0;
 }

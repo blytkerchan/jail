@@ -31,6 +31,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <libmemory/smr.h>
+#include <libmemory/hptr.h>
 #include "test.h"
 #include "../queue.h"
 
@@ -51,11 +53,20 @@ void queue_test1(void)
 	for (i = 0; strings[i]; i++)
 		if (strcmp(queue_deq(queue), strings[i]))
 			abort();
+	free_queue(queue);
 }
 
 int main(void)
 {
+	smr_init(LIBCONTAIN_MIN_HPTRS);
+	hptr_init();
+	smr_thread_init();
+	
 	queue_test1();
+
+	smr_thread_fini();
+	hptr_fini();
+	smr_fini();
 	return 0;
 }
 
