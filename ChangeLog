@@ -1,4 +1,8 @@
-2004-10-18	blytkerchan	remove references to C++ hash implementation
+2004-10-18	blytkerchan
+	* vector.h [vector_t]: fix rw-spinlock type
+	* module.mk [libcontain_SRC]: add vector.c
+
+remove references to C++ hash implementation
 	* module.mk: remove anything related to the C++ hash implementation
 
 obsolete C++ hash implementation

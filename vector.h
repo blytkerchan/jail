@@ -62,7 +62,7 @@ typedef struct _vector_t
 	int sorted;
 	int condensed;
 	int flag;
-	rw_spinlock * lock;
+	rw_spinlock_t * lock;
 } vector_t;
 
 /* Create a new, empty vector of size SIZE */

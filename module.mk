@@ -7,7 +7,8 @@ libcontain_SRC +=	stack.c \
 			binomial_tree.c \
 			heap.c \
 			prime.c \
-			list.c
+			list.c \
+			vector.c
 libcontain_GLIB_SRC = 	glib/ghash.c \
 			glib/gprimes.c
 
