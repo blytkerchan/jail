@@ -19,112 +19,19 @@
 </td>
 <td valign="top">
 <div align="justify">
-<h2><a name="Design"></a>Language design</h2>
-<p><i>The language has to be very simple to use for anyone.</i></p>
-<p>One thing that has bothered people learning to program in
-languages like Perl has been the notation of the different types of
-variables. For example, in Perl, scalars are prefixed with a $,
-arrays with a @ and hashes with a %. These three make the code
-slightly complicated. With that, an accolade has a different
-meaning according to its context, and if you want an item of an
-array, you have to write the name of that item as a scalar..</p>
-<p>In Jail, we don't see the difference between an array and a
-hash: an array is a hash. We don't see the difference between a
-scalar and an array either: an array can be a scalar if you need it
-do be one. Either way, you're working on <b>items</b>, so let's
-just call it that.</p>
-<h3><a name="Everything_is_an_item"></a>Everything is an item</h3>
-<p>A scalar, an array, a file, a function, the program itself. To
-quote my little brother: "difference the what's?!". Of course, you
-might run into trouble assigning a value to a function - and the
-interpreter should warn you about that - but that doesn't mean it's
-wrong to do so!</p>
-<p>Of course, there are things you can do with one item that you
-can't with another: it doesn't make sense to multiply a file by
-two, unless it makes sense to multiply its contents by two.. The
-interpreter should warn the programmer about that, but that's
-another question: if the programmer decides to multiply a file,
-he'll get a multiplied file.. It's just a question of deciding on
-the semantics of the operation and the operation can be done.</p>
-<h3><a name="Grammar_and_syntax"></a>Grammar and syntax</h3>
-<p>The grammar of Jail is under development. Basically, what we
-need is a simple, straight-forward grammar to be used with a syntax
-that is, also, as simple as possible.</p>
-<p>The programmer shouldn't have to care about the type behind an
-item: all they have to deal with are items and expressions, a
-program just being a complex form of an expression. Hence, the
-grammar should define rules for the use of items and the contents
-of expressions, for example:</p>
+<h2>Designing the language</h2>
+<p>
+The language design is discussed on the jail-ust-lang discussion group. That group will take the final decisions on any of the aspects of the language and is the final authority as far as language design is concerned. To be part of those decision-makers, you just have to subscribe to the discussion group by sending mail to jail-ust-lang-subscribe (at) lists (dot) sourceforge (dot) net.
+</p>
+<p>
+No actual decisions have been taken yet, except that:
 <ul>
-<li>An expression is one of the following:
-<ul>
-<li>an item</li>
-<li>an expression, followed by an operator, followed by an
-expression</li>
-<li>an expression between brackets</li>
+<li>Jail is an object-oriented language</li>
+<li>There are no non-object types in Jail</li>
+<li>jail must be very simple to work with - the learning curve must be shallow enough for any non-developer to work with it</li>
 </ul>
-</li>
-<li>A function call is an item followed by zero or more expressions
-between brackets</li>
-</ul>
-The restrictions on the grammar are those imposed by the parser
-generator we use, which is GNU Bison. The complete grammar is not
-complete yet, but is under development. If you want to have the
-current snapshot, you can always mail me at <i>ronald at landheer
-dot com</i> but it you want to discuss it, please mail to
-<i>jail-ust-lang-subscribe at lists dot sourceforge dot net</i>.
-That will subscribe you to the language discussion mailing list
-which is meant to define the semantics, syntax and grammar of the
-language.
-<p>We also need to define what names the programmer can give to his
-items. I've reserved anything that starts with an underscore for
-keywords. We don't need many keywords at the moment - some of the
-keywords I can think of at the moment are:</p>
-<ul>
-<li>PROGRAM to denote the program currently running</li>
-<li>ERROR to denote an error</li>
-<li>OK to denote all is well</li>
-<li>BEGIN, END, WHILE, DO<br></li>
-</ul>
-Other than the reserved words any sequence of one or more
-alphanumeric characters, starting with a letter, should be OK for
-use. However, anything starting with an underscore will be reserved
-for future, or internal, use.<br>
-<p>Some symbols may be pre-defined, such as console, stdin, stdout,
-stderr, etc. The complete list of pre-defined symbols and what they
-are for has yet to be defined. Again, if you want to join the
-discussion, please mail to <i>jail-ust-lang-subscribe at lists dot
-sourceforge dot net</i>.</p>
-<h3><a name="Error_and_exception_handling"></a>Error and exception
-handling</h3>
-<p>Anybody who's tried teaching C++ to non-programmers will have
-run into the problem of explaining what an exception is: you can
-throw them and catch them like a ball, they can be of any type that
-can be thrown, they usually denote an error but they can be used as
-any part of a design, etc. etc. Due to exceptions, you need smart
-pointers (what's a pointer again?) your code needs to be
-exception-safe, etc. etc. The problems with exceptions are as
-numerous as those with threads, and some of them are related,
-too.</p>
-<p>Some errors can be expected and can be handled gracefully. For
-example, if the programmer writes a division, the divisor might be
-zero, and division by zero is mathematically impossible. In stead
-of just breaking the program, the interpreter can "gracefully"
-handle this by setting the result to "not a number" and outputting
-a warning message to the standard error device.</p>
-<p>No error should be fatal: the interpreter should never bail out
-screaming - that will only confuse the user and the programmer
-alike. OTOH, the principle of JIJO (Junk In Junk Out) should be
-upheld: if you give the interpreter a buggy program you should
-expect the interpreter to give you plenty of warnings, and perhaps
-do a lot of no-ops, but <i>it should never bail out</i>.</p>
-<p>OTOH, we can't decide aforehand how each error/exception should
-be handled. The technical architecture of the Jail Virtual Machine
-therefore has to include a way to handle different types of
-exceptions, ranging from division-by-zero to access violations. For
-this, the JailVM will use user-provided callback functions, which
-will be called in a similar way to signal handlers. These can
-either be written in Jail or in some other language.</p>
+Though Jail means "Just Another <i>Interpreted</i> Language" it may well be a good idea to implement, say, a front-end to gcc for Jail, making it a compiled language. There is nothing that forbids that - as long as the requirements imposed by the jail-ust-lang list are met.
+</p>
 </div>
 </td>
 <td width="210" valign="top">
@@ -137,6 +44,6 @@ width="210" height="62" border="0" align="right" alt=
 </tr>
 </tbody>
 </table>
-<div align="right">This page was last updated: $Date: 2003/09/21 16:29:39 $</div>
+<div align="right">This page was last updated: $Date: 2003/12/09 19:51:41 $</div>
 </body>
 </html>

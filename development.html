@@ -29,22 +29,33 @@ make it readible by the compiler itself. The preprocessor will need several
 libraries and (other) components that will be used by the other programs in
 the Jail Interpreter Suite (compiler, linker, VM) as well. The first goals
 will entail making those libraries/components.</p>
+<h3>The Development Plan</h3>
 <p>The first thing that will be implemented is a library of data containers,
 derived from a library (libhash) I have previously developed. The original
 libhash is not thread-safe but should be made so. It should also be extended
 to make it easier to use and it should implement other hashing and storage 
 algorithms, preferrably non-blocking ones.</p>
+<p>The container library will need minimal memory management to work around 
+certain problems. That memory management can be the first step to a 
+full-fledged memory manager for the virtual machine.</p>
 <p>After the container library, a lexical scanner will be needed for the 
 preprocessor. This scanner will be at the heart of the preprocessor as it will
 be used to recognise the different preprocessor tokens.</p>
 <p>Whether or not the preprocessor will need a full-fledged parser depends on
 how complicated the task of the preprocessor will be, which partly depends on 
 the outcome of discussions on the jail-ust-lang and jail-ust-devel groups.</p>
-<p>You can join the effort now by joining the jail-ust-lang and/or 
-jail-ust-devel discussion groups. If you want to help in development, you should
-at least subscribe to jail-ust-devel and have a SourceForge account. I will then
-add you as a project member and allow access to the CVS repository as you need 
-it.</p>
+<p>Aside from the preprocessor, we will need a compiler and the two will 
+probably need to communicate with eachother and keep a database of known 
+classes and their definitions. Hence, we will need a shared database library. 
+That same library can be the basis of a more advanced database library that
+might, if needed, allow access to external databases.</p>
+<p>And so the list goes on. The plan is to start with the parts every other
+part depends on, and work on it to get a minimal working implementation so we
+can get started on other parts. The container library is such a part, so 
+development on it is active. The memory manager is another such part.</p>
+<h3></h3>
+
+
 <!-- PUT THIS IS LICENSING.HTML
 <p>Jail's licensing scheme revolves around a BSD-like license with an added
 clause which lets me (rlc) decide whether or not the code is also covered by the
@@ -68,6 +79,6 @@ width="210" height="62" border="0" align="right" alt=
 </tr>
 </tbody>
 </table>
-<div align="right">This page was last updated: $Date: 2003/10/07 20:40:47 $</div>
+<div align="right">This page was last updated: $Date: 2003/12/09 19:51:41 $</div>
 </body>
 </html>
