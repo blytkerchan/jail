@@ -264,6 +264,8 @@ projects. Based on the MOZILLA PUBLIC LICENSE, Version 1.1
        http://jail-ust.sf.net
      * HALOS: A Light Operating System
        http://halos.sf.net
+     * Harboured: automated repetitive backups of used remotely enclosed data
+       http://harboured.sf.net
      regardless of the presence or absence of the notice in Exhibit A.
 
 6. Versions of the License.
