@@ -1,3 +1,7 @@
+2004-08-15	blytkerchan	start translating how_rwlocks_work into C
+	* rw_lock.c: new file
+	* rw_lock.h: ditto
+
 2004-08-11	blytkerchan
 	* rw_spinlock.h [rw_spinlock_t]: remove excl and shar fields
 
