@@ -120,20 +120,65 @@ The parts, and their meanings, are stated in the table below
 <table class="intext" width="100%">
 <tbody>
 <tr class="title"><td>name</td><td>bumped-if</td><td>description</td></tr>
-<tr><td class="subject">major</td><td>Major, ground-breaking changes have occured</td><td>The major version number reflects the number of times major, ground-breaking changes have occured on the code. A major change could be re-factoring the design of the packaged component, a complete re-write of the source, etc.<br/>
-Passing from 0 to 1 is not a reflection on the maturity of the code: we have the Alpha, Beta, RC and Final releases for that.</td></tr>
-<tr><td class="subject">minor</td><td>Changes that require modifications of client code have occured, features have been added, etc.</td><td></td></tr>
-<tr><td class="subject">big-patch</td><td>Non-trivial changes have occured on a Final release</td><td></td></tr>
-<tr><td class="subject">patch</td><td>Trivial changes have occured on a Final release (packaging etc.) or we're not in a Final release yet.</td><td></td></tr>
+<tr><td class="subject">major</td>
+<td>Major, ground-breaking changes have occured</td>
+<td>The major version number reflects the number of times major, 
+ground-breaking changes have occured on the code. A major change could be 
+re-factoring the design of the packaged component, a complete re-write of the 
+source, etc.<br/>
+Passing from 0 to 1 is not a reflection on the maturity of the code: we have 
+the Alpha, Beta, RC and Final releases for that.</td></tr>
+<tr><td class="subject">minor</td>
+<td>Changes that require modifications of client code have occured, features 
+have been added, etc.</td>
+<td>The minor version number reflects non-trivial changes that will lead to a 
+new Final release and that are not subject to the <i>Feature Freeze</i> or the
+<i>Code Freeze</i> of the previous Final release.<br/>
+Basically, this number reflects how many times new releases were made that 
+contain new features, code cleanups, optimisations, etc. Normally, the 
+compatibility with client code is retained as much as possible (but is, BTW, 
+not directly reflected by the release version number).</td></tr>
+<tr><td class="subject">big-patch</td>
+<td>Non-trivial changes have occured on a Final release</td>
+<td>The big-patch number reflects the number if non-trivial changes that have
+occured on a Final release. Non-trivial changes are basically changes that 
+change (some aspect of) the behaviour of the package on more than one target
+platform. These include bugfixes etc. These do not include fixes of packaging
+errors unless they have a real impact on the behaviour of the packaged 
+component.</td></tr>
+<tr><td class="subject">patch</td>
+<td>Trivial changes have occured on a Final release (packaging etc.) or we're 
+not in a Final release yet.</td>
+<td>The patch"level" version number reflects how many times the same package
+has been released either:
+<ul>
+<li>Before the Final release, at the same stage in the release process</li>
+<li>In the Final release stage, without non-trivial changes to the code</li>
+</ul>
+</td></tr>
 </tbody>
 </table>
-<!-- PUT YOUR TEXT HERE -->
-
-
-
-
-
-
+<p>To choose the release you want, pose yourself the following questions:
+<ul>
+<li><b>Do I need something thouroughly tested, for production-quality stable
+software with as little risk as possible?</b><br/>
+If so, you need a Final release or (at your option) a Release Candidate</li>
+<li><b>Do I need something thouroughly tested, mature, but not necessarily
+ratified by the developer(s) in charge?</b><br>
+If so, you need a Release Candidate or (at your option) a Beta release</li>
+<li><b>Do I want to participate in testing the component, reporting/fixing
+bugs, thus accelerating the development and testing process so I can benefit
+from stable, thouroughly tested software as soon as possible (while remaining
+on the cutting edge)?</b><br/>
+If so, you want a Beta release or (at your option) an Alpha release</li>
+<li><b>Do I want to participate in testing the component, fixing bugs and
+helping out in the development of nacent features?</b><br/>
+If so, you need an Alpha release</li>
+</ul>
+Snapshots shouldn't be used unless you're invited to use them.
+</p>
+<p>Now that you've read all this, you can take a look at the packages offered
+for download.</p>
 </div>
 </td>
 <td style="width: 20%;" valign="top">
@@ -153,7 +198,7 @@ width="210" height="62" border="0" align="right" alt=
 "SourceForge.net Logo"></a>
 </td><td style="vertical-align: bottom; text-align: right; font-size: smaller;">
 <a href="#top">back to top</a><br/>
-This page was last updated: $Date: 2004/02/04 17:02:59 $
+This page was last updated: $Date: 2004/02/05 12:40:39 $
 </td></tr></tbody></table>
 </body>
 </html>
