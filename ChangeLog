@@ -1,3 +1,6 @@
+2004-08-03	blytkerchan
+	* module.mk [arch_CFLAGS]: remove
+
 2004-08-02	blytkerchan
 	* module.mk: add fetch_and_add.c
 	[arch_CFLAGS]: new variable
