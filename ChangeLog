@@ -1,3 +1,6 @@
+2004-07-19	blytkerchan
+	* loginfo: have a mail sent to jail-ust-cvs on each repo change
+
 2004-07-17	blytkerchan
 	* modules: add release-libthread and dependencies
 
