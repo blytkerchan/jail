@@ -28,6 +28,7 @@ endif
 libcontain_la_SOURCES = arch/@ARCH@/compare_and_exchange.c \
 			arch/@ARCH@/decrement.c \
 			arch/@ARCH@/increment.c \
+			arch/@ARCH@/set.c \
 			stack.c \
 			queue.c \
 			hash.c \

@@ -1,3 +1,21 @@
+2004-04-12	blytkerchan	making the array atmomically correct
+	* Makefile.am [libcontain_la_SOURCES]: add arch/@ARCH@/set.c
+	* array.c: include arch/include/set.h 
+	include arch/include/compare_and_exchange.h
+	(array_put): use compare_and_exchange to set the value and see if there already was one
+	(array_push_back): condense before adding to make sure there's nothing where we add
+	use atomic_set to set the value
+	(array_resize): indent
+	(array_copy): copy condensed attribute
+	(array_deep_copy): implement
+	(array_foreach): ditto
+	(array_condense): set condensed attribute
+	* array.h [array_t]: new condensed attribute
+	[array_valcopy_func_t]: new type
+	[array_foreach_func_t]: ditto
+	(array_deep_copy): new function
+	(array_foreach): ditto
+	
 2004-04-08	blytkerchan	license update
 	* Hash.cc: update the copyright notice's years
 	* Hash.h: ditto

@@ -33,6 +33,8 @@
  */
 #include <stdlib.h>
 #include <string.h>
+#include "arch/include/set.h"
+#include "arch/include/compare_and_exchange.h"
 #include "array.h"
 
 array_t * new_array(size_t size)
@@ -66,18 +68,25 @@ void * array_get(array_t * array, size_t i)
 
 void array_put(array_t * array, size_t i, void * val)
 {
+	void * rv;
+	
 	if (i >= array->size)
 		array_resize(array, array->size + array->increase);
-	array->nodes[i].val = val;
-	array->num_entries++;
+	rv = array_get(array, i);
+	while (compare_and_exchange(&rv, &(array->nodes[i].val), val) != 0);
+	if (rv == NULL)
+		array->num_entries++;
 	array->sorted = 0;
+	array->condensed = 0;
 }
 
 void array_push_back(array_t * array, void * val)
 {
+	if (array->condensed == 0)
+		array_condense(array);
 	if (array->num_entries == array->size)
 		array_resize(array, array->size + array->increase);
-	array->nodes[array->num_entries++].val = val;
+	atomic_set(&(array->nodes[array->num_entries++].val), val);
 	array->sorted = 0;
 }
 
@@ -96,7 +105,8 @@ void array_resize(array_t * array, size_t size)
 	array_node_t * new_nodes = calloc(size, sizeof(array_node_t));
 	array_node_t * o_nodes;
 	
-	memcpy(new_nodes, array->nodes, (array->size < size ? array->size : size) * sizeof(array_node_t));
+	memcpy(new_nodes, array->nodes, 
+		(array->size < size ? array->size : size) * sizeof(array_node_t));
 	o_nodes = array->nodes;
 	array->nodes = new_nodes;
 	free(o_nodes);
@@ -111,6 +121,7 @@ array_t * array_copy(array_t * array)
 	retval->num_entries = array->num_entries;
 	retval->sorted = array->sorted;
 	retval->increase = array->increase;
+	retval->condensed = array->condensed;
 
 	return retval;
 }
@@ -305,6 +316,7 @@ static int array_condense_helper(const void * ptr1, const void * ptr2)
 void array_condense(array_t * array)
 {
 	qsort(array->nodes, array->size, sizeof(array_node_t), array_condense_helper);
+	array->condensed = 1;
 }
 
 /* This is an implementation of a binary merge sort
@@ -362,3 +374,28 @@ void array_set_default_increase(array_t * array, size_t increase)
 	array->increase = increase;
 }
 
+array_t * array_deep_copy(array_t * array, array_valcopy_func_t array_valcopy_func)
+{
+	size_t i;
+	array_t * retval = new_array(array->size);
+
+	for (i = 0; i < array->size; i++)
+	{
+		if (array->nodes[i].val != NULL)
+			retval->nodes[i].val = array_valcopy_func(array->nodes[i].val);
+	}
+	retval->condensed = array->condensed;
+
+	return retval;
+}
+
+void array_foreach(array_t * array, array_foreach_func_t array_foreach_func, void * data)
+{
+	int i;
+
+	for (i = 0; i < array->size; i++)
+	{
+		if (array->nodes[i].val != NULL)
+			array_foreach_func(array->nodes[i].val, data);
+	}
+}
