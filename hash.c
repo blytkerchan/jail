@@ -38,7 +38,6 @@
 #include <libmemory/hptr.h>
 
 #include "hash.h"
-#include "c_interface.h"
 
 hash_node_t * hash_node_new(void)
 {

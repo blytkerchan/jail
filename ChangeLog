@@ -1,3 +1,11 @@
+2004-10-20	blytkerchan
+	* hash_helpers.h: new file
+	* hash_helpers.c: ditto
+	* module.mk [libcontain_SRC]: add hash_helpers.c
+	[GLIB_SRC]: remove
+	[libcontain_GLIB_SRC]: remove
+	* hash.c: don't include c_interface.h
+
 2004-10-19	blytkerchan	remove last remnants of obsolete code
 	* glib/*: remove
 	* c_interface.cc: ditto

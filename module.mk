@@ -8,10 +8,8 @@ libcontain_SRC +=	stack.c \
 			heap.c \
 			prime.c \
 			list.c \
-			vector.c
-libcontain_GLIB_SRC = 	glib/ghash.c \
-			glib/gprimes.c
+			vector.c \
+			hash_helpers.c
 
 SRC += $(patsubst %,libcontain/%,$(libcontain_SRC))
-GLIB_SRC += $(patsubst %,libcontain/%,$(libcontain_SRC))
 
