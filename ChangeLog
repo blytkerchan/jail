@@ -1,3 +1,35 @@
+2004-03-09	blytkerchan
+	import a hash implementation from glib to have a C-only implementation
+	* Makefile.am: make C++ code optional (CXX defined by configure)
+	make glib code optional (GLIB defined by configure)
+	set version info on library
+	* hash-config.h.in: new file
+	* c_interface.h: ditto
+	* hash.c: ditto
+	* glib/*: ditto
+	* NEWS: add words on the 0.1-alpha1 release
+	* c_interface.cc: include C++-impl related headers
+	rename all functions to prefix with cxx_
+	(cxx_new_hash): don't put ``enum'' in the parameter list
+	* configure.in: bump version to 0.1-alpha1
+	take --with[out]-cxx into account
+	take --with[out]-glib into account
+	check endianness
+
+	move test cases to a new subdirectory, rename them and implement new ones
+	* Makefile.am: remove test-related targets
+	[SUBDIRS]: add . and tests (. to force compiling locally first)
+	* tests/hash_test*: renamed from test*
+	* tests/{stack, list, queue}_test.c: new files
+	* tests/makefile.am: ditto
+	* configure.in: generate tests/Makefile
+	
+	general bugfixed & changes
+	* config-libcontain.in: don't call config-swing
+	link with -lcontain, not -lhash
+	* list.c (new_list): new function
+	* stack.c (stack_top): fix endless loop
+
 2004-02-20	blytkerchan
 	* Makefile.am: repair README target for out-of-dir building
 

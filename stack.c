@@ -87,7 +87,7 @@ void * stack_top(stack_t * stack)
 		{
 			retval = curr->val;
 		} else retval = NULL;
-	} while (curr == stack->top);
+	} while (curr != stack->top);
 	
 	return retval;
 }

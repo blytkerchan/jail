@@ -1,6 +1,6 @@
 # Process this file with autoconf to produce a configure script.
 AC_PREREQ(2.57)
-AC_INIT([libcontain],[0.0-alpha3],[ronald@landheer.com])
+AC_INIT([libcontain],[0.1-alpha1],[ronald@landheer.com])
 AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([Hash.cc])
 AC_CONFIG_HEADER([config.h])
@@ -10,10 +10,32 @@ AC_CANONICAL_HOST
 source `dirname $0`/arch/config.arch
 AC_SUBST(ARCH, ${host_cpu})
 
+# check whether we should use C++
+AC_ARG_WITH(cxx, AC_HELP_STRING([--with-cxx], [use C++ functions and functionalities (default is YES)]), [ac_cv_with_cxx=$withval], [
+AC_CACHE_CHECK([whether to use C++], [ac_cv_with_cxx], [ac_cv_with_cxx=yes])])
+if test x"$ac_cv_with_cxx" = x"no" ; then
+	AC_DEFINE(DONT_USE_CXX, 1, [don't use C++ if this is defined])
+	AM_CONDITIONAL(CXX, false)
+	AC_SUBST(DONT_USE_CXX, [1])
+else
+	AM_CONDITIONAL(CXX, true)
+	AC_SUBST(DONT_USE_CXX, [0])
+fi
+AC_ARG_WITH(glib, AC_HELP_STRING([--with-glib], [use the glib implementation of hashes (licensed under GNU LGPL) (default it YES)]), [ac_cv_with_glib=$withval], [
+AC_CACHE_CHECK([whether to use the glib implementation of hashes], [ac_cv_with_glib], [ac_cv_with_glib=yes])])
+if test x"$ac_cv_with_glib" = x"no"; then
+	AC_DEFINE(DONT_USE_GLIB, 1, [don't use the glib implementation of hash tables if this is defined])
+	AM_CONDITIONAL(GLIB, false)
+	AC_SUBST(DONT_USE_GLIB, [1])
+else
+	AM_CONDITIONAL(GLIB, true)
+	AC_SUBST(DONT_USE_GLIB, [0])
+fi
+
 # Checks for programs.
-AC_PROG_CXX
 AC_PROG_CC
 AC_PROG_CPP
+AC_PROG_CXX
 AC_PROG_INSTALL
 AC_PROG_LN_S
 AC_PROG_MAKE_SET
@@ -29,12 +51,13 @@ AC_CHECK_HEADERS([stdint.h stdlib.h string.h strings.h unistd.h])
 AC_HEADER_STDBOOL
 AC_C_CONST
 AC_TYPE_SIZE_T
+AC_C_BIGENDIAN
 
 # Checks for library functions.
 dnl AC_FUNC_MALLOC
 AC_FUNC_MEMCMP
 AC_CHECK_FUNCS([memset strchr strdup])
 AC_REPLACE_FUNCS([strlwr])
-AC_CONFIG_FILES([Makefile config-libcontain README.in libreplace/Makefile])
+AC_CONFIG_FILES([Makefile config-libcontain README.in libreplace/Makefile glib/Makefile hash_config.h tests/Makefile])
 AC_OUTPUT
 

@@ -1,4 +1,4 @@
-/* $Id: test2.cc,v 1.2 2003/10/07 21:23:11 blytkerchan Exp $ */
+/* $Id: hash_test2.cc,v 1.1 2004/03/09 18:48:09 blytkerchan Exp $ */
 /* Jail: Just Another Interpreted Language
  * Copyright (c) 2003, Ronald Landheer-Cieslak
  * All rights reserved
@@ -32,16 +32,9 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-/* Hash tests */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "Hash.h"
-#include "IntHash.h"
-
-#ifndef rnd
-	#define rnd(x,y) (x) + (int)(((((y) - (x))) * (rand() / (RAND_MAX + 1.0))) + 0.5)
-#endif // rnd
+#include "../Hash.h"
+#include "../IntHash.h"
+#include "test.h"
 
 int write_helper(void* tt) {
 	return(strlen((char*)tt) + 1);

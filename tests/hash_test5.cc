@@ -1,4 +1,4 @@
-/* $Id: test5.cc,v 1.3 2004/02/10 15:22:36 blytkerchan Exp $ */
+/* $Id: hash_test5.cc,v 1.1 2004/03/09 18:48:09 blytkerchan Exp $ */
 /* Jail: Just Another Interpreted Language
  * Copyright (c) 2003, Ronald Landheer-Cieslak
  * All rights reserved
@@ -33,17 +33,11 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 /* Hash tests */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "Hash.h"
-#include "StringHash.h"
-#include "NocaseStringHash.h"
-#include "IniHash.h"
-
-#ifndef rnd
-	#define rnd(x,y) (x) + (int)(((((y) - (x))) * (rand() / (RAND_MAX + 1.0))) + 0.5)
-#endif // rnd
+#include "../Hash.h"
+#include "../StringHash.h"
+#include "../NocaseStringHash.h"
+#include "../IniHash.h"
+#include "test.h"
 
 int main(void) {
 	IniHash *hash = new IniHash;

@@ -31,47 +31,28 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#ifndef _LIBCONTAIN_C_INTERFACE_H
+#define _LIBCONTAIN_C_INTERFACE_H
+
 #include "hash.h"
+
+#ifdef __cplusplus
 #include "Hash.h"
-#include "StringHash.h"
-#include "IntHash.h"
+extern "C" {
+#else
+typedef struct Hash Hash;
+#endif
 
-extern "C" Hash * cxx_new_hash(libhash_hashtype hash_type)
-{
-	switch (hash_type)
-	{
-		case NORMAL_HASH :
-			return(new Hash);
-		case STRING_HASH :
-			return(new StringHash);
-		case INT_HASH :
-			return(new IntHash);
-		default :
-			return(NULL);
-	}
-}
+Hash * cxx_new_hash(libhash_hashtype hash_type);
+void cxx_delete_hash(Hash * hash);
+void *cxx_hash_get(Hash * hash, const void *key);
+int cxx_hash_put(Hash * hash, const void *key, const void *value);
+int cxx_hash_remove(Hash * hash, const void *key);
+void ** cxx_hash_keys(Hash * hash);
 
-extern "C" void cxx_delete_hash(Hash * hash)
-{
-	delete hash;
+#ifdef __cplusplus
 }
+#endif
 
-extern "C" void *cxx_hash_get(Hash * hash, const void *key)
-{
-	return(hash->get(key));
-}
+#endif // _LIBCONTAIN_C_INTERFACE_H
 
-extern "C" int cxx_hash_put(Hash * hash, const void *key, const void *value)
-{
-	return(hash->put(key, value) ? 0 : 1);
-}
-
-extern "C" int cxx_hash_remove(Hash * hash, const void *key)
-{
-	return(hash->remove(key) ? 0 : 1);
-}
-
-extern "C" void ** cxx_hash_keys(Hash * hash)
-{
-	return(hash->keys());
-}

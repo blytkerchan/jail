@@ -155,3 +155,12 @@ void * list_search(list_t * list, void * val)
 	return node->val;
 }
 
+list_t * new_list(list_compare_fn_t cmp_func)
+{
+	list_t * retval = (list_t*)malloc(sizeof(list_t));
+	retval->cmp_func = cmp_func;
+	retval->head = list_new_node(NULL);
+
+	return retval;
+}
+

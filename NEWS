@@ -1,7 +1,23 @@
-$Id: NEWS,v 1.4 2004/02/12 14:22:48 blytkerchan Exp $
+$Id: NEWS,v 1.5 2004/03/09 18:48:09 blytkerchan Exp $
 
 New News
 ========
+version 0.1-alpha1
+------------------
+Mon, Mar 08, 2004: To be more helpful for the cgdb project, an implementation
+of a hashtable written only in C was needed. For the time being, the one from
+glib was "ported" into libcontain.
+The license of glib is the GNU LGPL, which is strictly speaking not compatible 
+with the Jail license the rest of the library falls unde falls under. To not 
+have the effects of that license on your program (which will only bother you
+if you have a GPL-waiver from me) don't use the glib implementation: configure
+with the ``--without-glib'' option.
+The reason for using glib was that it's implemented in C whereas the provided
+implementation is written in C++. You can turn the provided implementation 
+off with ``--without-cxx''.
+Note that if you do both --without-cxx and --without-glib, you're left without
+a hash table implementation.
+
 version 0.0-alpha3
 ------------------
 Thu, Feb 12, 2004: In my list implementation, the variables marked as "private"

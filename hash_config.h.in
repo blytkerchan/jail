@@ -31,47 +31,10 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "hash.h"
-#include "Hash.h"
-#include "StringHash.h"
-#include "IntHash.h"
+#ifndef _LIBCONTAIN_HASHCONFIG_H
+#define _LIBCONTAIN_HASHCONFIG_H
 
-extern "C" Hash * cxx_new_hash(libhash_hashtype hash_type)
-{
-	switch (hash_type)
-	{
-		case NORMAL_HASH :
-			return(new Hash);
-		case STRING_HASH :
-			return(new StringHash);
-		case INT_HASH :
-			return(new IntHash);
-		default :
-			return(NULL);
-	}
-}
+#define DONT_USE_CXX @DONT_USE_CXX@
+#define DONT_USE_GLIB @DONT_USE_GLIB@
 
-extern "C" void cxx_delete_hash(Hash * hash)
-{
-	delete hash;
-}
-
-extern "C" void *cxx_hash_get(Hash * hash, const void *key)
-{
-	return(hash->get(key));
-}
-
-extern "C" int cxx_hash_put(Hash * hash, const void *key, const void *value)
-{
-	return(hash->put(key, value) ? 0 : 1);
-}
-
-extern "C" int cxx_hash_remove(Hash * hash, const void *key)
-{
-	return(hash->remove(key) ? 0 : 1);
-}
-
-extern "C" void ** cxx_hash_keys(Hash * hash)
-{
-	return(hash->keys());
-}
+#endif // _LIBCONTAIN_HASHCONFIG_H

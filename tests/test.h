@@ -1,3 +1,4 @@
+/* $Id: test.h,v 1.1 2004/03/09 18:48:09 blytkerchan Exp $ */
 /* Jail: Just Another Interpreted Language
  * Copyright (c) 2003, Ronald Landheer-Cieslak
  * All rights reserved
@@ -31,47 +32,20 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "hash.h"
-#include "Hash.h"
-#include "StringHash.h"
-#include "IntHash.h"
+#ifndef LIBCONTAIN_TESTS_TEST_H
+#define LIBCONTAIN_TESTS_TEST_H
 
-extern "C" Hash * cxx_new_hash(libhash_hashtype hash_type)
-{
-	switch (hash_type)
-	{
-		case NORMAL_HASH :
-			return(new Hash);
-		case STRING_HASH :
-			return(new StringHash);
-		case INT_HASH :
-			return(new IntHash);
-		default :
-			return(NULL);
-	}
-}
+#include <config.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
-extern "C" void cxx_delete_hash(Hash * hash)
-{
-	delete hash;
-}
+#ifndef rnd
+	#define rnd(x,y) (x) + (int)(((((y) - (x))) * (rand() / (RAND_MAX + 1.0))) + 0.5)
+#endif // rnd
+#ifndef unless
+	#define unless(x) if (!(x))
+#endif // unless
 
-extern "C" void *cxx_hash_get(Hash * hash, const void *key)
-{
-	return(hash->get(key));
-}
+#endif // LIBCONTAIN_TESTS_TEST_H
 
-extern "C" int cxx_hash_put(Hash * hash, const void *key, const void *value)
-{
-	return(hash->put(key, value) ? 0 : 1);
-}
-
-extern "C" int cxx_hash_remove(Hash * hash, const void *key)
-{
-	return(hash->remove(key) ? 0 : 1);
-}
-
-extern "C" void ** cxx_hash_keys(Hash * hash)
-{
-	return(hash->keys());
-}

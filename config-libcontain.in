@@ -47,8 +47,7 @@ while test $# -gt 0; do
 		if [ ! -z `echo @prefix@ | sed -e 's#^/usr##'` ]; then
 			echo -n "-L@prefix@@libdir@ -Wl,--rpath,@prefix@@libdir@ "
 		fi
-		echo -n "-lhash"
-		echo " `config-swing --libs`"
+		echo -n "-lcontain"
 		;;
 	*)
 		echo unknown option $1

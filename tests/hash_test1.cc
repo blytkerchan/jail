@@ -1,4 +1,4 @@
-/* $Id: test4.cc,v 1.2 2003/10/07 21:23:11 blytkerchan Exp $ */
+/* $Id: hash_test1.cc,v 1.1 2004/03/09 18:48:09 blytkerchan Exp $ */
 /* Jail: Just Another Interpreted Language
  * Copyright (c) 2003, Ronald Landheer-Cieslak
  * All rights reserved
@@ -33,38 +33,31 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 /* Hash tests */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "Hash.h"
-#include "StringHash.h"
-#include "NocaseStringHash.h"
-
-#ifndef rnd
-	#define rnd(x,y) (x) + (int)(((((y) - (x))) * (rand() / (RAND_MAX + 1.0))) + 0.5)
-#endif // rnd
+#include "../Hash.h"
+#include "test.h"
 
 int write_helper(void* tt) {
 	return(strlen((char*)tt) + 1);
 } // write_helper()
 
 int main(void) {
-	Hash *hash = new NocaseStringHash();
+	Hash *hash = new Hash();
 	int i, I;
-	char *key[100], **keys;
+	key_type key[100], **keys;
 	bool keys_found[100];
 	char *buffer, *buff_arr[100];
 	
 	printf("populating Hash..");
 	for (i = 0; i < 100; i++) {
-		key[i] = (char*)malloc(4);
-		sprintf(key[i], "%.3d", i);
+		key[i].size = 4 * sizeof(char);
+		key[i].value = malloc(key[i].size);
+		sprintf((char*)key[i].value, "%.3d", i);
 		buffer = (char*)malloc(11 * sizeof(char));
 		memset(buffer, 0, 11 * sizeof(char));
 		for (I = 0; I < 10; I++) {
 			buffer[I] = (char)rnd('A', 'z');
 		} // for
-		if (!(hash->put(key[i], buffer))) {
+		unless(hash->put(&key[i], buffer)) {
 			printf("error\n");
 			return(1);
 		} // unless
@@ -73,20 +66,20 @@ int main(void) {
 	printf("ok\n");
 	printf("Checking key existance..");
 	for (i = 0; i < 100; i++) {
-		if (!(hash->contains(key[i]))) {
+		unless(hash->contains(&key[i])) {
 			printf("error\n");
 			return(1);
 		} // unless
 	} // for
 	printf("ok\n");
 	printf("Checking key list..");
-	keys = (char**)hash->keys();
+	keys = (key_type**)hash->keys();
 	for (i = 0; keys[i]; i++) {
-		if (strlen(keys[i]) != 3) {
+		if (keys[i]->size != 4) {
 			printf("error\n");
 			return(1);
 		} // if
-		I = atoi(keys[i]);
+		I = atoi((char*)keys[i]->value);
 		keys_found[I] = true;
 	} // for
 	for (i = 0; i < 100; i++) {
@@ -98,7 +91,7 @@ int main(void) {
 	printf("ok\n");
 	printf("Checking contents..");
 	for (i = 0; i < 100; i++) {
-		buffer = (char*)hash->get(key[i]);
+		buffer = (char*)hash->get(&key[i]);
 		if (!buffer) {
 			printf("error\n");
 			return(1);
@@ -122,15 +115,15 @@ int main(void) {
 	} // if
 	printf("Removing entries from hash..");
 	for (i = 0; i < 100; i++) {
-		if (!(hash->remove(key[i]))) {
+		unless (hash->remove(&key[i])) {
 			printf("error\n");
 			return(1);
 		} // unless
-		if (hash->contains(key[i])) {
+		if (hash->contains(&key[i])) {
 			printf("error\n");
 			return(1);
 		} // unless
-		if ((buffer = (char*)hash->get(key[i])) != NULL) {
+		if ((buffer = (char*)hash->get(&key[i])) != NULL) {
 			printf("error\n");
 			return(1);
 		} // if
@@ -149,20 +142,20 @@ int main(void) {
 	} // if
 	printf("Checking key existance..");
 	for (i = 0; i < 100; i++) {
-		if (!(hash->contains(key[i]))) {
+		unless(hash->contains(&key[i])) {
 			printf("error\n");
 			return(1);
 		} // unless
 	} // for
 	printf("ok\n");
 	printf("Checking key list..");
-	keys = (char**)hash->keys();
+	keys = (key_type**)hash->keys();
 	for (i = 0; keys[i]; i++) {
-		if (strlen(keys[i]) != 3) {
+		if (keys[i]->size != 4) {
 			printf("error\n");
 			return(1);
 		} // if
-		I = atoi(keys[i]);
+		I = atoi((char*)keys[i]->value);
 		keys_found[I] = true;
 	} // for
 	for (i = 0; i < 100; i++) {
@@ -174,7 +167,7 @@ int main(void) {
 	printf("ok\n");
 	printf("Checking contents..");
 	for (i = 0; i < 100; i++) {
-		buffer = (char*)hash->get(key[i]);
+		buffer = (char*)hash->get(&key[i]);
 		if (!buffer) {
 			printf("error\n");
 			return(1);
