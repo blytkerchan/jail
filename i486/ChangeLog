@@ -1,3 +1,6 @@
+2004-09-01	blytkerchan
+	* swap.c: new file
+
 2004-08-11	blytkerchan
 	* compare_and_exchange.c (compare_and_exchange_int): add semicolon
 
