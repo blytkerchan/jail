@@ -36,9 +36,8 @@
 
 void atomic_increment(uint32_t * target)
 {
-	asm("movl %1, %%eax\nlock incl (%%eax)" 
-	: "=m" (target)
-	: "0" (target)
-	: "eax");	
+	asm("lock incl (%1)" 
+	: "=m" (*target) 
+	: "r" (target) );	
 }
 

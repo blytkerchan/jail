@@ -1,3 +1,7 @@
+2005-03-02	blytkerchan
+	* decrement.c (atomic_decrement): simplify
+	* increment.c )atomic_increment): ditto
+
 2004-10-30	blytkerchan
 	* compare_and_exchange.c (compare_and_exchange_ptr): make prototype
 	the same as in compare_and_exchange.h
