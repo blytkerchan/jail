@@ -50,6 +50,7 @@
 #include "libconf_config.h"
 #include "libreplace/catstr.h"
 #include "libcontain/hash.h"
+#include "libcontain/hash_helpers.h"
 
 libconf_t * libconf_init(
 	const char * global_config_filename,
@@ -67,7 +68,7 @@ libconf_t * libconf_init(
 		retval->global_config_filename = strdup(global_config_filename);
 	if (local_config_filename != NULL)
 		retval->local_config_filename = strdup(local_config_filename);
-	retval->options = hash_new(STRING_HASH, 0, NULL, NULL);
+	retval->options = hash_new(0, hash_hlp_string_hash, hash_hlp_string_cmp);
 	t_options = libconf_defaultopts();
 	for (i = 0; t_options[i]; i++)
 	{
@@ -80,8 +81,8 @@ libconf_t * libconf_init(
 		hash_put(retval->options, strdup(t_options[i]->co_name), t_options[i]);
 	}
 	free(t_options); // note: shallow free because the contents is in the hash
-	retval->option_hash = hash_new(STRING_HASH, 0, NULL, NULL);
-	retval->tmp_hash = hash_new(STRING_HASH, 0, NULL, NULL);
+	retval->option_hash = hash_new(0, hash_hlp_string_hash, hash_hlp_string_cmp);
+	retval->tmp_hash = hash_new(0, hash_hlp_string_hash, hash_hlp_string_cmp);
 	retval->argc = argc;
 	retval->argv = (char**)calloc(argc + 1, sizeof(char*));
 	for (i = 0; i < argc; i++)

@@ -1,3 +1,7 @@
+2004-10-20	blytkerchan
+	* libconf.c: include libcontain/hash_helpers.h
+	(libconf_init): update calls to hash_new
+
 2004-10-18	blytkerchan
 	* libconf_config.h: new file, temporary addition
 	* libconf.c: search for libconf_config.h locally
