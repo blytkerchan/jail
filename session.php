@@ -19,7 +19,15 @@ function check_session($session)
 
 function close_session($session)
 {
-	setcookie("session", "");
+	global $session;
+	global $user;
+
+	$remembered = $_COOKIE['remembered'];
+	setcookie("session", "", $remembered);
+	$session = 0;
+	$user = 0;
+	if ($remembered)
+		setcookie("remembered", "", $remembered);
 }
 
 function create_session($name, $passwd)
@@ -53,6 +61,7 @@ function do_session()
 	global $user;
 	global $session;
 	global $login_status;
+	global $remembered;
 
 	$session = $_COOKIE['session'];
 	if ($remembered = $_COOKIE['remembered'])

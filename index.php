@@ -33,16 +33,40 @@
 	$page = $_GET['page'];
 	if (!$page)
 		$page = 0;
-	
+		
 	// emit the page header
 	include_once("page_header.php");
-	// emit the section menu
-	include_once("section_menu.php");
-	// start the layout
+	// start layout
 ?>
 <table style="width: 100%">
 <tbody>
 <tr>
+<td width="20%">
+<?php
+	if ($user)
+	{
+		echo("<div style=\"color: #0000ff; margin-left: 10px;  font-size: 8pt; text-align: left;\">Welcome " . ucwords(strtolower(get_login_name($user))) . "<br/>If you are not " . ucwords(strtolower(get_login_name($user))) . ", please <a href=\"index.php?section=$section&page=$page&logout=1\">log out</a></div>");
+	}
+	else
+		echo("&nbsp;");
+?>
+</td>
+<td>
+<?php
+	// emit the section menu
+	include_once("section_menu.php");
+?>
+<td width="20%">
+<?php
+	if ($user && $remembered)
+	{
+		echo("<div style=\"color: #0000ff; margin-left: 10px;  font-size: 8pt; text-align: left;\">We remember you: you won't have to log in for 30 days.</div>");
+	}
+	else
+		echo("&nbsp;");
+?>
+</td>
+</tr><tr>
 <td style="width: 20%;" valign="top">
 <table><tbody><tr><td>
 <?php // the left-hand menu comes here
@@ -81,6 +105,9 @@
 			create_comment($user, $section, $page);
 		else if ((strcmp($_GET['comment'], "display") == 0) && $_GET['id'])
 		{
+			$date = get_comment_date($_GET['id']);
+			$author = get_comment_author($_GET['id']);
+			$author = htmlentities($author);
 			$title = get_comment_title($_GET['id']);
 			$title = htmlentities($title);
 			$text = get_comment_text($_GET['id']);
@@ -94,7 +121,8 @@
 				$text = "The comment you have requested, ID# " . $_GET['id'] . ", has not been found in the database or is not complete";
 			}
 			$text = "<p>" . $text . "</p>";
-			echo("<h1>$title</h1>$text");
+			echo("<h1>$title</h1>");
+			echo("<div style=\"float: right; font-size: 8pt; margin-left: 10px;\">Comment by " . ucwords(strtolower($author)) . ", on $date</div>$text");
 		}
 		$filename = get_filename($section, $page);
 		include_once("text/$filename.php");

@@ -19,7 +19,7 @@ echo($query);
 	function create_account($name, $password, $email)
 	{
 		$expire = time() + 386 * 24 * 60 * 60;
-		$query = "INSERT INTO `users` (`name`, `email`, `passwd`, `expire`) VALUES ('" . mysql_real_escape_string($name) . "', '" . mysql_real_escape_string($email) . "', PASSWORD('" . mysql_real_escape_string($password) . "', '$expire'))";
+		$query = "INSERT INTO `users` (`name`, `email`, `passwd`, `expire`) VALUES ('" . mysql_real_escape_string($name) . "', '" . mysql_real_escape_string($email) . "', PASSWORD('" . mysql_real_escape_string($password) . "'), '$expire')";
 
 		if (!mysql_query($query))
 			return FALSE;
@@ -33,5 +33,14 @@ echo($query);
 		$expire = time() + 386 * 24 * 60 * 60;
 		$query = "UPDATE `users` SET `expire`='" . $expire . "' WHERE `uid`='$uid'";
 		mysql_query($query);
+	}
+
+	function get_login_name($id)
+	{
+		$query = "SELECT * FROM `users` WHERE `uid`='$id' LIMIT 1";
+		$result = mysql_query($query);
+		$line = mysql_fetch_assoc($result);
+
+		return $line['name'];
 	}
 ?>

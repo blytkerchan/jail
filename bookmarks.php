@@ -60,8 +60,9 @@
 		?>
 		<form action="index.php?section=<?php echo($section); ?>&page=<?php echo($page); ?>&bookmark=do" method="post">
 		Bookmark this page as:<br/>
-		<div align="right"><input type="text" size="20" name="label"/></div>
-		<input type="submit" value="Bookmark!"/>
+		<div align="right"><input type="text" size="20" style="width: 100%" name="label" class="inputbox"/>
+		<input type="submit" value="Bookmark!" class="inputbox"/>
+		</div>
 		</form>
 		<?php
 		echo("</p>");

@@ -1,5 +1,5 @@
 <div align="center">
-<table width="60%" class="menu"><tr>
+<table width="100%" class="menu"><tr>
 <?php
 	for ($i = 0; $i < count($sections); $i++)
 	{

@@ -1,3 +1,23 @@
+2004-05-28	blytkerchan
+	* mysql.php: new file (used previously: 2004-05-27)
+	* bookmarks.php: set style for input elements to inputbox
+	* comments.php: set date on new comments
+	(get_comment_date): new function
+	(get_comment_author): ditto
+	* config.php: set $session to 0, not ""
+	[$remembered]: new global variable
+	* index.php: slightly change layout to add text left and right of section menu
+	if logged in, display a welcome message left of section menu
+	if remembered, display message right of section menu
+	when displaying a comment, display the author and the date as well
+	* login_functions.php (create_account): repair query
+	(get_login_name): new function
+	* login_menu.php: apply inputbox style to input elements
+	re-arrange to compensate for new style
+	* section_menu.php: compensate for layout changes in index.php
+	* session.php (close_session): re-write
+	(do_session): use global $remembered
+	
 2004-05-27	blytkerchan
 	* main.php: remove
 	* login_fail.php: new file

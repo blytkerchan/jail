@@ -1,7 +1,8 @@
 <?php
 /* the currently logged-in user */
 $user = 0;
-$session = "";
+$session = 0;
+$remembered = 0;
 $login_status = 0; // 0 == OK; 1 == login_error; 2 == email_not_found; 3 == mail_sent; 4 == mail_not_sent; 5 == password_not_same; 6 == create_account_failed
 
 /* database access used by the site */

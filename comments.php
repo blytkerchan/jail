@@ -4,7 +4,7 @@
 		global $sections;
 		global $section_pages;
 
-		$query = "INSERT INTO `comments` (`user`, `section`, `page`, `title`, `comment`) VALUES ('$user', '" . $sections[$section] . "', '" . $section_pages[$section][$page]['filename'] . "', '" . mysql_real_escape_string($title) . "', '" . mysql_real_escape_string($comment) . "')";
+		$query = "INSERT INTO `comments` (`user`, `section`, `page`, `title`, `comment`, `date`) VALUES ('$user', '" . $sections[$section] . "', '" . $section_pages[$section][$page]['filename'] . "', '" . mysql_real_escape_string($title) . "', '" . mysql_real_escape_string($comment) . "', NOW())";
 		mysql_query($query);
 	}
 
@@ -116,8 +116,6 @@
 	
 	function get_comment_text($id)
 	{
-		global $db_cfg;
-	
 		$query = "SELECT * FROM `comments` WHERE `uid`='$id' LIMIT 1";
 		$result = mysql_query($query);
 		if (!$result)
@@ -127,5 +125,39 @@
 		mysql_free_result($result);
 
 		return $retval[0]['comment'];
+	}
+
+	function get_comment_date($id)
+	{
+		$query = "SELECT * FROM `comments` WHERE `uid`='$id' LIMIT 1";
+		$result = mysql_query($query);
+		if (!$result)
+			return "unknown date";
+		while ($line = mysql_fetch_assoc($result))
+			$retval[] = $line;
+		mysql_free_result($result);
+
+		return $retval[0]['date'];
+	}
+
+	function get_comment_author($id)
+	{
+		$query = "SELECT * FROM `comments` WHERE `uid`='$id' LIMIT 1";
+		$result = mysql_query($query);
+		if (!$result)
+			return "unknown author";
+		while ($line = mysql_fetch_assoc($result))
+			$retval[] = $line;
+		mysql_free_result($result);
+		
+		$query = "SELECT * FROM `users` WHERE `uid`='" . $retval[0]['user'] . "' LIMIT 1";
+		$result = mysql_query($query);
+		if (!$result)
+			return "unknown author";
+		$line = mysql_fetch_assoc($result);
+		$retval = $line;
+		mysql_free_result($result);
+
+		return $retval['name'];
 	}
 ?>

@@ -10,20 +10,15 @@
 		<table width="100%" border="0">
 		<tbody>
 		<tr>
-			<td colspan="2">Name:</td>
+			<td>Name:</td><td align="right"><input type="text" size="20" name="name" class="inputbox"/></td>
 		</tr>
 		<tr>
-			<td>&nbsp;</td><td align="right"><input type="text" size="20" name="name"/></td>
-		</tr>
-		<tr>
-			<td colspan="2">Password:</td>
-		</tr>
-		<tr>
-			<td>&nbsp;</td><td align="right"><input type="password" size="20" name="passwd"/></td>
+			<td>Password:</td>
+			<td align="right"><input type="password" size="20" name="passwd" class="inputbox"/></td>
 		</tr>
 		</tbody>
 		</table>
-		<input type="submit" value="Login!"/><input type="reset" value="Reset"/>
+		<input type="submit" value="Login!" class="inputbox"/>&nbsp;<input type="reset" value="Reset" class="inputbox"/>
 		</form>
 		<table width="100%"><tbody><tr><td><a href="index.php?login=why&section=<?php echo($section); ?>&page=<?php echo($page); ?>">why?</a></td><td align="right"><a href="index.php?login=create&section=<?php echo($section); ?>&page=<?php echo($page); ?>">Create a login</a></td></tr></tbody></table>
 		</p>
@@ -42,7 +37,7 @@
 				?>&page=<? 
 					echo($page);
 				?>">
-			<input type="submit" value="Log out"/>
+			<input type="submit" value="Log out" class="inputbox"/>
 		</form>
 		</td>
 		<?php
@@ -56,7 +51,7 @@
 					?>&page=<?
 						echo($page);
 					?>">
-				<input type="submit" value="Remember me"/>
+				<input type="submit" value="Remember me" class="inputbox"/>
 			</form>
 			<?php
 		}
