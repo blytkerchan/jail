@@ -1,4 +1,10 @@
 2004-04-29	blytkerchan
+	* AUTHORS: new file
+	* NEWS: ditto
+	* libmemory.sgml: update text throughout
+	* smr.h (smr_init): take unsigned integer as parameter
+	remove old comments
+
 	* ChangeLog: update date of yesterday's changes (from apr 27 to apr 28)
 	fix type-o in feb 25 entry
 	* smr.c (smr_get_private_data): use dsize attribute of private data

@@ -56,12 +56,9 @@ typedef struct _smr_private_data_t
 	unsigned int dsize;	// size of the dlist in number of pointers
 } smr_private_data_t;
 
-/* Initialize and configure the memory manager. Set the P, K and R fields of 
- * config but leave the rest alone! 
- * R should be set so that R - N = Omega(N) (e.g. R = 2N) */
-int smr_init(smr_global_data_t config);
+int smr_init(unsigned int n_hptr);
 
-/* Call this function at the start of every thread (or suffer the memory leaks)
+/* Call this function at the start of every thread (or suffer the consequences)
  */
 int smr_thread_init(void);
 
