@@ -1,4 +1,7 @@
 2004-08-17	blytkerchan	continue translation to C
+	* rw_lock.c: %s/lt_rwlock_queue/lt_thread_queue/g
+	%s/lt_rwlock_list/lt_thread_list/g
+
 	* module.mk [libthread_SRC]: add rw_lock.c
 	* rw_lock.c: include assert.h
 	include compare_and_exchange.h
