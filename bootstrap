@@ -1,0 +1,5 @@
+#! /bin/bash -x
+libtoolize && \
+aclocal && \
+autoconf && \
+automake --add-missing
