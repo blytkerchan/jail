@@ -1,3 +1,18 @@
+2004-04-08	blytkerchan
+	* catstr.c: apply license
+	* catstr.h: ditto
+	* macros.h: ditto
+	* malloc.c: ditto
+	* memdup.c: ditto
+	* memdup.h: ditto
+	* memset.c: ditto
+	* realloc.c: ditto
+	* strchr.c: ditto
+	* strdup.c: ditto
+	* memcmp.c: add 2004 to the license years
+	* strlwr.c: ditto
+	* strlwr.h: ditto
+
 2004-04-01	blytkerchan
 	* memset.c: new file
 	* realloc.c: ditto
