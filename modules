@@ -44,9 +44,11 @@ preprocessor-libmemory -d preprocessor/libmemory libmemory
 preprocessor-libmemory-arch -d preprocessor/libmemory/arch arch
 release-preprocessor -a preprocessor preprocessor-arch preprocessor-libcontain preprocessor-libreplace preprocessor-libcontain-libreplace preprocessor-libcontain-arch preprocessor-libconf preprocessor-libmemory preprocessor-libmemory-arch
 
+libconf-libmemory -d libconf/libmemory libmemory
+libconf-libmemory-arch -d libconf/libmemory/arch arch
 libconf-libcontain -d libconf/libcontain libcontain
 libconf-libcontain-arch -d libconf/libcontain/arch arch
 libconf-libcontain-libreplace -d libconf/libcontain/libreplace libreplace
 libconf-libreplace -d libconf/libreplace libreplace
-release-libconf -a libconf libconf-libreplace libconf-libcontain libconf-libcontain-arch libconf-libcontain-libreplace
+release-libconf -a libconf libconf-libreplace libconf-libcontain libconf-libcontain-arch libconf-libcontain-libreplace libconf-libmemory libconf-libmemory-arch
 
