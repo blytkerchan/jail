@@ -36,9 +36,9 @@
 
 typedef struct _binomial_tree_node_t {
 	void * val;
-	struct binomial_tree_node_t * left;
-	struct binomial_tree_node_t * right;
-	struct binomial_tree_node_t * parent;
+	struct _binomial_tree_node_t * left;
+	struct _binomial_tree_node_t * right;
+	struct _binomial_tree_node_t * parent;
 } binomial_tree_node_t;
 
 typedef struct {
@@ -56,9 +56,11 @@ binomial_tree_node_t * binomial_tree_get_root(binomial_tree_t * tree);
 /* set the root of the tree iff it is currently EXP. return 0 if successful, nonzero if not */
 int binomial_tree_set_root(binomial_tree_t * tree, binomial_tree_node_t * exp, binomial_tree_node_t * val);
 /* create a new, empty node */
-binomial_tree_node_t * binomial_tree_node_new(void);
+binomial_tree_node_t * binomial_tree_node_new(binomial_tree_node_t * parent);
 /* delete a node, but not its children */
 void binomial_tree_node_free(binomial_tree_node_t * handle);
+/* delete a node and its children */
+void binomial_tree_node_free_deep(binomial_tree_node_t * handle);
 /* get the left-hand child of a node, release the parent node */
 binomial_tree_node_t * binomial_tree_node_get_left(binomial_tree_node_t * node);
 /* get the right-hand child of a node, release the parent node */
@@ -87,5 +89,5 @@ void * binomial_tree_node_get_value(binomial_tree_node_t * node);
 int binomial_tree_node_set_value(binomial_tree_node_t * node, void * curr, void * val);
 /* walk the entire tree and call func on the value of each node. Pass data along to func for each call. */
 void binomial_tree_node_foreach(binomial_tree_node_t * root, binomial_tree_node_foreach_func_t func, void * data);
-
+void binomial_tree_foreach(binomial_tree_t * handle, binomial_tree_node_foreach_func_t func, void * data);
 #endif

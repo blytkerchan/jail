@@ -33,6 +33,7 @@
  */
 #include <assert.h>
 #include <stdlib.h> /* for NULL */
+#include "arch/include/compare_and_exchange.h"
 #include "binomial_tree.h"
 #include "map.h"
 
@@ -47,10 +48,18 @@ map_t * map_new(map_key_cmp_func_t cmp_func)
 	retval = (map_t*)calloc(1, sizeof(map_t));
 	retval->cmp_func = cmp_func;
 	retval->tree = binomial_tree_new();
+
+	return retval;
+}
+
+void map_free_helper(void * dat1, void * dat2)
+{
+	map_node_free((map_node_t*)dat1);
 }
 
 void map_free(map_t * handle)
 {
+	binomial_tree_foreach(handle->tree, map_free_helper, NULL);
 	binomial_tree_free(handle->tree);
 	free(handle);
 }
@@ -250,7 +259,7 @@ map_remove_start:
 		{
 			exp = 0;
 			/* found the node to delete.. */
-			if (compare_and_exchange(&exp, &(cval->flag), 1))
+			if (compare_and_exchange(&exp, &(cval->flag), (void*)1))
 			{
 				binomial_tree_node_release(curr);
 				goto map_remove_start;
@@ -265,7 +274,7 @@ map_remove_start:
 	map_remove_helper_data.handle = handle;
 	binomial_tree_node_foreach(root, map_remove_helper, &map_remove_helper_data);
 	exp = 1;
-	assert(compare_and_exchange(&exp, &(cval->flag), 2) == 0);
+	assert(compare_and_exchange(&exp, &(cval->flag), (void*)2) == 0);
 	/* step 3 */
 	rchild = binomial_tree_node_get_right(curr);
 	enode = curr;

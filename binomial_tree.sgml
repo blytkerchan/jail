@@ -33,7 +33,7 @@ binomial_tree_t * binomial_tree_new(void);
 void binomial_tree_free(binomial_tree_t * tree);
 binomial_tree_node_t * binomial_tree_get_root(binomial_tree_t * tree);
 int binomial_tree_set_root(binomial_tree_t * tree, binomial_tree_node_t * exp, binomial_tree_node_t * val);
-binomial_tree_node_t * binomial_tree_node_new(void);
+binomial_tree_node_t * binomial_tree_node_new(binomial_tree_node_t * parent);
 void binomial_tree_node_free(binomial_tree_node_t * handle);
 binomial_tree_node_t * binomial_tree_node_get_left(binomial_tree_node_t * node);
 binomial_tree_node_t * binomial_tree_node_get_right(binomial_tree_node_t * node);
@@ -63,99 +63,193 @@ function name</function></term>
 -->
 
 <varlistentry><term><function>binomial_tree_t * binomial_tree_new(void)</function></term>
-<listitem><para>one-liner function description</para>
-<para>more verbose function description</para>
-<para>info pertaining thread-safety</para>
+<listitem><para>Create a new, empty, binomial tree</para>
+<para>This function creates a tree without any nodes in it. As the 
+implementation creates nodes on-demand, the tree is truely empty when created.
+</para>
+<para>This function can be called from any number of threads without any 
+constraints pertaining to thread-safety.</para>
 </listitem></varlistentry>
 
 <varlistentry><term><function>void binomial_tree_free(binomial_tree_t * tree)</function></term>
-<listitem><para>one-liner function description</para>
-<para>more verbose function description</para>
-<para>info pertaining thread-safety</para>
+<listitem><para>Destroy a binomial tree and all its nodes.</para>
+<para>This function frees the binomial tree and all the nodes associated to it.
+Nodes that once were, but are no longer associated to this tree are left alone:
+the nodes are found by traversing the tree.</para>
+<para>Once this function is entered, all actions on the tree or the nodes 
+associated with it produce undefined behaviour.</para>
 </listitem></varlistentry>
 
 <varlistentry><term><function>binomial_tree_node_t * binomial_tree_get_root(binomial_tree_t * tree)</function></term>
-<listitem><para>one-liner function description</para>
-<para>more verbose function description</para>
-<para>info pertaining thread-safety</para>
+<listitem><para>Returns the root of the tree.</para>
+<para>This function returns the root node of the tree. If there is none, one is
+created.</para>
+<para>This function can be called on a single tree from different threads 
+without constraints relating to thread-safety: the first node to be grafted
+to the root of the tree will be the one returned. If this function is called
+on an empty binomial tree from different threads at the same time, it may 
+temporarily create several nodes but only one of them will be grafted onto
+the tree. In that case, all nodes that are not grafted onto the tree are
+destroyed and the first node grafted to the tree is returned.</para>
 </listitem></varlistentry>
 
 <varlistentry><term><function>int binomial_tree_set_root(binomial_tree_t * tree, binomial_tree_node_t * exp, binomial_tree_node_t * val)</function></term>
-<listitem><para>one-liner function description</para>
-<para>more verbose function description</para>
-<para>info pertaining thread-safety</para>
+<listitem><para>Graft a node to the root of the tree</para>
+<para>This function replaces the current root of the tree with VAL, iff (if and 
+only if) the current node is EXP. It also tries to set the parent of node VAL 
+to NULL.</para>
+<para>With regards to the tree itself, this function may be called in 
+concurrence with as many other functions as you like without any problem. 
+However this function <emphasis>does not</emphasis> guarantee that the parent
+of node VAL is set to NULL when this function is done: if the node VAL is being
+grafted elsewhere in the tree (or in some other tree) as well, using one of the
+grafting functions <function>binomial_tree_set_left</function> or 
+<function>binomial_tree_set_right</function> the parent of node VAL may be set
+to whatever other node it is being grafted to.</para>
 </listitem></varlistentry>
 
-<varlistentry><term><function>binomial_tree_node_t * binomial_tree_node_new(void)</function></term>
-<listitem><para>one-liner function description</para>
-<para>more verbose function description</para>
-<para>info pertaining thread-safety</para>
+<varlistentry><term><function>binomial_tree_node_t * binomial_tree_node_new(binomial_tree_node_t * parent)</function></term>
+<listitem><para>Create a new node for a binomial tree with parent PARENT.</para>
+<para>This function creates a new, empty node for a binomial tree. The new node
+is not linked to any tree at the time of its creation and does not have any
+children nor any value. Its parent, however, is set to PARENT, which should be
+NULL if this node will be the root node.</para>
+<para>This function can be called in concurrence with any other function in 
+the API without any problem.</para>
 </listitem></varlistentry>
 
 <varlistentry><term><function>void binomial_tree_node_free(binomial_tree_node_t * handle)</function></term>
-<listitem><para>one-liner function description</para>
-<para>more verbose function description</para>
-<para>info pertaining thread-safety</para>
+<listitem><para>Destroy the node</para>
+<para>This function destroys the node and frees any memory associated with it.
+It does not destroy any of its children, parents, or its value.</para>
+<para>Subsequent calls to any of the API's functions using this node will result
+in undefined or unspecified behaviour.</para>
 </listitem></varlistentry>
 
 <varlistentry><term><function>binomial_tree_node_t * binomial_tree_node_get_left(binomial_tree_node_t * node)</function></term>
-<listitem><para>one-liner function description</para>
-<para>more verbose function description</para>
-<para>info pertaining thread-safety</para>
+<listitem><para>Get the left child node of the node NODE.</para>
+<para>This function returns the left child node of the node NODE. If it doesn't
+have one, one will be created.</para>
+<para>Concurrent calls to this function may create temporary nodes if the node
+doesn't have a left-hand child (in the same way as it would for 
+<function>binomial_tree_get_root</function>. Other than that, there are no 
+restrictions on calling this function concurrently from different threads on
+the same or different nodes.</para>
 </listitem></varlistentry>
 
 <varlistentry><term><function>binomial_tree_node_t * binomial_tree_node_get_right(binomial_tree_node_t * node)</function></term>
-<listitem><para>one-liner function description</para>
-<para>more verbose function description</para>
-<para>info pertaining thread-safety</para>
+<listitem><para>Get the right-hand child of the node NODE.</para>
+<para>This function returns the right child node of the node NODE. If it doesn't
+have one, one will be created.</para>
+<para>Concurrent calls to this function may create temporary nodes if the node
+doesn't have a right-hand child (in the same way as it would for 
+<function>binomial_tree_get_root</function>. Other than that, there are no 
+restrictions on calling this function concurrently from different threads on
+the same or different nodes.</para>
 </listitem></varlistentry>
 
 <varlistentry><term><function>int binomial_tree_node_set_left(binomial_tree_node_t * node, binomial_tree_node_t * exp, binomial_tree_node_t * nval)</function></term>
-<listitem><para>one-liner function description</para>
-<para>more verbose function description</para>
-<para>info pertaining thread-safety</para>
+<listitem><para>Set the left child of node NODE to NVAL iff it is currently EXP</para>
+<para>This function sets the left child of node NODE while comparing it to EXP.
+If the left child is not EXP at the moment it is set to NVAL, the operation does
+not take place and nonzero is returned</para>
+<para>With regards to the tree, this function can safely be combined with any
+other function in the API. However, with regards to the node NVAL, the parent
+attribute of the node may not be set correctly if this function is combined 
+with any of the three grafting functions: <function>binomial_tree_set_root
+</function>, <function>binomial_tree_node_set_left</function> and <function>
+binomial_tree_node_set_right</function>. This function 
+<emphasis>does not</emphasis> guarantee that the parent attribute is set
+correctly in that case.</para>
 </listitem></varlistentry>
 
 <varlistentry><term><function>int binomial_tree_node_set_right(binomial_tree_node_t * node, binomial_tree_node_t * exp, binomial_tree_node_t * nval)</function></term>
-<listitem><para>one-liner function description</para>
-<para>more verbose function description</para>
-<para>info pertaining thread-safety</para>
+<listitem><para>Set the right child of node NODE to NVAL iff it is currently EXP</para>
+<para>This function sets the right child of node NODE while comparing it to EXP.
+If the right child is not EXP at the moment it is set to NVAL, the operation 
+does not take place and nonzero is returned</para>
+<para>With regards to the tree, this function can safely be combined with any
+other function in the API. However, with regards to the node NVAL, the parent
+attribute of the node may not be set correctly if this function is combined 
+with any of the three grafting functions: <function>binomial_tree_set_root
+</function>, <function>binomial_tree_node_set_left</function> and <function>
+binomial_tree_node_set_right</function>. This function 
+<emphasis>does not</emphasis> guarantee that the parent attribute is set
+correctly in that case.</para>
 </listitem></varlistentry>
 
 <varlistentry><term><function>binomial_tree_node_t * binomial_tree_node_get_parent(binomial_tree_node_t * node)</function></term>
-<listitem><para>one-liner function description</para>
-<para>more verbose function description</para>
-<para>info pertaining thread-safety</para>
+<listitem><para>Returns the parent of node NODE.</para>
+<para>This function returns the parent node of node NODE. If the node does not
+have a parent node, it will return NULL. Note, however, that breaking the link
+from parent to child does not cause the link from child to parent to be broken:
+grafting another child to the parent does not alter the child that was in its
+place before. Hence, this value may not systematically correspond to the actual
+parent of the node. Also, if this node was grafted to multiple trees or to 
+multiple locations in the same tree at the same time, the contents of the parent
+attribute are undefined. Hence, the return value of this function is defined
+only for nodes that have not been cut off a tree and have not been used with
+one of the grafting functions (see above) from more than one thread at the
+same time.</para>
+<para>This function can be combined with any other function in the API from 
+any number of threads on the same node, or different nodes, without problems
+regarding thread-safety.</para>
 </listitem></varlistentry>
 
 <varlistentry><term><function>void binomial_tree_node_register(binomial_tree_node_t * node, int reg)</function></term>
-<listitem><para>one-liner function description</para>
-<para>more verbose function description</para>
-<para>info pertaining thread-safety</para>
+<listitem><para><emphasis>Currently a no-op</emphasis></para>
+<para>register a node as in use in one of three registers.</para>
+<para>This function is currently only here to allow for future use of the 
+SMR memory management library, libmemory. It registers a node as in-use and 
+prevents the associated memory from being freed while it remains registered as
+such.</para>
+<para>This function can be combined with any other function in this API without
+restrictions.</para>
 </listitem></varlistentry>
 
 <varlistentry><term><function>void binomial_tree_node_release(binomial_tree_node_t * node)</function></term>
-<listitem><para>one-liner function description</para>
-<para>more verbose function description</para>
-<para>info pertaining thread-safety</para>
+<listitem><para><emphasis>Currently a no-op</emphasis></para>
+<para>release all references to a node</para>
+<para>Allows for the memory associated to the node to be freed when the node is
+deleted, as there is no active reference to this node (in the context of the 
+current thread) any more.</para>
+<para>This function can be combined with any other function in this API without
+restrictions.</para>
 </listitem></varlistentry>
 
 <varlistentry><term><function>void * binomial_tree_node_get_value(binomial_tree_node_t * node)</function></term>
-<listitem><para>one-liner function description</para>
-<para>more verbose function description</para>
-<para>info pertaining thread-safety</para>
+<listitem><para>Get the value of node NODE</para>
+<para>Returns the value of node NODE, or NULL if there is none.</para>
+<para>This function can be combined with any other function in this API without
+restrictions.</para>
 </listitem></varlistentry>
 
 <varlistentry><term><function>int binomial_tree_node_set_value(binomial_tree_node_t * node, void * curr, void * val)</function></term>
-<listitem><para>one-liner function description</para>
-<para>more verbose function description</para>
-<para>info pertaining thread-safety</para>
+<listitem><para>Set the value of node NODE to VAL iff it is currently CURR.</para>
+<para>This function sets the value of node NODE while comparing the current 
+value to CURR. If it is not the same, the operation is cancelled and nonzero 
+is returned. In that case, the value of the node is not affected.</para>
+<para>This function can be combined with any other function in this API without
+restrictions.</para>
 </listitem></varlistentry>
 
 <varlistentry><term><function>void binomial_tree_node_foreach(binomial_tree_node_t * root, binomial_tree_node_foreach_func_t func, void * data)</function></term>
-<listitem><para>one-liner function description</para>
-<para>more verbose function description</para>
-<para>info pertaining thread-safety</para>
+<listitem><para>Call function FUNC with the value of each node under ROOT 
+including the value of ROOT itself, passing DATA as the second argument of
+FUNC.</para>
+<para>This function is used to <quote>walk</quote> the binomial tree. The order
+of the calls to FUNC (with regards to which value is passed first) is 
+unspecified and <emphasis>may change from one version of this library to another
+without prior notice</emphasis>: change in the order is not regarded as an
+incompatibility between versions of this implementation. (I.e.: the order will
+probably change). FUNC is not called if the node has no value. DATA is
+guaranteed to be the second argument of FUNC.</para>
+<para>As this implementation does nothing with the value of the nodes, this
+function has no expectations regarding that value one way or the other. Whether
+or not your function FUNC should change it depends entitely upon the algorithmic
+logic of the client code.</para>
+<para>This function can be combined with any other function in this API without
+restrictions.</para>
 </listitem></varlistentry>
 
 </variablelist>
@@ -192,8 +286,26 @@ client code is really messed up.</para>
 </refsect1>
 
 <refsect1>
+<title>Memory management</title>
+<para>This implementation is intended to use M.M. Micheal's <quote>Safe 
+Memory Reclamation</quote> memory management method. However, as the
+library in which that method has been implemented, libmemory, is not deemed
+ready for release yet, the hooks are there but the functions are no-ops. That
+doesn't mean, however, that you can safely not use them: libmemory will 
+certainly be included in libcontain - and probably soon - so you should 
+behave as though it is already there!</para>
+</refsect1>
+
+<refsect1>
 <title>Bugs</title>
 <para>Certainly there are some.. you tell me!</para>
+</refsect1>
+
+<refsect1>
+<title>Author</title>
+<para>The author of this library is Ronald Landheer-Cieslak. You can reach
+him (that is: me) at <email>ronald@landheer.com</email>. Please don't hesistate
+to drop me a line.</para>
 </refsect1>
 
 </refentry>

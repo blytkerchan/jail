@@ -1,3 +1,37 @@
+2004-04-26	blytkerchan
+	* Makefile.am [pkginclude_HEADERS]: fix type-o
+	* binomial_tree.c: include required headers
+	(binomial_tree_free): free all nodes if they exist
+	(binomial_tree_head): rename to binomial_tree_get_root
+	(binomial_tree_get_root): rename from binomial_tree_head
+	don't free a node we need - free one we don't need :)
+	(binomial_tree_set_root): new function
+	(binomial_tree_node_free_deep): ditto
+	(binomial_tree_node_get_left): ditto
+	(binomial_tree_node_get_right): ditto
+	(binomial_tree_node_set_left): ditto
+	(binomial_tree_node_set_right): ditto
+	(binomial_tree_node_get_parent): ditto
+	(binomial_tree_node_register): ditto
+	(binomial_tree_node_release): ditto
+	(binomial_tree_node_get_value): ditto
+	(binomial_tree_node_set_value): ditto
+	(binomial_tree_node_foreach): ditto
+	(binomial_tree_foreach): ditto
+	* binomial_tree.h [binomial_tree_node_t]: fix type-o for parent and children types
+	(binomial_tree_node_new): take parent node as parameter
+	(binomial_tree_node_free_deep): new function
+	(binomial_tree_foreach): ditto
+	* binomial_tree.sgml: update binomial_tree_node_new function declaration in synopsis
+	add words on the use of the functions
+	add words on memory management
+	add words on me (author section)
+	* map.c: include compare_and_exchange.h
+	(map_new): return the new map
+	(map_free_helper): new function
+	(map_free): free all map nodes stored in the tree before freeing the tree
+	(map_remove): suppress warning on using an integer as a pointer without casting (i.e. cast)
+
 2004-04-22	blytkerchan
 	* binomial_tree.c: new file
 	* Makefile.am [libcontain_la_SOURCES]: add map.c and binomial_tree.c

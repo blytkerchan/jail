@@ -43,7 +43,7 @@ pkginclude_HEADERS =	hash_config.h \
 			queue.h \
 			array.h \
 			map.h \
-			binimial_tree.h \
+			binomial_tree.h \
 			list.h $(libcontain_la_CXXHEADERS)
 noinst_HEADERS = c_interface.h
 libcontain_la_LIBADD=libreplace/libreplace.la glib/libglib.la
