@@ -7,3 +7,4 @@ To prevent multiple answers from the same person, we should store a cookie
 "chez lui" that contains information on whether or not he's already answered
 the question and which questions) have been answered..
 
+
