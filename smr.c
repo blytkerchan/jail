@@ -35,6 +35,9 @@
 #include "smr.h"
 #include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
+#include "arch/include/increment.h"
+#include "arch/include/decrement.h"
 
 smr_global_data_t * smr_global_data = NULL;
 
@@ -243,12 +246,14 @@ static void smr_thread_cleanup(void)
 
 int smr_thread_init(void)
 {
-	atomic_increment(&(smr_global_data->p));
+	atomic_increment((uint32_t*)&(smr_global_data->p));
+
+	return 0;
 }
 
 void smr_thread_fini(void)
 {
 	smr_thread_cleanup();
-	atomic_decrement(&(smr_global_data->p));
+	atomic_decrement((uint32_t*)&(smr_global_data->p));
 }
 

@@ -1,3 +1,10 @@
+2004-07-22	blytkerchan
+	* hptr.c: remove all void** casts for compare_and_exchange calls
+	* module.mk: update
+	* smr.c: include <string.h>, and arch-dependant headers
+	cast parameters to atmoic_increment and atomic_decrement calls to
+	uint32_t*
+
 2004-07-20	blytkerchan
 	* module.mk: new file
 

@@ -108,12 +108,12 @@ try_again:
 		{
 			if (prev == NULL)
 			{
-				if (compare_and_exchange((void**)&curr, (void**)&(smr_global_data->first), curr->next))
+				if (compare_and_exchange(&curr, &(smr_global_data->first), curr->next))
 					goto try_again;
 			}
 			else
 			{
-				if (compare_and_exchange((void**)&curr, (void**)&(prev->next), curr->next))
+				if (compare_and_exchange(&curr, &(prev->next), curr->next))
 					goto try_again;
 			}
 			free(curr);

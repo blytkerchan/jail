@@ -1,2 +1,4 @@
-SRC +=	libmemory/smr.c \
-	libmemory/hptr.c
+libmemory_SRC +=	smr.c \
+			hptr.c
+
+SRC += $(patsubst %,libmemory/%,$(libmemory_SRC))
