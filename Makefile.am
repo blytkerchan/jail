@@ -27,8 +27,8 @@ pkginclude_HEADERS = 	Hash.h \
 			queue.h \
 			list.h
 libcontain_la_LIBADD=libreplace/libreplace.la
-AM_CFLAGS = -g -Wall -Werror -Iarch/include
-AM_CXXFLAGS = -g -Wall -Werror -Iarch/include
+AM_CFLAGS = -g -Wall -Werror -I$(top_srcdir)/arch/include
+AM_CXXFLAGS = -g -Wall -Werror -I$(top_srcdir)/arch/include
 
 # testsuite
 noinst_PROGRAMS=test1 test2 test3 test4 test5 test6
@@ -43,8 +43,8 @@ test4_SOURCES=test4.cc
 test4_LDADD=libcontain.la
 test5_SOURCES=test5.cc
 test5_LDADD=libcontain.la
-test6_SOURCES=test6.cc
-test6_LDADD=libcontain.la
+test6_SOURCES=test6.c
+test6_LDADD=libcontain.la -lstdc++
 
 # helper scripts for client programs
 bin_SCRIPTS=config-libcontain

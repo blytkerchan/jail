@@ -1,40 +1,69 @@
-=head1 The Real Life Systems Hash library
+=head1 The Real Life Systems Container library - Hashes
 
-by Ronald Landheer <ronald@landheer.com>, Sept 2002
+by Ronald Landheer-Cieslak <ronald@landheer.com>, Feb 2004
+(updated from Sept. 2002)
 
 =head2 What are hashes?
 
-Any Perl programmer will tell you that a hash is an I<associative array>: any I<value> in it is I<associated> with a I<key>. The wonderful thing about hashes are that they are very fast: because of the way hashing works, you can find a specific value in a has much faster than you would be able to in an array.  Another very nice thing is that you can use anything you want as a key to your hash, while for an array, you can only use an integer value as an index.
+Any Perl programmer will tell you that a hash is an I<associative array>: any 
+I<value> in it is I<associated> with a I<key>. The wonderful thing about hashes 
+are that they are very fast: because of the way hashing works, you can find a 
+specific value in a has much faster than you would be able to in an array. 
+Another very nice thing is that you can use anything you want as a key to your 
+hash, while for an array, you can only use an integer value as an index.
 
 =head2 How does hashing work?
 
-Internally, a hash is an array of mappings, in which the keys are mapped to a value. Both are C<void*> pointers, hence the ability to use anything as a key/value. To know where to put the value in the hash, a calculation is done with the key which results in the "estimated" position of the value in the hash. The system then looks whether that position is still empty and, if so,  puts the key and the value at that position in the hash. If the position was not empty, the system looks for an empty one "next to" the mapped entry (this is called I<linear hashing>). If the key was already used in the hash, the new value replaces the old one.
+Internally, a hash is an array of mappings, in which the keys are mapped to a 
+value. Both are C<void*> pointers, hence the ability to use anything as a 
+key/value. To know where to put the value in the hash, a calculation is done 
+with the key which results in the "estimated" position of the value in the 
+hash. The system then looks whether that position is still empty and, if so, 
+puts the key and the value at that position in the hash. If the position was 
+not empty, the system looks for an empty one "next to" the mapped entry (this 
+is called I<linear hashing>). If the key was already used in the hash, the new 
+value replaces the old one.
 
-The hashing-system takes care of memory allocation itself, so you never have to worry about how much memory you are using for the hash. However, whenever you ask for listed information about a hash (like the list of keys that the hash contains) memory is allocated that will never be used for the hash itself, and that you are responsible for freeing. As I<a priori> you don't have to know how big the buffer is that you'll get, there are no functions that let you allocate the buffer yourself (if you want one, feel free to contribute it).
+The hashing-system takes care of memory allocation itself, so you never have 
+to worry about how much memory you are using for the hash. However, whenever 
+you ask for listed information about a hash (like the list of keys that the 
+hash contains) memory is allocated that will never be used for the hash itself, 
+and that you are responsible for freeing. As I<a priori> you don't have to know 
+how big the buffer is that you'll get, there are no functions that let you 
+allocate the buffer yourself (if you want one, feel free to contribute it).
 
 =head2 Why make a hashing system in C++ if mapping already exists?
 
-Though mapping already exists in the Standard Template Library, there are three simple reasons why I made the Hash class:
+Though mapping already exists in the Standard Template Library, there are three 
+simple reasons why I made the Hash class:
 
 =over 4
 
 =item 1
 
-because there is no such thing as mapping under C (and I do intend to make a C API for this library)
+because there is no such thing as mapping in C
 
 =item 2
 
-because I needed the exercise: it's been a while since I last did any C++ programming, so I wanted to freshen up on my know-how
+because I needed the exercise: it's been a while since I last did any C++ 
+programming, so I wanted to freshen up on my know-how
 
 =item 3
 
-because STL mappings don't allow you to save a map (and all the associated information) to a file - the library's hashes do
+because STL mappings don't allow you to save a map (and all the associated 
+information) to a file - the library's hashes do
 
 =back
 
 =head2 How to use these classes
 
-The library provides you with five classes, which you may find more or less useful: the C<Hash> class, which is the base class of all other classes, the C<StringHash> class, which is a hash for which you can use a string as a key; the C<NocaseStringHash>, which is the same as StringHash, but is not case-sensitive; the C<IniHash> class, which is designed to read, interprete and write .ini configuration files; and the C<IntHash> class, with which you can use an integer as key.
+The library provides you with five classes, which you may find more or less 
+useful: the C<Hash> class, which is the base class of all other classes, the 
+C<StringHash> class, which is a hash for which you can use a string as a key; 
+the C<NocaseStringHash>, which is the same as StringHash, but is not 
+case-sensitive; the C<IniHash> class, which is designed to read, interprete 
+and write .ini configuration files; and the C<IntHash> class, with which you 
+can use an integer as key.
 
 =begin text
 
@@ -52,11 +81,18 @@ The library provides you with five classes, which you may find more or less usef
       
 =end text
 
-Though C++ allows you to initialise a base class with one of its descendants, except for StringHash and NocaseStringHash (which you can initialise with StringHash as well as vice versa) this is not a good idea: the way the hashes work internally depends completely on what they expect their keys to be, which basically means you should not expect the base class to understand the keys of one of its descendants.
+Though C++ allows you to initialise a base class with one of its descendants, 
+except for StringHash and NocaseStringHash (which you can initialise with 
+StringHash as well as vice versa) this is not a good idea: the way the hashes 
+work internally depends completely on what they expect their keys to be, which 
+basically means you should not expect the base class to understand the keys of 
+one of its descendants.
 
 =head2 Deriving a class from one of these classes
 
-If you want to make a new hash class, all I can say is: I<vas-y : fonce !> (which means as much as: "go for it!"). There are a few points you have to keep in mind, though:
+If you want to make a new hash class, all I can say is: I<vas-y : fonce !> 
+(which means as much as: "go for it!"). There are a few points you have to 
+keep in mind, though:
 
 =over 4
 
@@ -66,47 +102,83 @@ If you want to make a new hash class, all I can say is: I<vas-y : fonce !> (whic
 
 =item read & _write
 
-The read function reads a file into a hash - assuming the file has been written by write before. The _write method writes the entire contents of a hash to a file. It uses the write_helper_function that can either be passed to write() or to set_write_helper_function() to get the size of the dat associated with a key. The general file format is explained below. If you change the way the keys of a hash work, you should write your own read and write methods.
+The read function reads a file into a hash - assuming the file has been 
+written by write before. The _write method writes the entire contents of a 
+hash to a file. It uses the write_helper_function that can either be passed 
+to write() or to set_write_helper_function() to get the size of the data 
+associated with a key. The general file format is explained below. If you 
+change the way the keys of a hash work, you should write your own read and 
+write methods.
 
 =item cmp_keys, empty_key and hash
 
-These functions depend heavily on the type of key you use for the hash: they (resp.) compare two keys (and return 0 of they're the same), check whether a key is empty or not (and return true if so, false if not) and return a value calculated with the key. The latter must always return the same value for the same key: it B<must not> be random. Ideally, two very close keys should result in two completely different hash values, but a hash function that always returns the same value, though extremely bad, would work.
+These functions depend heavily on the type of key you use for the hash: they 
+(resp.) compare two keys (and return 0 of they're the same), check whether a 
+key is empty or not (and return true if so, false if not) and return a value 
+calculated with the key. The latter must always return the same value for the 
+same key: it B<must not> be random. Ideally, two very close keys should result 
+in two completely different hash values, but a hash function that always 
+returns the same value, though extremely bad, would work.
 
-For the hash function I use for strings and generic keys, bigger keys give better results, as I use the Adler 32-bit CRC. I can always substitute it with another function later :)
+For the hash function I use for strings and generic keys, bigger keys give 
+better results, as I use the Adler 32-bit CRC. I can always substitute it with 
+another function later :)
 
 =back
 
 =item variables that are important
 
-If you can avoid it at all, don't mess with the mappings variable, or the mapping_type typedef: neither of them is guaranteed to work the same way for ever. The key_type typedef will always be there and will remain the same, as the write_helper_function and filename variables that will remain the same.
+If you can avoid it at all, don't mess with the mappings variable, or the 
+mapping_type typedef: neither of them is guaranteed to work the same way for 
+ever. The key_type typedef will always be there and will remain the same, as 
+the write_helper_function and filename variables that will remain the same.
 
 =item why not make descendants of IniHash?
 
-The IniHash is a descendant of the NocaseStringHash, which uses NocaseStringHash-es as the value for the first (primary) key. Hence, the IniHash is a hash of hashes, which is a bit special. If you want, there is no problem with making descendants of this hash, but I would strongly advise to use NocaseStringHash in stead, as most of it is practically the same, you can use the write_helper_function again (which IniHash doesn't use), you're not stuck with IniHash' get() and put() functions, etc.
+The IniHash is a descendant of the NocaseStringHash, which uses 
+NocaseStringHash-es as the value for the first (primary) key. Hence, the 
+IniHash is a hash of hashes, which is a bit special. If you want, there is no 
+problem with making descendants of this hash, but I would strongly advise to 
+use NocaseStringHash in stead, as most of it is practically the same, you can 
+use the write_helper_function again (which IniHash doesn't use), you're not 
+stuck with IniHash' get() and put() functions, etc.
 
 =back
 
 =head2 Hash file format
 
-The hash file format is fairly simple: it starts with a magic number (HASH for base hashes, HASI for IntHash-es, HASS for StringHash-es and NocaseStringHash-es), a file format version (0100 for the time being), followed by the key, the size of the associated data and the data. For HASH, the key is the key_type structure's contents; for HASS, the key is the size of the string, followed by the string and a NUL character; for HASI, the key is just an integer. In any of these formats, the size of the data is whatever is returned by the write_helper_function function.
+The hash file format is fairly simple: it starts with a magic number (HASH for 
+base hashes, HASI for IntHash-es, HASS for StringHash-es and 
+NocaseStringHash-es), a file format version (0100 for the time being), followed
+by the key, the size of the associated data and the data. For HASH, the key is 
+the key_type structure's contents; for HASS, the key is the size of the string,
+followed by the string and a NUL character; for HASI, the key is just an 
+integer. In any of these formats, the size of the data is whatever is returned 
+by the write_helper_function function.
 
 =head2 IniHash file format
 
-The IniHash file format closely mimics the .ini configuration file format for Windows, with a few caveats: 
+The IniHash file format closely mimics the .ini configuration file format for 
+Windows, with a few caveats: 
 
 =over 4
 
 =item 1
 
-Primary keys are set between square brackets, like so: C<[primary key]>. Whatever comes after a primary key on the same line is ignored; whatever comes before a primary key is ignored as well.
+Primary keys are set between square brackets, like so: C<[primary key]>. 
+Whatever comes after a primary key on the same line is ignored; whatever comes 
+before a primary key is ignored as well.
 
 =item 2
 
-Anything after a hash/pound sign C<#> is ignored. Hence, the # sign is completely forbidden in the .ini files (this is a FIXME).
+Anything after a hash/pound sign C<#> is ignored. Hence, the # sign is 
+completely forbidden in the .ini files (this is a FIXME).
 
 =item 3
 
-Anything before a C<=> is assumed to be a secondary key, anything behind it is the associated value. Lines that are not primary keys and don't have a C<=> in it are ignored
+Anything before a C<=> is assumed to be a secondary key, anything behind it is 
+the associated value. Lines that are not primary keys and don't have a C<=> in 
+it are ignored
 
 =item 4
 
@@ -122,4 +194,5 @@ Secondary key names may be enveloped in parenthesis C<()>
 
 =back
 
-I know this is not perfect, and will gratefully accept patches, but hey, it works.
+I know this is not perfect, and will gratefully accept patches, but hey, it 
+works (for me).
