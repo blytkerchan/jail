@@ -45,12 +45,7 @@ typedef struct _list_node_t
 
 typedef struct _list_t
 {
-	list_node_t * prev;
-	list_node_t * curr;
 	list_node_t * head;
-	void * cval;
-	int cmark;
-	
 	list_compare_fn_t cmp_func;
 } list_t;
 

@@ -35,6 +35,15 @@
 #include <compare_and_exchange.h>
 #include "list.h"
 
+typedef struct _list_state_t
+{
+	list_node_t * prev;
+	list_node_t * curr;
+	void * cval;
+	int cmark;
+} list_state_t;
+
+
 static void list_free_node(list_node_t * node)
 {
 	free(node);
@@ -50,39 +59,44 @@ static list_node_t * list_new_node(void * val)
 	return retval;
 }
 
-static list_node_t * list_find(list_t * list, void * val)
+static list_node_t * list_find(list_state_t * state, list_t * list, void * val)
 {
 	int rv;
 	
 try_again:
-	list->prev = list->head;
+	state->prev = list->head;
 	while (1)
 	{
-		list->curr = list->prev->next;
-		if (list->curr == NULL)
+		state->curr = state->prev->next;
+		if (state->curr == NULL)
 			return NULL;
-		list->cval = list->curr->val;
-		list->cmark = list->curr->mark;
-		if (list->curr != list->prev->next)
+		state->cval = state->curr->val;
+		state->cmark = state->curr->mark;
+		if (state->curr != state->prev->next)
 			goto try_again;
-		if ((rv = list->cmp_func(list->cval, val)) >= 0)
-			return ((rv == 0 && !list->cmark) ? list->curr : NULL);
-		list->prev = list->curr;
+		if ((rv = list->cmp_func(state->cval, val)) >= 0)
+			return ((rv == 0 && !state->cmark) ? state->curr : NULL);
+		state->prev = state->curr;
 	}
 }
 
 static int list_insert_node(list_t * list, list_node_t * node)
 {
 	void * val;
+	list_state_t * state = (list_state_t*)alloca(sizeof(list_state_t));
+	state->prev = NULL;
+	state->curr = NULL;
+	state->cval = NULL;
+	state->cmark = 0;
 
 	val = node->val;
 	while (1)
 	{
-		if (list_find(list, val) != NULL)
+		if (list_find(state, list, val) != NULL)
 			return -1;
 		node->mark = 0;
-		node->next = list->curr;
-		if (compare_and_exchange(&(list->curr), &(list->prev->next), node) == 0)
+		node->next = state->curr;
+		if (compare_and_exchange(&(state->curr), &(state->prev->next), node) == 0)
 			return 0;
 	}
 }
@@ -104,18 +118,23 @@ int list_delete(list_t * list, void * val)
 {
 	int cmark;
 	int nmark;
-	
+	list_state_t * state = (list_state_t*)alloca(sizeof(list_state_t));
+	state->prev = NULL;
+	state->curr = NULL;
+	state->cval = NULL;
+	state->cmark = 0;
+
 try_again:
 	while (1)
 	{
-		if (list_find(list, val) == NULL)
+		if (list_find(state, list, val) == NULL)
 			return -1;
 		cmark = 0;
 		nmark = 1;
-		if (compare_and_exchange(&cmark, &(list->curr->mark), (void*)nmark) != 0)
+		if (compare_and_exchange(&cmark, &(state->curr->mark), (void*)nmark) != 0)
 			continue;
-		if (compare_and_exchange(&(list->curr), &(list->prev->next), list->curr->next) == 0)
-			list_free_node(list->curr);
+		if (compare_and_exchange(&(state->curr), &(state->prev->next), state->curr->next) == 0)
+			list_free_node(state->curr);
 		else
 			goto try_again;
 
@@ -125,7 +144,12 @@ try_again:
 
 void * list_search(list_t * list, void * val)
 {
-	list_node_t * node = list_find(list, val);
+	list_state_t * state = (list_state_t*)alloca(sizeof(list_state_t));
+	state->prev = NULL;
+	state->curr = NULL;
+	state->cval = NULL;
+	state->cmark = 0;
+	list_node_t * node = list_find(state, list, val);
 	if (node == NULL)
 		return NULL;
 	return node->val;

@@ -1,3 +1,11 @@
+2004-02-12	blytkerchan
+	* list.c <list_state_t>: new type
+	(list_find): make re-entrant: take state as parameter
+	(list_insert_node): make a local state pointer and use it
+	(list_delete): ditto
+	(list_search): ditto
+	* list.h <list_t>: remove prev, curr, cval and cmark members
+
 2004-02-10	blytkerchan
 	* NEWS: update
 
