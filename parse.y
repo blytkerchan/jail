@@ -23,7 +23,12 @@
 %token CONSTRUCTOR_TK		/* "constructor" */
 %token DESTRUCTOR_TK 		/* "destructor" */
 %token VAR_TK			/* "var" */
-
+%token UNIT_TK			/* "unit" */
+%token INTERFACE_TK		/* "interface" */
+%token IMPLEMENTATION_TK 	/* "implementation" */
+%token ROOT_TK			/* "root" */
+%token LEAF_TK			/* "leaf" */
+%token ABSTRACT_TK		/* "abstract" */
 %%
 
 /** 
@@ -40,6 +45,41 @@ translation_unit :
 	unit_declaration use_directives interface_section
 	| use_directives interface_section
 	| translation_unit implementation_section
+	;
+
+/* A unit declaration is the unit keyword followed by an identifier 
+ * Note that the unit declaration is special because it can't be part of a
+ * declarations production */
+unit_declaration :
+	UNIT_TK identifier EOS_TK
+	;
+
+/* A sequence of use directive is any number of individual use directoves */
+use_directives : /* empty */
+	| use_directive use_directives
+	;
+
+/* A use directive is the use token followed by the name of the object to 
+ * use, followed by a semicolon */
+use_directive :
+	USE_TK qualified_identifier EOS_TK
+	;
+
+/* An interface section is the interface keyword followed by a colon,
+ * followed by any number of declarations */
+interface_section :
+	INTERFACE_TK ':' declarations
+	;
+
+/* An implementation section is the implementation keyword followed by a
+ * colon, followed by any number of declarations and/or definitions */
+implementation_section :
+	IMPLEMENTATION_TK ':' implementation_section_freeform
+	;
+
+implementation_section_freeform : /* empty */
+	| declarations implementation_section_freeform
+	| definitions implementation_section_freeform
 	;
 
 /** 
@@ -136,8 +176,17 @@ definition :
  * name, the super (parent) classes it extends, and the body of the class,
  * in that order. The class name may be fully qualified */
 class_definition :
-	CLASS_TK class_name class_attrs class_body
-	| SINGLETON_TK class_name class_attrs class_body
+	inheritance_specifiers CLASS_TK class_name class_attrs class_body
+	| inheritance_specifiers SINGLETON_TK class_name class_attrs class_body
+	;
+
+/* a set of inheritance specifiers is any combination of any the "root", "leaf"
+ * and "abstract" keywords, in any order. Any of them can appear zero or one
+ * times in the specifiers set, which can therefore be empty. */
+inheritance_specifiers : /* empty */
+	| ROOT_TK inheritance_specifiers
+	| LEAF_TK inheritance_specifiers
+	| ABSTRACT_TK inheritance_specifiers
 	;
 
 /* A function definition is the function token, followed by the name of the

@@ -1,3 +1,11 @@
+2004-08-24	blytkerchan
+	* parse.y [ROOT_RK]: new token
+	[LEAF_TK: ditto
+	[ABSTRACT_K]: ditto
+	(class_definition): allow inheritance specifiers for classes and
+	singletons
+	(inheritance_specifiers): new token
+
 2004-08-15	blytkerchan
 	* parse.y [SINGLETON_TK]: new token
 	(class_declaration): allow a class declaration with the singleton
