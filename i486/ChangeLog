@@ -1,4 +1,6 @@
 2004-08-02	blytkerchan
+	* fetch_and_add.c: add necessary headers
+
 	* fetch_and_add.c: new file
 
 2004-04-12	blytkerchan
