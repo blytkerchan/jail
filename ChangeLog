@@ -1,3 +1,6 @@
+2004-09-01	blytkerchan
+	* Makefile: remove
+
 2004-08-23	blytkerchan
 	* thread_list.c (_lt_thread_list_find): rename from
 	lt_thread_list_find
