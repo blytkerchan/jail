@@ -26,11 +26,11 @@
 <div align="justify">
 <h1>The Jail-Ust Container Library</h1>
 <p>The goal of the Container library is to provide containers (objects that
-contain other objects) for use by Jail-ust and other projects. The library,
-though intended primarily for use in the development of Jail-ust, is also
-intended for use by the general public which means that feature requests,
-bug reports, etc. for projects other than Jail-ust have a good chance to be
-entertained.</p>
+contain other objects) for use by Jail-ust and other projects.<br/>
+The library, though intended primarily for use in the development of Jail-ust,
+is also intended for use by the general public which means that feature 
+requests, bug reports, etc. for projects other than Jail-ust have a good 
+chance to be entertained.</p>
 <p>The Container library's primary (technical/technological) goals are:
 <ul>
 <li>To provide containers that are easy to use<br/>
@@ -46,8 +46,40 @@ Speed, next to ease of use and thread-safety, is of primary concern
 </li>
 </ul>
 </p>
+<h2>Version 0.0-alpha1</h2>
+<p>This is the first alpha release of the Container library. It contains 
+implementations for the following objects:
+<ul>
+<li><b>A queue</b><br/>
+The provided queue is aimed at being fast and uses a non-blocking algorithm
+described by Micheal and Scott in 1996 [<a href="#ref1">1</a>].<br/>
+Enqueueing is thread-safe; dequeueing isn't yet: memory management has not
+been implemented yet, which means a freed node can't be safely de-allocated
+yet, which in turn means that a de-queued node can't be safely freed yet.<br/>
+This basically means you can compile a <code>deq</code> with any number of 
+<code>enq</code> actions, but you can only have one deq at the same time.
+</li>
+<li><b>A stack</b><br/>
+The provides stack is aimed at being fast and uses a non-blocking algorithm.
+<br/>
+Due to the lack of memory management, the stack is currently not thread-safe
+for popping, but both reading the top element and pushing are thread-safe.<br/>
+This basically means you shouldn't <code>pop</code> from two threads at the 
+same time, but you can combine a single <code>pop</code> action with any number
+of <code>top</code> and <code>push</code> actions.</li>
+<li><b>A hash</b><br/>
 
+</li>
+</ul>
+</p>
 
+<a name="references"/>
+<p>
+<ol>
+<li><a name="ref1"/>"Simple, Fast, and Practical Non-Blocking and Blocking
+Concurrent Queue Algorithms"; M. M. Micheal &amp; M. L. Scott; PODC 96</li>
+</ol>
+</p>
 </div>
 </td>
 <td style="width: 20%;" valign="top">
@@ -67,7 +99,7 @@ width="210" height="62" border="0" align="right" alt=
 "SourceForge.net Logo"></a>
 </td><td style="vertical-align: bottom; text-align: right; font-size: smaller;">
 <a href="#top">back to top</a><br/>
-This page was last updated: $Date: 2004/02/05 15:42:45 $
+This page was last updated: $Date: 2004/02/05 17:33:45 $
 </td></tr></tbody></table>
 </body>
 </html>

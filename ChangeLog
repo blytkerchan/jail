@@ -1,4 +1,6 @@
 2003-02-05	blytkerchan
+	* libcontain_down.html: add words on current version
+
 	* libcontain_down.html: new file
 	* table_down.html: add reference to libcontain_down.html
 	repair targets of all links
