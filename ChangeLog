@@ -1,3 +1,8 @@
+2004-09-01	blytkerchan
+	* commitinfo: run cvstools/clearperms on commit
+	* cvstools/clearperms: new file
+	* cvstools/: new directory
+
 2004-08-10	blytkerchan
 	* modules: add libcontain-libthread to libcontain (forgot at last checkin
 
