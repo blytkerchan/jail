@@ -1,0 +1,220 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>JAIL: Just Another Interpreted Language</title>
+<meta http-equiv="content-type" content=
+"text/html; charset=us-ascii">
+</head>
+<body>
+<div align="center"><img src="jail-banner.png" alt=
+"Just Another Interpreted Language">
+</div>
+<table style="width: 100%"> 
+<tbody>
+<tr>
+<td style="width: 20%;" valign="top">
+<iframe src="table.html" type="text/html" width="100%" height="800" frameborder=0>
+<p>The TOC should be here..</p>
+</iframe>
+</td>
+<td valign="top">
+<div align="justify">
+<p>
+This page will describe the different features of the language as defined on 
+<a href="http://sourceforge.net/mailarchive/forum.php?forum_id=34463">the jail-ust-lang list</a>.<br/>
+All of the topics on this page are open for discussion on the jail-ust-lang
+list.
+</p>
+<ul>
+<li><a href="#tag001">Everything is an item</a></li>
+<li><a href="#tag002">Soft typing: new keywords, inheritance, etc.</a></li>
+</ul>
+<p>
+Stuff not yet treated here:
+<ul>
+<li>Pointers &amp; pass-by-reference vs. pass-by-value</li>
+<li>"Items are not confined to the context they are defined in."</li>
+<li>"is everything an object?"</li>
+<li>Attribute privacy</li>
+<li>Standard classes</li>
+<li>Static data</li>
+<li>const</li>
+<li>memory management</li>
+<li>Object security flags</li>
+<li>Preprocessor tokens, comments, etc.</li>
+</ul>
+</p>
+<hr/>
+<a name="tag001"/>
+<h2>"Everything is an item"</h2>
+<p>IMHO, the following text (taken from jail-ust-lang) is very clear on the
+subject:</p>
+<p><i>
+The concept, once understood, is actually a simple one: if everything is an
+object, the mere fact that it's an object means it has certain attributes in
+common with everything else.<br/>
+For example: an apple and an orange are both fruits. Being a fruit means they
+are used by the plant they came from to reproduice, and means that we can
+usually eat it. Hence, both oranges and applies are part of the group "fruit"
+which "inherits" from the group "food" and the group "reproductive device"
+like this:
+<pre>
+                             +------+
+                             | item |
+                             +------+
+                                |
+                                /
+                                |
+                        +-------+---------+
+                        |                 |
+             +----------+----------+   +--+---+
+             | reproductive device |   | food |
+             +---------------------+   +------+
+                        |                 |
+                        +---------+-------+
+                                  |
+                              +---+---+
+                              | fruit |
+                              +-------+
+                                  |
+                            +-----+----+
+                            |          |
+                       +----+---+  +---+---+
+                       | orange |  | apple |
+                       +--------+  +-------+
+</pre>
+This ASCII art basically means that reproductive devices and foodstuff are
+items (they both "inherit" from the "class" item) and fruit "inherits" from
+both. Where are the oranges and apples in this graph? They inherit from the
+class "fruit" and are therefore both fruits, but with some different
+properties.<br/>
+That's the whole idea of object-oriented design (OOD): classes (i.e. kinds of
+objects) have different properties (attributes and functions) and can inherit
+from eachother (i.e. the class orange is a child of the class fruit, sharing
+the properties that make it a fruit but having some properties that make it
+an orange (color, taste, etc.)<br/>
+(...)<br/>
+Now, then. How is all of this interesting for Jail? Jail is an object-oriented
+language due to the "Everything is an item" paradigm. This means all you will
+every see of an item is the item interface. The question is: what should this
+interface do by default?<br/>
+What I've come up with so far is this: every item has three functions by
+default (functions that are, of course, also items):
+<ul>
+<li>construct<br/>
+creates the item, initializes everything it owns to their default values</li>
+<li>destruct<br/>
+destroys the item</li>
+<li>body<br/>
+does whatever needs to be done when the item is called as a function</li>
+</ul>
+By default, each of these will be empty, except for the constructor, which will fill in local variables with their default values, etc. When no function name
+is specified and the compiler finds code, it will be put in the body.<br/>
+Any of these functions can be overridden.<br/>
+</i>
+<div align="right">From a mail to jail-ust-lang on <a href="http://sourceforge.net/mailarchive/forum.php?forum_id=34463&max_rows=25&style=flat&viewmonth=200308&viewday=18">Tue Aug 19 15:10:02 2003</a></div>
+</p>
+<a name="tag002"/>
+<h2>"Soft typing: new keywords, inheritance, etc."</h2>
+<p>
+The following text - taken from YA mail - describes a set of four keywords that brings the notion of types to Jail
+</p>
+<p>
+Following the previous discussion on this list, I have somewhat changed the
+typing model for the Jail language by introducing three new keywords (and one
+which was already implied by the previous model, but not specified as such).<br/>
+<ul>
+<li>root</li>
+<li>cast</li>
+<li>extends</li>
+<li>[of] type</li>
+</ul>
+The "extends" keyword specifies the parent of a new class. When ommitted, the
+Item class is used - hence all classes still inherit from the Item super-class.
+<pre>
+        class Animal;
+        class Cat extends Animal;
+</pre>
+Multiple inheritance is also possible:
+<pre>
+        class Animal;
+        class Pet extends Animal;
+        class Feline extends Animal;
+        class Cat extends Pet, Feline;
+or:     class Cat extends Pet and Feline;
+</pre>
+Precedence of inheritance is left-to-right - i.e. if both have a same property,
+the one belonging to the class mentioned first is inherited and will be used
+of called implicitly (but within Cat, it will still be possible to use a
+Feline property present in both Pet and Feline: Feline::property will do the
+trick).<br/>
+Now, as for automatic downcasting - i.e. "everything is an Item". The hierarchy
+of objects implicitly allows this behaviour *unless* it is specified that it
+should not, using the new "root" keyword:
+<pre>
+root class Plant;
+</pre>
+this makes it impossible for a Plant to be seen as anything but a plant - and
+as such makes it incompatible with all types below it in the hierarchy.
+In the case of double inheritance, there may be two roots. If the wanted type is found somewhere up from either root, but below the type itself, without
+casting to another branch in the hierarchy, it is compatible. I.e.:
+<pre>
+        root class Plant;
+        class Flowery extends Plant;
+        root class Shrubbery extends Plant;
+        class Phaseolus extends Flowery, Shrubbery;
+</pre>
+Phaseolus will be compatible with Plant, despite Shrubbery being a root class,
+because it inherits that compatibility from Flowery.<br/>
+I expect this situation to be rather rare.<br/>
+As for functions that expect a certain item type, there is the new "[of] type"
+keyword (i.e. "of" is optional):
+<pre>
+function func (param of type File);
+</pre>
+The function func may now be sure that the parameter "param" is of type "File"
+when it is passed - a type incompatible with File cannot be used and will cause a compile-time error.<br/>
+This means that param can be:
+<ul>
+<li>an object of class File</li>
+<li>an object of a class that inherits from File and is not rooted between the
+  File class and itself</li>
+<li>an object of a class that can be cast to File</li>
+</ul>
+The latter implies another new keyword: "cast", which will denote a cast
+operator:
+<pre>
+        class MyClass
+        begin
+                cast of type File
+                begin
+                        [...]
+                end;
+        end;
+</pre>
+<div align="right">From a mail to jail-ust-lang on <a href="http://sourceforge.net/mailarchive/forum.php?forum_id=34463&max_rows=25&style=flat&viewmonth=200309&viewday=1">Tue Sep  2 13:38:24 2003</a></div>
+</p>
+
+
+<!-- PUT YOUR TEXT HERE -->
+
+
+
+
+
+
+</div>
+</td>
+<td width="210" valign="top">
+<a href=
+"http://sourceforge.net"><img src=
+"http://sourceforge.net/sflogo.php?group_id=85312&amp;type=5"
+width="210" height="62" border="0" align="right" alt=
+"SourceForge.net Logo"></a>
+</td>
+</tr>
+</tbody>
+</table>
+<div align="right">This page was last updated: $Date: 2003/12/09 17:11:17 $</div>
+</body>
+</html>
