@@ -56,6 +56,7 @@ release-libconf -a libconf-config libconf-libconf libconf-libreplace libconf-lib
 libthread-config -d libthread config
 libthread-libthread -d libthread/libthread libthread
 libthread-arch -d libthread/arch arch
+libthread-libreplace -d libthread/libreplace libreplace
 libthread-libmemory -d libthread/libmemory libmemory
-release-libthread -a libthread-config libthread-libthread libthread-arch libthread-libmemory
+release-libthread -a libthread-config libthread-libthread libthread-arch libthread-libmemory libthread-libreplace
 

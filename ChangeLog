@@ -1,3 +1,6 @@
+2004-07-23	blytkerchan
+	* modules: add libreplace as a dependency for libthread
+
 2004-07-22	blytkerchan
 	* modules: require libmemory for libthread
 
