@@ -1,6 +1,22 @@
 This file describes the structure of the CVS repository of the Jail project.
 
 The CVS repository currently contains five "modules":
+* arch
+  This directory contains architecture-dependant code. All code written in 
+  assembler (inline or otherwise) should be here, and should have a well-
+  defined C interface.
+  This directory shall contain a subdirectory for each platform (chipset)
+  supported, and a "gen" directory with generic implementations of the
+  functions found in those subdirectories.
+  The goal of the functions in these directories is *not* to optimise (not 
+  directly, anyway): that's the compiler's job. The goal is to use 
+  functionalities that the compiler doesn't know about.
+  A good example is the compare_and_exchange function which can be implemented
+  using a single instruction on most chipsets/architectures but for which the
+  compiler would need to know what you're trying to do.
+  Avoid relying on calling conventions and somesuch as much as possible: they
+  differ per platform (OS/object file format/etc.). Try using inline asm
+  in stead.
 * compiler
   This directory contains the files directly related to the compiler. The 
   compiler is the tool that translates preprocessed source code to JailVM 
@@ -67,7 +83,6 @@ possible (alias modules).
 Some directories that don't exist yet at the time of writing, but will soon:
 
 libdb		the files for the shared database manager
-arch		architecture-dependant code
 config		configuration (and IDE project) files
 
 This file is subject of discussion on the jail-ust-devel list - as is the tree
