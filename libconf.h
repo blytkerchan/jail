@@ -29,6 +29,7 @@ typedef struct _libconf_opt_t
 
 typedef struct _libconf_optparam_t
 {
+	char * name;
 	libconf_param_type_t param_type;
 	union {
 		int 	bool_val;
@@ -49,6 +50,7 @@ typedef struct _libconf_t
 	char ** argv;
 	char * argv0;
 	libconf_do_on_error_t default_error_action;
+	libconf_optparam_t ** defaults;
 
 	/* These are for the POSIX implementation */
 	void * Lexer;
@@ -64,6 +66,7 @@ libconf_t * libconf_init(
 	const char * global_config_filename,
 	const char * local_config_filename,
 	const libconf_opt_t ** options,
+	const libconf_optparam_t ** defaults,
 	int argc, const char ** argv
 		);
 void libconf_fini(libconf_t * handle);
@@ -79,8 +82,16 @@ int libconf_setopt(libconf_t * handle, const char * optname, ...);
 
 void libconf_opts_free(libconf_opt_t ** opts);
 void libconf_opt_free(libconf_opt_t * opt);
+libconf_opt_t ** libconf_optdup(const libconf_opt_t ** options);
+libconf_opt_t ** libconf_defaultopts(void);
 
-libconf_optparam_t * libconf_optparam_new(libconf_param_type_t libconf_param_type, char * str);
+libconf_optparam_t * libconf_optparam_new(
+	char * name,
+	libconf_param_type_t libconf_param_type, 
+	char * str);
+
+libconf_optparam_t * libconf_optparam_dup(libconf_optparam_t * param);
+libconf_optparam_t ** libconf_optparams_dup(libconf_optparam_t ** params);
 
 #ifdef __cplusplus
 }

@@ -7,6 +7,16 @@ AM_INIT_AUTOMAKE
 AC_CONFIG_SRCDIR([libconf.c])
 AC_CONFIG_HEADER([config.h])
 
+# Check the platform
+AC_CANONICAL_HOST
+case $host_os in
+mingw32)
+	posix_or_woe32="woe32" ;;
+*)
+	posix_or_woe32="posix" ;;
+esac
+AC_SUBST(POSIX_OR_WOE32, $posix_or_woe32)
+
 # Checks for programs.
 AC_PROG_YACC
 AC_PROG_CXX
@@ -37,5 +47,6 @@ AC_REPLACE_FUNCS([memset strchr strdup])
 AC_CONFIG_SUBDIRS([libcontain])
 AC_CONFIG_FILES([Makefile
                  libreplace/Makefile
-                 posix/Makefile])
+                 posix/Makefile
+		 libconf_config.h])
 AC_OUTPUT

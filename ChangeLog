@@ -1,3 +1,26 @@
+2004-04-02	blytkerchan
+	* libconf_opt.c: new file
+	* libconf_optparam.c: ditto
+	* libconf_config.h.in: ditto
+	* Makefile.am [libconf_la_SOURCES]: add libconf_opt.c and libconf_optparam.c
+	* configure.ac: check the host platform and set POSIX_OR_WOE32 accordingly
+	generate libconf_config.h
+	* libconf.c: move libconf_optparam-related functions to libconf_optparam.c
+	move libconf_opt-related functions to libconf_opt.c
+	include libconf_config.h
+	(libconf_init): handle default options differently (i.e. get them from the libconf_defaultopts function)
+	take default parameters as parameter
+	(libconf_phase1): pass name of parameter to libconf_optparam_new()
+	(libconf_phase2): implement
+	(libconf_phase3): ditto
+	(libconf_phase4): ditto
+	(libconf_phase5): ditto
+	* libconf.h [libconf_optparam_t]: add name field
+	[libconf_t]: add defaults field
+	(libconf_init): take default configuration parameters as parameter
+	(libconf_optparam_new): take name of parameter as parameter
+	
+
 2004-04-01	blytkerchan
 	* configure.ac: new file
 	* Makefile.am: ditto

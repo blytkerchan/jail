@@ -2,120 +2,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include "libconf.h"
+#include <libconf_config.h>
 #include "libreplace/catstr.h"
-
-static const libconf_opt_t default_options[] = {
-	{ "local-config", 'C', TP_YES, PT_FILENAME, "config", TP_YES, PT_FILENAME, "expects a filename, which should point to a local configuration file to use in stead of the default", DOE_ERROR },
-	{ "global-config", 'G', TP_YES, PT_YESNO, "global-config", TP_YES, PT_YESNO, "expects \"yes\" or \"no\". If it's \"no\" the global configuration will not be parsed. If it is something other than \"yes\" or \"no\", a warning will be emitted.", DOE_WARNING },
-	{ "verbose", 'v', TP_OPTIONAL, PT_YESNO, "verbose", TP_OPTIONAL, PT_YESNO, "be versbose - optionally takes an argument \"yes\" or \"no\".", DOE_NOTHING },
-	{ "help", 'h', TP_NO, PT_NONE, "help", TP_NO, PT_NONE, "display a help screen", DOE_NOTHING },
-	{ NULL, 0, TP_NO, PT_NONE, NULL, TP_NO, PT_NONE, NULL, DOE_NOTHING }
-}; 
-
-/*
-static libconf_opt_t ** libconf_optdefaults(void)
-{
-	libconf_opt_t ** retval = NULL;
-	size_t n, i;
-
-	for (n = 0; default_options[i].co_name; n++);
-	retval = (libconf_opt_t**)malloc(sizeof(libconf_opt_t) * (n + 1));
-	retval[n] = NULL;
-	for (i = 0; i < n; i++);
-	{
-		retval[i] = (libconf_opt_t*)malloc(sizeof(libconf_opt_t));
-      retval[i]->co_name = strdup(default_options[i].co_name);
-
-		retval[i]->co_short_opt = default_options[i].co_short_opt;
-		retval[i]->co_short_takes_param = default_options[i].co_short_takes_param;
-		retval[i]->co_short_param_type = default_options[i].co_short_param_type;
-
-		retval[i]->co_long_opt = strdup(default_options[i].co_long_opt);
-		retval[i]->co_long_takes_param = default_options[i].co_long_takes_param;
-		retval[i]->co_long_param_type = default_options[i].co_long_param_type;
-
-		retval[i]->helptext = strdup(default_options[i].helptext);
-	}
-
-	return retval;
-}
-*/
-static libconf_opt_t ** libconf_optdup(const libconf_opt_t ** options)
-{
-	libconf_opt_t ** retval;
-	size_t i, n;
-
-	if (options)
-		for (n = 0; options[n]; n++) ;
-	else
-		n = 0;
-	retval = (libconf_opt_t **)malloc((n + 1) * sizeof(libconf_opt_t *));
-	retval[n] = NULL;
-	for (i = 0; i < n; i++)
-	{
-		retval[i] = (libconf_opt_t *)malloc(sizeof(libconf_t));
-		retval[i]->co_name = strdup(options[i]->co_name);
-		
-		retval[i]->co_short_opt = options[i]->co_short_opt;
-		retval[i]->co_short_takes_param = options[i]->co_short_takes_param;
-		retval[i]->co_short_param_type = options[i]->co_short_param_type;
-		
-		retval[i]->co_long_opt = strdup(options[i]->co_long_opt);
-		retval[i]->co_long_takes_param = options[i]->co_long_takes_param;
-		retval[i]->co_long_param_type = options[i]->co_long_param_type;
-		
-		retval[i]->helptext = strdup(options[i]->helptext);
-	}
-
-	return retval;
-}
-
-/*
-static libconf_opt_t ** libconf_optcat(libconf_opt_t ** options1, const libconf_opt_t ** options2)
-{
-	libconf_opt_t ** opt2;
-	size_t n1, n2, i;
-
-	if (options1)
-		for (n1 = 0; options1[n1]; n1++);
-	else
-		n1 = 0;
-	if (options2)
-		for (n2 = 0; options2[n2]; n2++);
-	else
-		n2 = 0;
-	options1 = (libconf_opt_t**)realloc(options1, sizeof(libconf_opt_t*) * (n1 + n2 + 1));
-	opt2 = libconf_optdup(options2);
-	for (i = n1; i < n1 + n2; i++)
-		options1[i] = opt2[i - n1];
-	free(opt2);
-
-	return options1;
-}
-*/
-
-void libconf_opt_free(libconf_opt_t * opt)
-{
-	free(opt->co_name);
-	if (opt->co_long_opt) free(opt->co_long_opt);
-	if (opt->helptext) free(opt->helptext);
-	free(opt);
-}
-
-void libconf_opts_free(libconf_opt_t ** opts)
-{
-	libconf_opt_t * curr;
-	int i = 0;
-
-	while ((curr = opts[i++]) != NULL)
-		libconf_opt_free(curr);
-	free(opts);
-}
 
 libconf_t * libconf_init(
 	const char * global_config_filename,
 	const char * local_config_filename,
 	const libconf_opt_t ** options,
+	const libconf_optparam_t ** defaults,
 	int argc, const char ** argv)
 {
 	int i;
@@ -126,11 +20,12 @@ libconf_t * libconf_init(
 	retval->global_config_filename = strdup(global_config_filename);
 	retval->local_config_filename = strdup(local_config_filename);
 	retval->options = new_hash(STRING_HASH, NULL, NULL);
-	t_options = libconf_optdup(options);
-	for (i = 0; default_options[i].co_name; i++)
+	t_options = libconf_defaultopts();
+	for (i = 0; t_options[i]; i++)
 	{
-		hash_put(retval->options, default_options[i].co_name, &(default_options[i]));
+		hash_put(retval->options, t_options[i]->co_name, t_options[i]);
 	}
+	t_options = libconf_optdup(options);
 	for (i = 0; t_options[i]; i++)
 	{
 		hash_put(retval->options, t_options[i]->co_name, t_options[i]);
@@ -158,53 +53,6 @@ void libconf_fini(libconf_t * handle)
 		free(handle->argv[i]);
 	free(handle->argv);
 	free(handle);
-}
-
-libconf_optparam_t * libconf_optparam_new(
-	libconf_param_type_t param_type,
-	char * str)
-{
-	libconf_optparam_t * retval = (libconf_optparam_t*)malloc(sizeof(libconf_optparam_t));
-	memset(retval, 0, sizeof(libconf_optparam_t));
-	
-	retval->param_type = param_type;
-	switch (retval->param_type)
-	{
-	case PT_NONE : /* we do expect a param, but we don't want it.. */
-		break;
-	case PT_YESNO :
-		if (strcmp(str, "no") == 0)
-			retval->val.bool_val = 0;
-		else
-		{
-			retval->val.bool_val = 1;
-			if (strcmp(str, "yes") != 0)
-				retval->have_error = 1;
-		}
-		break;
-	case PT_TRUEFALSE :
-		if (strcmp(str, "false") == 0)
-			retval->val.bool_val = 0;
-		else
-		{
-			retval->val.bool_val = 1;
-			if (strcmp(str, "true") != 0)
-				retval->have_error = 1;
-		}
-		break;
-	case PT_NUMERIC :
-		retval->val.num_val = atoi(str);
-		break;
-	case PT_STRING :
-	case PT_FILENAME :
-		retval->val.str_val = strdup(str);
-		break;
-	default :
-		free(retval);
-		return NULL;
-	}
-
-	return retval;
 }
 
 typedef enum { 
@@ -258,7 +106,7 @@ int libconf_phase1(libconf_t * handle)
 					{
 						if (argc > 1 && argv[1][0] && argv[1][0] != '-')
 						{ /* we have our option's param */
-							param = libconf_optparam_new(option->co_long_param_type, argv[1]);
+							param = libconf_optparam_new(option->co_name, option->co_long_param_type, argv[1]);
 							if (param == NULL)
 								have_error = ET_PARAM_MALFORMED;
 							else if (param->have_error)
@@ -286,7 +134,7 @@ int libconf_phase1(libconf_t * handle)
 					argv++; argc--;
 					tmp_str = catstr(tmp_str, argv[0]);
 				}
-				param = libconf_optparam_new(PT_STRING, tmp_str);
+				param = libconf_optparam_new("-", PT_STRING, tmp_str);
 				free(tmp_str);
 				hash_put(handle->tmp_hash, "-", param);
 				break;
@@ -301,7 +149,7 @@ int libconf_phase1(libconf_t * handle)
 					{
 						if (argv[0][2])
 						{ /* we have a parameter directly following */
-							param = libconf_optparam_new(option->co_short_param_type, argv[0] + 2);
+							param = libconf_optparam_new(option->co_name, option->co_short_param_type, argv[0] + 2);
 							if (param == NULL)
 								have_error = ET_PARAM_MALFORMED;
 							else if (param->have_error)
@@ -310,7 +158,7 @@ int libconf_phase1(libconf_t * handle)
 						}
 						else if (argc > 1 && argv[1][0] && argv[1][0] != '-' )
 						{	/* we have a parameter */
-							param = libconf_optparam_new(option->co_short_param_type, argv[1]);
+							param = libconf_optparam_new(option->co_name, option->co_short_param_type, argv[1]);
 							if (param == NULL)
 								have_error = ET_PARAM_MALFORMED;
 							else if (param->have_error)
@@ -378,14 +226,37 @@ int libconf_phase1(libconf_t * handle)
 	return 0;
 }
 
+/* set the global defaults */
 int libconf_phase2(libconf_t * handle)
 {
-	return -1; 
+	int i;
+	
+	for (i = 0; handle->defaults[i]; i++)
+		hash_put(handle->option_hash, handle->defaults[i]->name, handle->defaults[i]);
+	
+	return 0; 
 }
 
-int libconf_phase3(libconf_t * handle) { return -1; }
-int libconf_phase4(libconf_t * handle) { return -1; }
-int libconf_phase5(libconf_t * handle) { return -1; }
+/* parse the global config file */
+int libconf_phase3(libconf_t * handle) 
+{ 
+	return libconf_readconf_global(handle);
+}
+
+int libconf_phase4(libconf_t * handle) 
+{ 
+	return libconf_readconf_local(handle);
+}
+
+static void libconf_phase5_helper(const void * key, const void * val, void * data)
+{
+	libconf_t * handle = (libconf_t *)data;
+	hash_put(handle->option_hash, key, val);
+}
+int libconf_phase5(libconf_t * handle) 
+{
+	hash_foreach(handle->tmp_hash, libconf_phase5_helper, handle);
+}
 
 int libconf_getopt(libconf_t * handle, const char * optname, ...){ return -1; }
 int libconf_setopt(libconf_t * handle, const char * optname, ...){ return -1; }

@@ -1,0 +1,6 @@
+#ifndef _LIBCONF_LIBCONF_CONFIG_H
+#define _LIBCONF_LIBCONF_CONFIG_H
+
+#include "@POSIX_OR_WOE32@/readconf.h"
+
+#endif // _LIBCONF_LIBCONF_CONFIG_H
