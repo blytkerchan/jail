@@ -34,24 +34,34 @@
 #ifndef _HASH_H
 #define _HASH_H
 
-#include "Hash.h"
-#include "StringHash.h"
-#include "IntHash.h"
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef struct _hash_t
+{
+	void * cxx_hash;
+	void * glib_hash;
+} hash_t;
 
 typedef enum {
 	NORMAL_HASH,
 	STRING_HASH,
 	INT_HASH,
+	GLIB_HASH,
 } libhash_hashtype;
-Hash * new_hash(libhash_hashtype hash_type);
-void delete_hash(Hash * hash);
-void *hash_get(Hash * hash, const void *key);
-int hash_put(Hash * hash, const void *key, const void *value);
-int hash_remove(Hash * hash, const void *key);
-void ** hash_keys(Hash * hash);
+
+typedef int (*hash_key_cmp_func_t)(const void * k1, const void * k2);
+typedef unsigned int (*hash_key_hash_func_t)(const void * key);
+
+hash_t * new_hash(libhash_hashtype hash_type, 
+						hash_key_hash_func_t hash_func,
+						hash_key_cmp_func_t compare_func);
+void delete_hash(hash_t * hash);
+void *hash_get(hash_t * hash, const void *key);
+int hash_put(hash_t * hash, const void *key, const void *value);
+int hash_remove(hash_t * hash, const void *key);
+void ** hash_keys(hash_t * hash);
 
 #ifdef __cplusplus
 }

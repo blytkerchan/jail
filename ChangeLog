@@ -1,3 +1,16 @@
+2004-03-22	blytkerchan
+	* hash.h [hash_t]: new type
+	[libhash_hashtype]: add GLIB_HASH hash type
+	[hash_key_cmp_func_t]: new type
+	[hash_key_hash_func_t]: ditto
+	(new_hash): take two more parameters (hash_func and compare_func)
+	return hash_t
+	(delete_hash): take a hash_t as parameter
+	(hash_get): ditto
+	(hash_put): ditto
+	(hash_remove): ditto
+	(hash_keys): ditto
+
 2004-03-09	blytkerchan
 	import a hash implementation from glib to have a C-only implementation
 	* Makefile.am: make C++ code optional (CXX defined by configure)
