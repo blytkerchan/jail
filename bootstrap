@@ -3,4 +3,8 @@ libtoolize && \
 aclocal && \
 autoheader && \
 autoconf && \
-automake --add-missing
+automake --add-missing && \
+test -d libmemory && \
+cd libmemory && \
+sh bootstrap
+

@@ -58,6 +58,7 @@ dnl AC_FUNC_MALLOC
 AC_FUNC_MEMCMP
 AC_CHECK_FUNCS([memset strchr strdup])
 AC_REPLACE_FUNCS([strlwr])
+AC_CONFIG_SUBDIRS([libmemory])
 AC_CONFIG_FILES([Makefile config-libcontain README.in libreplace/Makefile glib/Makefile hash_config.h tests/Makefile])
 AC_OUTPUT
 

@@ -2,9 +2,9 @@
 # stuff we need
 DIST_SUBDIRS=libreplace glib tests
 if GLIB
-SUBDIRS=libreplace glib . tests
+SUBDIRS=libreplace glib . tests libmemory
 else
-SUBDIRS=libreplace . tests
+SUBDIRS=libreplace . tests libmemory
 endif
 EXTRA_DIST=Hash.7 README.in Hash.7.pod arch hash_config.h.in
 
@@ -36,6 +36,7 @@ libcontain_la_SOURCES = arch/@ARCH@/compare_and_exchange.c \
 			array.c \
 			map.c \
 			binomial_tree.c \
+			binary.c \
 			list.c $(libcontain_la_CXXSOURCES)
 pkginclude_HEADERS =	hash_config.h \
 			hash.h \
@@ -45,7 +46,7 @@ pkginclude_HEADERS =	hash_config.h \
 			map.h \
 			binomial_tree.h \
 			list.h $(libcontain_la_CXXHEADERS)
-noinst_HEADERS = c_interface.h
+noinst_HEADERS = c_interface.h binary.h
 libcontain_la_LIBADD=libreplace/libreplace.la glib/libglib.la
 libcontain_la_LDFLAGS=-version-info 2:0:1
 AM_CFLAGS = -g -Wall -Werror -I$(top_srcdir)/arch/include

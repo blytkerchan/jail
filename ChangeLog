@@ -1,3 +1,11 @@
+2004-04-28	blytkerchan
+	* Makefile.am [SUBDIRS]: add libmemory (both instances)
+	[libcontain_la_SOURCES]: add binary.c
+	[noinst_HEADERS]: add binary.h
+	* binary.c: include sys/types.h and binary.h
+	* bootstrap: bootstrap libmemory if it's there
+	* configure.in: configure libmemory
+
 2004-04-27	blytkerchan
 	* binary.c: new file
 	* binary.h: ditto
