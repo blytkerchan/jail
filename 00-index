@@ -6,6 +6,7 @@ project and should not be used by anyone else.
 1996_PODC_queues.pdf	Article on shared queues by Micheal and Scott
 24319101.pdf		i486 instruction reference, downloaded from 
 			http://developer.intel.com/design/pentium/manuals/24319101.pdf
+auug97.pdf		Article on (non-)recursive Makefiles
 ChangeLog		change log for this directory
 lock-free_lists.pdf	An article on lock-free lists and hashes that may be 
 			very useful - YA file that is not covered under the 
