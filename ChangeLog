@@ -1,4 +1,12 @@
 2004-04-12	blytkerchan
+	* ltrim.c: new file
+	* rtrim.c: ditto
+	* Makefile.am [libreplace_la_SOURCES]: add ltrim.c
+	add rtrim.c
+	* macros.h (trim): new macro
+	(ltrim): new function
+	(rtrim): ditto
+
 	* catstr.c: include string.h
 	* Makefile.am: add fexist.c to sources
 	add fexist.h to headers
