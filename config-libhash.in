@@ -1,0 +1,59 @@
+#! /bin/sh
+function usage()
+{
+	cat <<EOF
+Usage: config-libhash [OPTION]
+Available values for OPTION include:
+
+        --cc        C compiler
+        --cxx       C++ compiler
+        --cflags    pre-processor and compiler flags
+        --help      display this help and exit
+        --libs      library linking information
+        --prefix    libhash install prefix
+        --version   output version information
+EOF
+	exit $1
+}
+
+if test $# -eq 0; then
+	usage 1
+fi
+
+while test $# -gt 0; do
+	case "$1" in
+	--cc) 
+		echo @CC@ 
+		;;
+	--cxx) 
+		echo @CXX@ 
+		;;
+	--prefix) 
+		echo @prefix@
+		;;
+	--version)
+		echo @PACKAGE@ @VERSION@
+		;;
+	--help)
+		usage 0
+		;;
+	--cflags)
+		if [ ! -z `echo @prefix@ | sed -e 's#^/usr##'` ]; then
+			echo -n "-I@prefix@@includedir@"
+		fi
+		echo " `config-swing --cflags`"
+		;;
+	--libs)
+		if [ ! -z `echo @prefix@ | sed -e 's#^/usr##'` ]; then
+			echo -n "-L@prefix@@libdir@ -Wl,--rpath,@prefix@@libdir@ "
+		fi
+		echo -n "-lhash"
+		echo " `config-swing --libs`"
+		;;
+	*)
+		echo unknown option $1
+		exit 1
+		;;
+	esac
+	shift
+done

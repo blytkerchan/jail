@@ -1,0 +1,4 @@
+$Id: TODO,v 1.1 2003/10/07 16:42:39 blytkerchan Exp $
+* Document (section 3 manpages)
+* Make a C API
+* In the HASH, HASS and HASI file formats: add the number of entries in the hash and grow the hash to fit on read

@@ -1,0 +1,295 @@
+$Id: ChangeLog,v 1.1 2003/10/07 16:42:39 blytkerchan Exp $
+2003-10-05	blytkerhan
+	* AUTHORS: update to Jail's standards
+	* COPYING: removed
+	* INSTALL: ditto
+	* NEWS: update
+
+2003-06-22 (4)	Ronald Landheer-Cieslak	<ronald@landheer.com>
+	* Makefile.am []: libhash_la_LDFLAGS new variable
+	[AM_CFLAGS]; add call to config-swing
+	[AM_CXXFLAGS]: ditto
+	[bin_SCRIPTS]: new variable
+	<test6$(EXEEXT)>: new target
+	* configure.in: set CFLAGS and LDFLAGS before checking for Swing functions
+	create config-libhash script
+
+2003-06-22 (3)	Ronald Landheer-Cieslak	<ronald@landheer.com>
+	* Hash.h: repair C declaration of hash
+	* Makefile.am: add testcase for C interface
+	* c_interface.cc (hash_put): return 0 if OK, 1 if not
+	(hash_remove): ditto
+	repair hash indirection
+	* configure.in: bump minor version number
+	* hash.h: repair libhash_hashtype declaration
+	repair has_put and hash_remove declarations
+
+2003-06-22 (2)	Ronald Landheer-Cieslak	<ronald@landheer.com>
+	* Hash.h: move __cplusplus macro
+	make C definition of Hash class
+	* IntHash.h: move __cplusplus macro
+	* Makefile.am: add c_interface.cc and hash.h
+	* c_interface.cc: new file
+	* hash.h: ditto
+
+2003-06-22 	Ronald Landheer-Cieslak	<ronald@landheer.com>
+	* Makefile.am: remove support for NocaseStringHash and IniHash
+	* NocaseStringHash.h: repair include directive
+	* StringHash.h: ditto
+	* Hash.h: add missing newline at end of file
+	* bootstrap: new file
+	* config.h.in: re-generated
+	* configure.in: don't check for malloc
+
+2002-09-06 (2)	Ronald Landheer  <ronald@landheer.com>
+	* Makefile.am: added README to noinst_DATA
+	added %.3 target
+	added EXTRA_DIST variable
+	* Hash.3.pod: new file
+	* bootstrap: touching README before automake call
+	touching README.in after automake call to have README rebuilt
+	* TODO: added documentation itm
+	
+2002-09-06	Ronald Landheer  <ronald@landheer.com>
+	* Hash_7.pod: renamed to Hash.7.pod
+	* Hash.7.pod: renamed from Hash_7.pod
+	filled in
+	* README: renamed to README.in
+	* README.in: renamed from README
+	emptied
+	* IniHash.cc: added includes for Hash.h, StringHash.h and NocaseStringHash.h - local versions
+	* IntHash.cc: added includes for Hash.h and IntHash.h - local version
+	* Hash.cc: set include for Hash.h to local version
+	* NocaseStringHash.cc: added includes for Hash.h and StringHash.h - local versions
+	* StringHash.cc: added include for Hash.h - local version
+	* test1.cc: set include for Hash.h to local version
+	removed all calls to o_debug
+	put in macros rnd and unless
+	removed include swing.h
+	* test2.cc: added includes for Hash.h and IntHash.h - local version
+	* test3.cc: added include for Hash.h - local version
+	* test4.cc: added includes for Hash.h and StringHash.h - local versions
+	* test5.cc: added includes for Hash.h, StringHash.h and NocaseStringHash.h - local versions
+
+2002-09-05 (4)	Ronald Landheer  <ronald@landheer.com>
+	* Hash_7.pod: new file
+	
+2002-09-05 (3)	Ronald Landheer  <ronald@landheer.com>
+	* Hash.cc (_keys): changed realloc call to malloc: was messing up recursive hashes
+	put malloc call outside of loop and allocate the whole array at once - we have the final size anyway
+	IniHash.cc: include config.h only when not in native Windows
+	added #include <assert.h>
+	removed all calls to o_debug
+	changed all instances of unless() to if (!())
+	removed #include <Hash.h>
+	removed #include <StringHash.h>
+	removed #include <NocaseStringHash.h>
+	removed #include <libswing/o_debug.h>
+	changed #include <IniHash.h> to #include "IniHash.h"
+	(read): replaced section that did the putting in the hash by a call to put
+	no longer using curr_value and curr_value_count
+	removed calls to o_debug
+	debugged key_name and value filling
+	(write(char*)): removed
+	(write(void)): renamed to _write
+	(_write): renamed from write(void)
+	asserting the number of primary keys is the same as the entry count
+	(put): using the proper get to get the NocaseStringHash ncs
+	changed unless () to if (!())
+	(keys): new function
+	(contains): new function
+	(remove): new function
+	* IniHash.h (class IniHash): new function keys
+	new function contains
+	removed write(void) and write(char*)
+	new function _write
+	new function remove
+	removed swing includes
+	new typedef key_list_type
+	* Makefile.am: added test5 testcase for IniHash
+	* NocaseStringHash.cc (NocaseStringHash::empty_key): removed
+	* NocaseStringHash.h (class NocaseStringHash): removed empty_key: it's the same as StringHash' empty_key so we'll inherit
+	* StringHash.cc	(write(void)): renamed to _write
+	(_write) renamed from write(void)
+	rewritten, using IniHash::keys()
+	* StringHash.h (class StringHash): removed write(void) and write(char*)
+	new function _write
+	* TODO: removed task for debugging - done
+		
+2002-09-05 (2)	Ronald Landheer  <ronald@landheer.com>
+	* NocaseStringHash.cc: include config.h only when not in native Windows
+	For native Windows: define strlwr as _strlwr
+	Encapsulate string.h in the HAVE_STRING_H defines
+	remove libswing dependencies (all calls to o_debug)
+	Look for NocaseStringHash locally
+	* test4.cc: new copy of test3.cc with as only change that hash is an instance of NocaseStringHash in stead of StringHash
+	* Makefile.am: added test4.cc and test4 testcase
+		
+2002-09-05	Ronald Landheer  <ronald@landheer.com>
+	* StringHash.cc: include config.h only when not in native Windows
+	look for local Hash.h, not the installed library one
+	remove libswing dependencies (all calls to o_debug)
+	include <string.h>
+	put StringHash.h include between quotes in stead of brackets (<>)
+	(StringHash::write): same fwrite() fix as before for the magic numbers
+	size of a key is strlen(the key) + 1 ==> fixed
+	(StringHash::read): changed realloc call to malloc for key and data mem allocations
+	forgot to read the key value from the file - fixed
+	call to put was malformed - fixed
+	* test3.cc: define an rnd macro
+	(main): char-cast malloced key array
+	change all instances of unless() to if(!())
+	put in missing bracket in strlen() call05-09-2002 10:49
+
+2002-09-04 (4)	Ronald Landheer  <ronald@landheer.com>
+	* TODO: CVS-Id tag added
+	* test3.cc: new file (copied and modified off test1.cc - tests StringHash)
+	* Makefile.am: added test3.cc for the testsuite
+	
+2002-09-04 (3)	Ronald Landheer  <ronald@landheer.com>
+	* TODO: mention of IntHash removed from list to debug
+	
+2002-09-04 (2)	Ronald Landheer  <ronald@landheer.com>
+	* test2.cc (main): tests added
+	* Hash.h (class Hash): made keys virtual
+	added _keys
+	added _write
+	added _remove
+	made remove virtual
+	* Hash.cc: removed all calls to o_debug
+	removed all libswing includes
+	put #include <config.h> as contional non-native W32
+	(Hash::_keys): renamed from Hash::keys
+	(Hash::_write): renamed from Hash::write(void)
+	(Hash::keys): renamed to _keys
+	new wrapper around _keys
+	(Hash::write(void)): renamed to _write
+	(Hash::_remove): renamed from remove
+	(Hash::remove): renamed to _remove
+	new wrapper around _remove
+	new wrapper around _write
+	* IntHash.h (class IntHash): added keys
+	removed write()
+	added _write
+	* IntHash.cc: removed all calls to o_debug
+	put #include <config.h> as contional non-native W32
+	removed all linswing includes
+	(IntHash::keys): new function
+	(IntHash::_write): renamed from IntHash::write
+	debugged fwrite() calls for setting magic stuff (passing string in stead of pointer)
+	(IntHash::remove): new function
+	(IntHash::read): changed call that allocates data from realloc to malloc
+	* test1.cc (main): added WIN32 versions of calls to read and write
+		
+2002-09-04 (1)	Ronald Landheer  <ronald@landheer.com>
+	* test2.cc: implemented
+	* IntHash.cc (IntHash::cmp_keys): added debug output
+	(IntHash::~IntHash): commented out
+	(IntHash::put): new function
+	(IntHash::get): new function
+	(IntHash::read): changed call to put to send the integer instead of the pointer to it
+	(IntHash::write): changed call to get to send the integer instead of the pointer to it
+	(IntHash::contains): new function
+	(IntHash::empty_key): no longer expecting a pointer to an integer - expecting integer instead
+	(IntHash::cmp_keys): ditto
+	(IntHash::hash): ditto
+	(IntHash::read): changed call to put to pass the key as a parameter properly
+	(IntHash::write): changed call to get to pass the key as a parameter properly
+	* IntHash.h (class IntHash): commented out declaration of destructor
+	added prototypes for put and get
+	added prototype for contains
+	* Hash.h (class Hash): made contains virtual
+	new function _contains declared
+	* Hash.cc (Hash::_contains): renamed from contains
+	(Hash::contains): renamed to _contains
+	new wrapper around _contains
+	(Hash::_put): changed calls to put to calls to _put
+	(Hash::remote): ditto
+	(Hash::write): changed calls to get to calls to _get
+	
+2002-09-03 (3)	Ronald Landheer  <ronald@landheer.com>
+	* Hash.cc (Hash::Hash(ulong)): fixed a bug: Count = 0 now
+	(Hash::keys): added debug output
+	asserted that all keys will be found
+	unsigned num_keys
+	Changed malloc call to realloc - bugfix
+	(Hash::grow): added debug output
+	(Hash::remove): in changed to cmp_keys - bugfix
+	(Hash::write): changed fwrite() calls - bugfixes
+	(Hash::read): forgot to read the actual value of the key - fixed
+	* test1.cc (main): tests for all functions added
+	(write_helper): new function
+	* test2.cc: emptied
+	
+2002-09-03 (2)	Ronald Landheer  <ronald@landheer.com>
+	* IniHash.cc(IniHash::put): making new NocaseStringhash if one doesn't already exist
+	debug output added (call to o_debug)
+	made ncs static
+	(IniHash::write): debug output added (call to o_debug)
+	removed voidcast of key in call to _get
+	* main.cc: renamed to test1.cc
+	* test1.cc: renamed from main.cc
+	test only Hash
+	* Makefile.am: reflect changes above - target of compile now test1 in stead of test
+	add test2 targets
+	add TESTS variable to include test1 and test2 as tests
+	* test2.cc: new file with tests for IntHash
+	* Hash.cc (Hash::grow): fixed - used addresses where the values themselves were needed
+	(Hash::remove): ditto
+	(Hash::cmp_keys): fixed o_debug output formatting - newlines removed
+	(Hash::_put): making sure every call to grow actually grows the hash (first call changed)
+	re-structured the for-loop - it was buggy
+	moved the call to o_debug
+	(Hash::read): key is now a static pointer
+	
+2002-09-03 (1)	Ronald Landheer  <ronald@landheer.com>
+	* Hash.h (class Hash): added _get and _put for the benifit of IniHash
+	* Hash.cc (Hash::_put): new (= old put)
+	(Hash::put): new wrapper around _put
+	(Hash::_get): new (= old get)
+	(Hash::get): new wrapper around _get
+	* IniHash.cc (IniHash::read): changed call to this->get to this->_get
+	(IniHash::write): ditto
+	(IniHash::get): ditto
+	(IniHash::put): ditto
+	* IniHash.h (class IniHash): removed bogus declarations of get and put
+	
+2002-09-02	Ronald Landheer  <ronald@landheer.com>
+	* README: changed the introduction to correct misconception about C++ not having hashes
+	mention TODO in introduction (twice)
+	Added the two newer derived classes to the API desc.
+	* IniHash.cc (IniHash::write(void)): implemented (were already defined)
+	(IniHash::write(char*)): ditto
+	(IniHash::get(char*, char*)): ditto
+	(IniHash::put(char*, char*, char*)): ditto
+	* IniHash.h: removed include for <stdio.h> - moved to Hash.h
+	(class IniHash): removed filename property (moved to Hash baseclass)
+	* Hash.h : added include for <stdio.h>
+	(class Hash): added read(char*), write(...) and set_write_helper_function(int (*helper_function)(void*))
+	* Hash.cc: implemented read & write methods:
+	added #include <assert.h>
+	(Hash::read(char*)): implemented
+	(Hash::write(char *, int (*helper_function)(void*))): ditto
+	(Hash::write(int (*helper_function)(void*))): ditto
+	(Hash::write(char*)): ditto
+	(Hash::write(void)): ditto
+	(Hash::set_write_helper_function): ditto
+	(Hash::get_write_helper_function): ditto
+	(Hash::get_filename): ditto
+	* IntHash.cc: implemented read & write methods
+	added #include <assert.h>
+	(IntHash::read(char*)): implemented
+	(IntHash::write(void)): ditto
+	* NocaseStringHash.h (class NocaseStringHash): inherit from StringHash instead of Hash (to get the read & write methods from the StringHash)
+	added constructor to construct with StringHash (being the parent of NocaseStringHash, StringHash can always be initialised with NocaseStringHash)
+	* NocaseStringHash.cc (NocaseStringHash::NocaseStringHash(StringHash*)): implemented
+	* StringHash.cc: implemented read & write methods
+	added #include <assert.h>
+	(StringHash::read(char*)): implemented
+	(StringHash::write(void)): ditto	
+	* TODO: new file
+	
+2002-08-28	Ronald Landheer	<ronald@landheer.com>
+	* IniHash.cc: new file (derived class from NocaseStringHash)
+	* IniHash.h: ditto
+	* Makefile.am: added IniHash.cc and IniHash.h to source files and header files, resp.
