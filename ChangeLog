@@ -1,3 +1,24 @@
+2004-09-27	blytkerchan
+	* parse.y [IDENT_TK]: new token
+	[DOUBLE_COLON_TK]: ditto
+	[PRIVATE_TK]: ditto
+	[PROTECTED_TK]: ditto
+	[PUBLIC_TK]: ditto
+	[USE_TK]: ditto
+	[EXTENDS_TK]: ditto
+	(unit_declaration): use IDENT_TK in stead of ``identifier''
+	(qualified_function_name): new production
+	(qualified_class_name): ditto
+	(variable_name): ditto
+	(namespace_name): ditto
+	(scope_identifier): ditto
+	(inheritance_specifiers): re-format
+	(class_attrs): new production
+	(class_name_list): ditto
+	(class_attrs_freeform): ditto
+	(function_attrs_freeform): fix type-o
+	(constructor_definition): ditto
+
 2004-08-24	blytkerchan
 	* parse.y [ROOT_RK]: new token
 	[LEAF_TK: ditto

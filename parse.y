@@ -29,6 +29,13 @@
 %token ROOT_TK			/* "root" */
 %token LEAF_TK			/* "leaf" */
 %token ABSTRACT_TK		/* "abstract" */
+%token IDENT_TK			/* [A-Za-z_]+[A-Za-z0-9_]* */
+%token DOUBLE_COLON_TK		/* "::" */
+%token PRIVATE_TK		/* "private" */
+%token PROTECTED_TK		/* "protected" */
+%token PUBLIC_TK		/* "public" */
+%token USE_TK			/* "use" */
+%token EXTENDS_TK		/* "extends" */
 %%
 
 /** 
@@ -51,7 +58,7 @@ translation_unit :
  * Note that the unit declaration is special because it can't be part of a
  * declarations production */
 unit_declaration :
-	UNIT_TK identifier EOS_TK
+	UNIT_TK IDENT_TK EOS_TK
 	;
 
 /* A sequence of use directive is any number of individual use directoves */
@@ -82,6 +89,32 @@ implementation_section_freeform : /* empty */
 	| definitions implementation_section_freeform
 	;
 
+/** 
+ * Names and identifiers
+ */
+qualified_function_name :
+	IDENT_TK
+	| DOUBLE_COLON_TK qualified_function_name
+	;
+
+qualified_class_name :
+	IDENT_TK
+	| DOUBLE_COLON_TK qualified_class_name
+	;
+
+variable_name :
+	IDENT_TK
+	;
+
+namespace_name :
+	IDENT_TK
+	;
+
+scope_identifier : 
+	PRIVATE_TK
+	| PROTECTED_TK
+	| PUBLIC_TK
+	;
 /** 
  * Literals
  */
@@ -183,10 +216,43 @@ class_definition :
 /* a set of inheritance specifiers is any combination of any the "root", "leaf"
  * and "abstract" keywords, in any order. Any of them can appear zero or one
  * times in the specifiers set, which can therefore be empty. */
-inheritance_specifiers : /* empty */
+inheritance_specifiers :
+	/* empty */
 	| ROOT_TK inheritance_specifiers
 	| LEAF_TK inheritance_specifiers
 	| ABSTRACT_TK inheritance_specifiers
+	;
+
+/* Class attributes define the from which parent classes the class is
+ * derived and what scope those classes present.
+ * The class attributes are defined by the extends token followed by 
+ * an optional scope identifier (public, protected or private), followed 
+ * by the names of the parent classes, or a colon followed by the
+ * free-form version of the attributes (see below) */
+class_attrs :
+	/* empty */
+	| EXTENDS_TK class_name_list
+	| EXTENDS_TK scope_identifier class_name_list
+	| ':' class_attrs_freeform
+	;
+
+/* A list of class names consists of at least one class name, or a 
+ * comma-separated list of class names. The names may be fully 
+ * qualified */
+class_name_list :
+	class_name
+	| class_name ',' class_name_list
+	;
+
+/* The free-form format of class attibutes consists any number of
+ * instances of either the extends keyword with a scope identifier
+ * and a class name or the access token followed by an access 
+ * control list. The instances are separated by commas. */
+class_attrs_freeform : 
+	EXTENDS_TK scope_identifier class_name
+	| ACCESS_TK access_control_list
+	| EXTENDS_TK scope_identifier class_name ',' class_attrs_freeform
+	| ACCESS_TK access_control_list ',' class_attrs_freeform
 	;
 
 /* A function definition is the function token, followed by the name of the
@@ -228,7 +294,7 @@ function_attrs :
 	;
 
 function_attrs_freeform :
-	/* emp-ty */
+	/* empty */
 	| TYPE_TK type_identifier function_attrs_freeform
 	| SCOPE_TK scope_identifier function_attrs_freeform
 	| ACCESS_TK access_control_list function_attrs_freeform
@@ -238,7 +304,7 @@ function_attrs_freeform :
  * and its body. The parameters and body take the same form as those of
  * a normal function. */
 constructor_definition : 
-	CONSTRUCTOR_TK function_parms function_body
+	CONSTRUCTOR_TK function_params function_body
 	;
 
 /* A destructor is the 'destructor' keyword followed by its body.
