@@ -1,3 +1,6 @@
+2004-04-23	blytkerchan
+	* libcontain_down.html: bump current version to 0.1-alpha2, mention the bugfixes and add the download link.
+
 2004-04-19	blytkerchan
 	* design.html: link to CSS in css/ and images in images/
 	* development.html: ditto
