@@ -1,0 +1,53 @@
+How read-write locks work
+=========================
+The read-write locks implemented in this library are intended to be fair and
+lock-free. They also intend to allow the threads to sleep as much as possible,
+delegating some of the work involved in scheduling the threads to other
+threads competing for the lock: i.e. there is a trade-off between fairness and
+context switching, and the context switching won in this design (though the
+changes for more context switching and more fairness are trivial).
+
+This design calls for two queues and two doubly-linked lists: on "general
+waiters" queue, one "writers" queue and two "readers" lists. These will resp.
+be called waiters, writers, readers[0] and readers[1], though in the actual code
+they may have other names.
+
+The rw-lock provides the following interface
+
+lt_rwlock_t * lt_rwlock_new()						# create a new rw-lock
+void lt_rwlock_free(lt_rwlock_t *)				# destroy an rw-lock
+void lt_rwlock_read_lock(lt_rwlock_t *)		# wait & lock for read access
+void lt_rwlock_read_unlock(lt_rwlock_t *)		# release read lock
+void lt_rwlock_write_lock(lt_rwlock_t *)		# wait & lock for write access
+void lt_rwlock_write_unlock(lt_rwlock_t *)	# release write lock
+
+Any number of readers can pass the lock concurrently, but only one writer can
+have access at any time and that access cannot be combined with any other
+access (reading or writing).
+
+A variable of type lt_rwlock_t* will be called a "descriptor" of a lock. The
+lt_rwlock_new() function creates such a descriptor and allows you to use the
+rest of the functions of the API. The lt_rwlock_free() function destroys the
+descriptor and disables the use of the four remaining functions. Calling any
+of the functions with an invalid descriptor results in undefined behaviour.
+
+The *_unlock functions should only be called after the corresponding *_lock
+function has returned with the same descriptor - i.e. the *_lock and *_unlock
+functions should be called in pairs *even* if the calling thread is cancelled.
+
+Implementation/algorithm details
+--------------------------------
+Let lt_rwlock_t be a structure conforming to:
+lt_rwlock_t : struct {
+	readers[2] : lists of threads
+	writers, general : queue of threads
+}
+On return of lt_rwlock_new(), all queues and lists are empty.
+
+Calling lt_unlock_free() on an descriptor that is still in use (i.e. if there
+are *_lock or *_unlock calls in progress or one or more *_lock call has not
+been paired with a *_unlock call) the results are undefined.
+
+lt_rwlock_read_lock(lock : lt_rwlock_t*) {
+	
+}

@@ -1,4 +1,6 @@
 2004-07-26	blytkerchan
+	* how_rw_locks_work.txt: new file
+
 	* how_semaphores_work.txt: update
 
 	* semaphore.c: fix spelling errors and type-os
