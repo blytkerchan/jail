@@ -1,6 +1,6 @@
-/* $Id: NocaseStringHash.cc,v 1.3 2004/02/03 13:53:32 blytkerchan Exp $ */
+/* $Id: NocaseStringHash.cc,v 1.4 2004/04/08 15:02:30 blytkerchan Exp $ */
 /* Jail: Just Another Interpreted Language
- * Copyright (c) 2003, Ronald Landheer-Cieslak
+ * Copyright (c) 2003-2004, Ronald Landheer-Cieslak
  * All rights reserved
  * 
  * This is free software. You may distribute it and/or modify it and

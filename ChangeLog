@@ -1,3 +1,27 @@
+2004-04-08	blytkerchan	license update
+	* Hash.cc: update the copyright notice's years
+	* Hash.h: ditto
+	* IniHash.cc: ditto
+	* IniHash.h: ditto
+	* IntHash.cc: ditto
+	* IntHash.h: ditto
+	* NocaseStringHash.cc: ditto
+	* NocaseStringHash.h: ditto
+	* StringHash.cc: ditto
+	* StringHash.h: ditto
+	* c_interface.cc: ditto
+	* c_interface.h: ditto
+	* hash.c: ditto
+	* hash.h: ditto
+	* list.c: ditto
+	* list.h: ditto
+	* queue.c: ditto
+	* queue.h: ditto
+	* stack.c: ditto
+	* stack.h: ditto
+	* array.c: apply license
+	* array.h: ditto
+	
 2004-04-05	blytkerchan
 	* Hash.cc (Hash::for_each): dereference value field of mapping (in stead of non-existance val field)
 	* c_interface.cc (cxx_hash_for_each): new function

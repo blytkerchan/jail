@@ -1,6 +1,6 @@
-/* $Id: StringHash.cc,v 1.2 2003/10/07 21:23:11 blytkerchan Exp $ */
+/* $Id: StringHash.cc,v 1.3 2004/04/08 15:02:30 blytkerchan Exp $ */
 /* Jail: Just Another Interpreted Language
- * Copyright (c) 2003, Ronald Landheer-Cieslak
+ * Copyright (c) 2003-2004, Ronald Landheer-Cieslak
  * All rights reserved
  * 
  * This is free software. You may distribute it and/or modify it and

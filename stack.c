@@ -1,5 +1,5 @@
 /* Jail: Just Another Interpreted Language
- * Copyright (c) 2003, Ronald Landheer-Cieslak
+ * Copyright (c) 2003-2004, Ronald Landheer-Cieslak
  * All rights reserved
  * 
  * This is free software. You may distribute it and/or modify it and
