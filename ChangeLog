@@ -1,3 +1,17 @@
+2004-08-20	blytkerchan
+	* how_thread_queues_work.txt: update
+	* thread_queue.c: include arch/include/increment.h
+	[DUMMY_MAGIC]: define
+	(lt_thread_queue_new): allocate a dummy node
+	(lt_thread_queue_free): rename from lt_thread_free
+	free the dummy node
+	(lt_thread_queue_empty): add a describing comment
+	implement
+	(lt_thread_queue_first): ditto - both
+	(lt_thread_queue_deq): ditto - latter
+	(lt_thread_queue_enq): ditto
+	* thread_queue.h [lt_thread_queue_t]: remove field dummy
+
 2004-08-19	blytkerchan
 	* how_thread_queues_work.txt: new file
 	* thread_queue.c (lt_thread_queue_deq): remove dead code

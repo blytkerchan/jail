@@ -42,3 +42,16 @@ dummy another thread may deq another node while we enq the dummy, so deq-ing
 the dummy should enq a new dummy first. Hence the lt_thread_t::flag should be
 tagged "dummy" (or, appropriately, 0xdeadbeef) :)
 
+If we de-queue the dummy, the queue may be completely empty, which means a 
+real thread may be at the place-holder (remember deq'ing a thread descriptor
+is removing it as the place-holder, whereas the original queue algorithm put
+it at the place-holder), so we have to put in the dummy node back in the 
+queue and deq again to get the descriptor we really want. Note that if the 
+queue is really empty - i.e. there's only one node in the queue, at the 
+place-holder position, that will always be the dummy node unless there's 
+another thread re-queueing the dummy node, in which case *it* will return the
+actual thread descriptor.
+
+    ( .. Phew - I'd already started implementing a queue of dummy nodes    )
+..oO(    to prevent a race conditions that doesn't exist.. 8-)             )
+

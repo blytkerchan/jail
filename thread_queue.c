@@ -32,34 +32,147 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include "thread_queue.h"
+#include "arch/include/increment.h"
+
+#define DUMMY_MAGIC 0xdeadbeef
 
 lt_thread_queue_t * lt_thread_queue_new(void)
 {
 	lt_thread_queue_t * retval;
-	
+	lt_thread_t * n_node;
+
 	retval = malloc(sizeof(lt_thread_queue_t));
+	retval->head = malloc(sizeof(lt_thread_t));
+	retval->head->flag = MAGIC;
+	retval->head->next = NULL;
+	retval->tail = retval->head;
 	
 	return retval;
 }
 
-void lt_thread_free(lt_thread_queue_t * queue)
+void lt_thread_queue_free(lt_thread_queue_t * queue)
 {
+	// This should be the dummy node - we don't check 
+	free(queue->head);
 	free(queue);
 }
 
+/* return nonzero if the queue is empty, zero if not */
 int lt_thread_queue_empty(lt_thread_queue_t * queue)
 {
+	/* empty means the first node is the dummy node and its next pointer 
+	 * is NULL. If the next pointer of the first node is NULL, either
+	 * another thread is re-queueing the dummy node or the node is the
+	 * dummy node, so we report that the queue is empty in either case. */
+	lt_thread_t * head_node;
+	int retval;
+	
+	do	// get the head node
+	{
+		head_node = queue->head;
+		hptr_register(0, head_node);
+	} while (head_node != queue->head);
+	retval = (head_node->next == NULL);
+	hptr_free(0);
+
+	return retval;
 }
 
+/* return the first node, or NULL if there is none. We do not release the 
+ * hazardous reference we have to it. */
 lt_thread_t * lt_thread_queue_first(lt_thread_queue_t * queue)
 {
+	lt_thread_t * head_node;
+	
+	do
+	{
+		head_node = queue->head;
+		hptr_register(0, head_node);
+	} while (head_node != queue->head);
+	if (head_node->flag == DUMMY_MAGIC)
+	{
+		hptr_free(0);
+		head_node = NULL;
+	}
+
+	return head_node;
 }
 
 lt_thread_t * lt_thread_queue_deq(lt_thread_queue_t * queue)
 {
+	lt_thread_t * old_head;
+	lt_thread_t * old_tail;
+	lt_thread_t * old_next;
+	
+	while (1)
+	{
+		do
+		{
+			old_head = queue->head;
+			hptr_register(0, old_head);
+		} while (old_head != queue->head);
+		do
+		{
+			old_tail = queue->tail;
+			hptr_register(1, old_tail);
+		} while (old_tail != queue->tail);
+		do
+		{
+			old_next = old_head->next;
+			hptr_register(2, old_next);
+		} while (old_next != old_head->next);
+		if (old_head != queue->head) 
+			continue;
+		if (old_head == old_tail)
+		{
+			if (old_next == NULL)
+			{
+				hptr_free(0);
+				hptr_free(1);
+				hptr_free(2);
+				return NULL;
+			}
+			compare_and_exchange_ptr(&old_tail, &(queue->tail), old_next);
+			continue;
+		}
+		if (compare_and_exchange_ptr(&old_head, &(queue->head), old_next) == 0)
+			break;
+	}
+	if (old_head->flag == DUMMY_MAGIC)
+	{
+		lt_thread_queue_enq(queue, old_head);
+		return lt_thread_queue_deq(queue);
+	}
+	hptr_free(1);
+	hptr_free(2);
+
+	return old_head;
 }
 
 void lt_thread_queue_enq(lt_thread_queue_t * queue, lt_thread_t * thread)
 {
+	lt_thread_t * n_node = thread;
+	lt_thread_t * old_tail = NULL;
+	lt_thread_t * old_next = NULL;
+	
+	while (1)
+	{
+		do
+		{
+			old_tail = queue->tail;
+			hptr_register(0, old_tail);
+		} while (old_tail != queue->tail);
+		old_next = old_tail->next;
+		if (old_tail != queue->tail) continue;
+		if (old_next != NULL)
+		{
+			compare_and_exchange_ptr(&old_tail, &(queue->tail), old_next);
+			continue;
+		}
+		if (compare_and_exchange_ptr(&old_next, &(old_tail->next), n_node) == 0)
+			break;
+	}
+	compare_and_exchange_ptr(&old_tail, &(queue->tail), n_node);
+	hptr_free(0);
 }
 
