@@ -105,10 +105,23 @@ void array_test2(void)
 	free_array(array);
 }
 
+void array_test3(void)
+{	/* test out-of-bounds putting */
+	void * tt = "hello";
+	
+	array_t * array = new_array(0);
+	array_put(array,   1, tt);
+	array_put(array, 101, tt);
+	array_put(array, 501, tt);
+	
+	free_array(array);
+}
+
 int main(void)
 {
 	array_test1();
 	array_test2();
+	array_test3();
 
 	return 0;
 }

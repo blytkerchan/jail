@@ -1,3 +1,7 @@
+2004-04-16	blytkerchan
+	* array_test.c (array_test3): new function
+	(main): call array_test3
+
 2004-04-14	blytkerchan
 	* Makefile.am [noinst_HEADERS]: new variable
 
