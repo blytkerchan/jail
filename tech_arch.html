@@ -1,0 +1,129 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta name="generator" content=
+"HTML Tidy for Linux/x86 (vers 1st June 2003), see www.w3.org">
+<title>JAIL: Just Another Interpreted Language</title>
+<meta http-equiv="content-type" content=
+"text/html; charset=us-ascii">
+</head>
+<body>
+<div align="center"><img src="jail-banner.png" alt=
+"Just Another Interpreted Language"> <a href=
+"http://sourceforge.net"><img src=
+"http://sourceforge.net/sflogo.php?group_id=85312&amp;type=5"
+width="210" height="62" border="0" align="right" alt=
+"SourceForge.net Logo"></a></div>
+<table style="width: 100%;">
+<tbody>
+<tr>
+<td style="width: 20%;" valign="top">
+<table align="left" border="1" cellspacing="0" cellpadding="8"
+bgcolor="#EDEDED" style="width: 100%;">
+<tbody>
+<tr>
+<td>
+<table style="width: 100%;" cellspacing="0" cellpadding="8">
+<tbody>
+<tr>
+<td valign="middle"><a href=
+"index.html#Welcome_to_the_JAIL_home_page.">Welcome</a><br></td>
+</tr>
+<tr>
+<td valign="top"><a href="index.html#Intended_audience">Intended
+audience</a><br></td>
+</tr>
+<tr>
+<td valign="top"><a href="index.html#Goals">Goals</a><br></td>
+</tr>
+<tr>
+<td valign="top"><a href="index.html#How_you_can_help">How you can
+help</a><br></td>
+</tr>
+<tr>
+<td valign="top"><a href="design.html">Language design</a><br></td>
+</tr>
+<tr>
+<td valign="top"><a href="tech_arch.html">Technical architecture</a></td>
+</tr>
+<tr>
+<td><a href="http://sourceforge.net/projects/jail-ust">SourceForge
+project page</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+<td valign="top">
+<div align="justify">
+<h3><a name="Technical_architecture"></a>Technical
+architecture</h3>
+<p>There are a few things to take into account, and a few questions
+that need to be answered in the architecture of the interpreter,
+and in the way a program should be compiled. (This is where it gets
+really sketchy). At the moment (2003-05-03), the ideas are a bit as
+follows:</p>
+<h4>Items are not confined to the context they are defined in.</h4>
+<p>In C, C++ and other languages, variables may be global to the
+entire program, defined in one source file and used in another.
+This is basically because the steps from source code to executable
+consists of compiling the source code into object code, and linking
+the object code into a single object. This is possible because
+there may be a difference between the <i>definition</i> and the
+<i>declaration</i> of a variable. In Jail, that is not the
+case.</p>
+<p>An item is automatically declared when it is first used. If that
+use is a read operation, the item does not have any contents (it is
+empty) and the interpreter should say something like: "Warning:
+read operation on uninitialized item", with the line of code.</p>
+<p>When an item is declared, it is added to the symbol table of the
+context the compiler is currently in. Whenever a new context is
+created, it is assigned a number, the number of its parent context
+(which might be useful later) and a fresh new symbol table
+containing the symbols in the symbol table of its parent
+context.</p>
+<p>Within a given context, it is possible to export an item to the
+parent context, or somewhere up the context tree. Because the
+symbol table is copied at the time the context is created, import
+is done automatically - but any item not used at the time the new
+context is declared is not imported into the new context, but can
+be done so explicitly.</p>
+<p>This basically means that you can override the confinment of an
+item from the context it is defined in to any other context up or
+down the current branch of the context tree, but within this model,
+it is not possible to export an item to, or import an item from,
+any context that is not on the same branch of the context tree.
+That is possible if the item is exported to a node in the context
+tree that is shared with a context on another branch. If that other
+context imports the item, the two contexts on different branches
+can share the same item, even if the item is declared on the tip of
+a branch.</p>
+<h4>Code and data - what's the difference?</h4>
+<p>The compiler translates the source code into byte code and
+associates it with an item. That item can subsequently be used as a
+function or as any kind of other item can be used. This inherently
+means you can also use any variable as a function - which is true.
+Whether or not a variable will actually do anything as a function
+depends on whether the variable contains valid bytecode or not.</p>
+<p>Whether or not bytecode is valid will be determined at runtime.
+For the time being, the Jail Bytecode Specification is no more than
+a bit of scribbling on a piece of paper. The only thing I know for
+sure is that there will be no on-the-fly compiling of inserted
+code: compiling is done only once, the necessary information is put
+in the bytecode and the interpretation is launched. It may be
+possible to have the interpreter launch the compiler to compile a
+bit of code (via a built-in function) which would amount to
+on-the-fly compiling, but it's not on the drawing boards for the
+time being.</p>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<br>
+<br>
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta name="generator" content=
+"HTML Tidy for Linux/x86 (vers 1st June 2003), see www.w3.org">
+<title>JAIL: Just Another Interpreted Language</title>
+<meta http-equiv="content-type" content=
+"text/html; charset=us-ascii">
+</head>
+<body>
+<div align="center"><img src="jail-banner.png" alt=
+"Just Another Interpreted Language"> <a href=
+"http://sourceforge.net"><img src=
+"http://sourceforge.net/sflogo.php?group_id=85312&amp;type=5"
+width="210" height="62" border="0" align="right" alt=
+"SourceForge.net Logo"></a></div>
+<table style="width: 100%;">
+<tbody>
+<tr>
+<td style="width: 20%;" valign="top">
+<table align="left" border="1" cellspacing="0" cellpadding="8"
+bgcolor="#EDEDED" style="width: 100%;">
+<tbody>
+<tr>
+<td>
+<table style="width: 100%;" cellspacing="0" cellpadding="8">
+<tbody>
+<tr>
+<td valign="middle"><a href=
+"#Welcome_to_the_JAIL_home_page.">Welcome</a><br></td>
+</tr>
+<tr>
+<td valign="top"><a href="#Intended_audience">Intended
+audience</a><br></td>
+</tr>
+<tr>
+<td valign="top"><a href="#Goals">Goals</a><br></td>
+</tr>
+<tr>
+<td valign="top"><a href="#How_you_can_help">How you can
+help</a><br></td>
+</tr>
+<tr>
+<td valign="top"><a href="design.html">Language design</a><br></td>
+</tr>
+<tr>
+<td valign="top"><a href="tech_arch.html">Technical architecture</a></td>
+</tr>
+<tr>
+<td><a href="http://sourceforge.net/projects/jail-ust">SourceForge
+project page</a></td>
+</tr>
+</tbody>
+</table>
+</td>
+</tr>
+</tbody>
+</table>
+</td>
+<td valign="top">
+<div align="justify">
+<h1><a name="Welcome_to_the_JAIL_home_page."></a>Welcome to
+JAIL</h1>
+<p>Jail is Just Another Interpreted Language, and Uses Silly Terms.
+So if you're wondering why Jail is called Jail: it's a
+double-recursive acronym. Just one of the things the OLOCA made me
+do.. (If you don't know what the OLOCA is, look <a href=
+"http://cygwin.com/acronyms/#OLOCA">here</a>).</p>
+<a href="http://sourceforge.net"></a>
+<p>The Jail project is hosted by SourceForge.</p>
+<p>If you came here looking for a full-fledged, ready-to-deploy
+interpreted language, you're out of luck: have a look at Perl,
+Ruby, Python, or some other interpreted language in stead.</p>
+<p>If you came here looking to join the effort of defining a new
+interpreted language with ambitous goals, you're exactly where
+you're supposed to be.</p>
+<br>
+<h2><a name="Intended_audience"></a>Intended audience</h2>
+<p>The intended audience of the Jail language is the part of
+humanity that wants to use a computer without knowing how it works,
+which (I believe) goes for the vast majority of people.</p>
+<p>For most people, the Bash shell is too complicated; Perl, Ruby
+and Python are beyond reach; C and Pascal are way too complicated
+and C++ and Java are beyond their wildest dreams.</p>
+<p>Jail is intended for those people for whom an accessible
+language is not available at this time.</p>
+<h2><a name="Goals"></a>Goals</h2>
+<p>The goals of the Jail project are:</p>
+<ul>
+<li>To make a very portable interpreted language, that will run on
+<ul>
+<li>any Linux system (be it Red Hat, Mandrake, SuSE, Debian or
+other)</li>
+<li>any modern Windows system except Windows CE (using <a href=
+"http://cygwin.com">Cygwin</a>)</li>
+<li>any BSD system (be it FreeBSD, OpenBSD, NetBSD or other)</li>
+<li>any other POSIX system</li>
+</ul>
+</li>
+<li>To make a very easy interpreted language, that can be used by
+practically anyone
+<ul>
+<li>by clearly documenting every part of the language</li>
+<li>by transparently converting from any scalar type to
+another</li>
+<li>by handling all memory allocation internally</li>
+<li>by handling pass-by-value and pass-by-reference in a "natural"
+way</li>
+</ul>
+</li>
+<li>To make a very "powerful" language
+<ul>
+<li>by being object-oriented all the way</li>
+<li>by implementing a small but complete instruction set</li>
+<li>by implementing integrated database access</li>
+<li>by implementing Perl-compatible regular expressions</li>
+<li>by implementing a simple way to make graphical user interfaces
+on top of X<br></li>
+</ul>
+</li>
+<li>To make a secure language
+<ul>
+<li>e.g. by making the interpreter configurable as to what access
+it should allow to system resources<br>
+e.g. it should be possible to disallow file system access if the
+administrator doesn't want you to have it (e.g. for downloaded
+scripts embedded in HTML pages)</li>
+<li>by taking security considerations into account from the very
+start of the language's design</li>
+</ul>
+</li>
+</ul>
+<h2><a name="How_you_can_help"></a>How you can help</h2>
+<p>The language (Jail) and the programs that implement it are a
+work in progress. We need</p>
+<ul>
+<li>People from the intended audience<br>
+Meaning people who may not know the difference between "Word" and
+"Windows", may never have programmed anything in their lives but
+want their computers to simply behave.<br>
+If you want to automate a task on your computer but you don't know
+how to do it - you're part of the intended audience!</li>
+<li>More people from the intended audience<br>
+Meaning people who know how to program, perhaps make a living doing
+so, but want to learn and help create a new programming language
+designed to</li>
+<li style="list-style: none">
+<ul>
+<li>make object-oriented programming easy</li>
+<li>make self-modifying code a piece of cake</li>
+<li>be portable</li>
+<li>be easy to learn</li>
+</ul>
+</li>
+<li>Yet more people from the intended audience<br>
+i.e. anyone between the two beforementioned groups</li>
+<li>Programmers who want to help make the preprocessor, compiler
+and/or virtual machine</li>
+<li>Linguists who want to help define the language</li>
+<li>Biologists who want to use the language for DNA sequence
+analysis</li>
+<li>Lawyers who want to use the language to keep track of their
+bibliography</li>
+<li>Managers and marketers who want to use it to manage
+databases</li>
+<li>everybody else!</li>
+</ul>
+<p>We need all those people to put their heads together and define
+the language we call Jail.</p>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+<br>
+<br>
+</body>
+</html>
