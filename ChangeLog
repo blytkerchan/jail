@@ -1,3 +1,7 @@
+2004-07-21	blytkerchan
+	* Hash.cc:  type-case parameters for all calls to atomic_increment and
+	atomic_decrement
+
 2004-07-20	blytkerchan
 	* vector.h: s/array/vector/g
 	s/ARRAY/VECTOR/g

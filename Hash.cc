@@ -1,4 +1,4 @@
-/* $Id: Hash.cc,v 1.6 2004/05/07 16:28:20 blytkerchan Exp $ */
+/* $Id: Hash.cc,v 1.7 2004/07/21 19:51:41 blytkerchan Exp $ */
 /* Jail: Just Another Interpreted Language
  * Copyright (c) 2003-2004, Ronald Landheer-Cieslak
  * All rights reserved
@@ -142,13 +142,13 @@ bool Hash::_put(const void *key, const void *value)
 		}
 		if (empty_key(bucket->key) || !bucket->value)
 		{
-			atomic_increment(&Count);
+			atomic_increment((uint32_t*)&Count);
 			if (((Count * 4) / 3) > size)
 			{
 				bunlock(bucket);
 				ureg_breader(bucket);
 				grow((Count * 4) / 3);
-				atomic_decrement(&Count);
+				atomic_decrement((uint32_t*)&Count);
 				continue;
 			}
 		}
@@ -553,68 +553,68 @@ void Hash::for_each(foreach_func_t func, void * user_data)
 
 void Hash::reg_reader(void)
 {
-	atomic_increment(&readers);
+	atomic_increment((uint32_t*)&readers);
 	while (_lock)
 	{
-		atomic_decrement(&readers);
+		atomic_decrement((uint32_t*)&readers);
 		thread_interrupt();
-		atomic_increment(&readers);
+		atomic_increment((uint32_t*)&readers);
 	}
 }
 
 void Hash::ureg_reader(void)
 {
-	atomic_decrement(&readers);
+	atomic_decrement((uint32_t*)&readers);
 }
 
 void Hash::reg_breader(mapping_type * bucket)
 {
-	atomic_increment(&(bucket->readers));
+	atomic_increment((uint32_t*)&(bucket->readers));
 	while (bucket->lock)
 	{
-		atomic_decrement(&(bucket->readers));
+		atomic_decrement((uint32_t*)&(bucket->readers));
 		thread_interrupt();
-		atomic_increment(&(bucket->readers));
+		atomic_increment((uint32_t*)&(bucket->readers));
 	}
 }
 
 void Hash::ureg_breader(mapping_type * bucket)
 {
-	atomic_decrement(&(bucket->readers));
+	atomic_decrement((uint32_t*)&(bucket->readers));
 }
 
 void Hash::lock(unsigned int n_readers)
 {
-	atomic_increment(&_lock);
+	atomic_increment((uint32_t*)&_lock);
 	while ((_lock != 1) || (readers != n_readers))
 	{
-		atomic_decrement(&_lock);
+		atomic_decrement((uint32_t*)&_lock);
 		thread_interrupt();
-		atomic_increment(&_lock);
+		atomic_increment((uint32_t*)&_lock);
 	}
 }
 
 void Hash::unlock(void)
 {
-	atomic_decrement(&_lock);
+	atomic_decrement((uint32_t*)&_lock);
 }
 
 void Hash::block(mapping_type * bucket)
 {
-	atomic_increment(&(bucket->lock));
+	atomic_increment((uint32_t*)&(bucket->lock));
 	while ((bucket->lock != 1) || (bucket->readers != 1))
 	{
-		atomic_decrement(&(bucket->readers));
-		atomic_decrement(&(bucket->lock));
+		atomic_decrement((uint32_t*)&(bucket->readers));
+		atomic_decrement((uint32_t*)&(bucket->lock));
 		thread_interrupt();
-		atomic_increment(&(bucket->lock));
-		atomic_increment(&(bucket->readers));
+		atomic_increment((uint32_t*)&(bucket->lock));
+		atomic_increment((uint32_t*)&(bucket->readers));
 	}
 }
 
 void Hash::bunlock(mapping_type * bucket)
 {
-	atomic_decrement(&(bucket->lock));
+	atomic_decrement((uint32_t*)&(bucket->lock));
 } 
 
 mapping_type * Hash::select(unsigned int index, const void * key, bool for_write)
