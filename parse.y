@@ -112,6 +112,20 @@ function_definition :
 	FUNCTION_TK function_name function_params function_attrs function_body
 	;
 
+/* A function body is a block of statements, definitions and declarations in 
+ * any order, (the function body contents) followed by an optional exception
+ * handling block, followed by an optional error handling block. The function
+ * body contents may be empty. */
+function_body :
+	BEGIN_BLOCK_TK function_body_contents END_BLOCK_TK exception_handling_block_opt error_handling_block_opt
+	;
+
+function_body_contents :
+	/* empty */
+	| declaration function_body_contents
+	| definition function_body_contents
+	| statement function_body_contents
+	;
 
 %%
 

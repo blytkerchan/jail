@@ -1,3 +1,7 @@
+2004-08-02	blytkerchan
+	* parse.y: add function_body and function_body_contents productions as
+	discussed in http://tinyurl.com/4m3pq
+
 2004-07-14	blytkerchan
 	* Makefile: new file
 
