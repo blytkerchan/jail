@@ -1,3 +1,6 @@
+2004-08-18	blytkerchan
+	* modules: add preprocessor-libthread to preprocessor
+
 2004-09-01	blytkerchan
 	* checkoutlist: add clear_perms
 	* ChangeLog: fix type-os
