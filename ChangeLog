@@ -1,3 +1,7 @@
+2004-10-28	blytkerchan
+	* hptr.c: canonicalize arch includes
+	* smr.c: ditto
+
 2004-10-18	blytkerchan
 	* hptr.h: include stdint.h
 

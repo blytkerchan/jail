@@ -36,9 +36,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include "arch/include/increment.h"
-#include "arch/include/decrement.h"
-#include "arch/include/membar.h"
+#include "arch/increment.h"
+#include "arch/decrement.h"
+#include "arch/membar.h"
 
 smr_global_data_t * smr_global_data = NULL;
 

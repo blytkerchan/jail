@@ -38,8 +38,8 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include "arch/include/compare_and_exchange.h"
-#include "arch/include/set.h"
+#include "arch/compare_and_exchange.h"
+#include "arch/set.h"
 
 extern smr_global_data_t * smr_global_data;
 hptr_global_data_t * hptr_global_data = NULL;
