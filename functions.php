@@ -74,4 +74,26 @@ function link_to_page($section_name, $page_name, $text)
 
 	echo("<a href=\"index.php?section=$section&page=$page\" target=\"_top\">$text</a>");
 }
+
+function print_warning($text)
+{
+	?>
+	<div align="center" style="width: 100%">
+		<table 
+			width="200" 
+			style="color: #ffff00; background:#ff0000; text-align: center"
+			border="1">
+			<tbody>
+				<tr>
+					<td><b>Warning</b></td>
+				</tr>
+				<tr>
+					<td><?php echo($text); ?></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<?php
+}
+
 ?>

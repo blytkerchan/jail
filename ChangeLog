@@ -1,3 +1,18 @@
+2004-05-24	blytkerchan
+	* config.php [$db_cfg]: new variable
+	* functions.php (print_warning): new function
+	* index.php: include comments.php and session.php at the start
+	set $section and $page at the start
+	put the left-hand menu in a table
+	put a login menu at the left-hand side
+	put a bookmarks and a comments block on the right-hand side for registered users
+	* bookmarks.php: new file
+	* comments.php: ditto
+	* login_create.php: ditto
+	* login_menu.php: ditto
+	* login_why.php: ditto
+	* session.php: ditto
+
 2004-05-20	blytkerchan
 	* functions.php: new file
 	* config.php: move functions to functions.php

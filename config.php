@@ -1,4 +1,11 @@
 <?php
+/* database access used by the site */
+$db_cfg["host"] = "localhost";
+$db_cfg["dbname"] = "jail";
+$db_cfg["user"] = "jail";
+$db_cfg["passwd"] = "jail";
+
+/* the contents of the site - the directories */
 $sections = array(
 	0 => "General", 
 	1 => "Language", 
