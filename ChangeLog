@@ -1,3 +1,25 @@
+2004-03-25	blytkerchan	finish !include directive support
+	* tests/include.jh: new file
+	* preproc.c: include libgen
+	[include_search_path]: new global variable
+	(resolve_abs_filename): (re)write
+	(resolve_rel_filename): ditto
+	* preproc.h: be more verbose about contents
+	add variables defined in preprocl.l and preprocp.y
+	(resolve_abs_filename): constify return value
+	(resolve_rel_filename): ditto
+	* preprocl.l: move variable declarations not defined here to preproc.h
+	(incl_state1): don't change state on >
+	(incl_state2): rectify regex state
+	don't change state on <
+	return a token if not ignoring the block
+	(preprocl_puts): return an integer
+	(preprocl_putf): new function
+	* preprocp.y: move declarations not defined here to preproc.h
+	(abs_filename): constify filename
+	call preprocl_putf
+	(rel_filename): ditto (both)
+
 2004-03-24	blytkerchan
 	* preprocl.l: add default rule to return unmatched characters to the parser
 

@@ -12,11 +12,6 @@
 #define YYDEBUG 1
 
 hash_t * token_hash = NULL;
-extern char * curr_file;
-int yylex(void);
-extern int yylineno;
-extern FILE * yyin;
-extern FILE * yyout;
 stack_t * outfile_stack = NULL;
 FILE * dev_null = NULL;
 preproc_token_def_t * curr;
@@ -182,21 +177,31 @@ include_directive : T_INCLUDE '<' abs_filename '>'
 	| T_INCLUDE '\"' rel_filename '\"'
 	;
 abs_filename : T_FILENAME {
-	char * filename = resolve_abs_filename(yylval.str);
+	const char * filename = resolve_abs_filename(yylval.str);
 
 	if (filename == NULL)
 	{
 		fprintf(stderr, "%s: %d: Error: file not found: %s\n", curr_file, yylineno, yylval.str);
 		exit(1);
 	}
+	if (preprocl_putf(filename) != 0)
+	{
+		fprintf(stderr, "%s: %d: Error: failed to read from %s\n", curr_file, yylineno, filename);
+		exit(1);
+	}
 	}
 	;
 rel_filename : T_FILENAME {
-	char * filename = resolve_rel_filename(yylval.str);
+	const char * filename = resolve_rel_filename(yylval.str);
 
 	if (filename == NULL)
 	{
 		fprintf(stderr, "%s: %d: Error: file not found: %s\n", curr_file, yylineno, yylval.str);
+		exit(1);
+	}
+	if (preprocl_putf(filename) != 0)
+	{
+		fprintf(stderr, "%s: %d: Error: failed to read from %s\n", curr_file, yylineno, filename);
 		exit(1);
 	}
 	}

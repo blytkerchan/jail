@@ -12,7 +12,6 @@
 
 stack_t * include_stack = NULL;
 char * curr_file = NULL;
-extern FILE * dev_null;
 %}
 /* options go here */
 /* %option debug */
@@ -71,7 +70,7 @@ FILENAME	[\.a-zA-Z0-9_][\.a-zA-Z0-9_/]+
 <quoted_txt_state>\"	{ yy_pop_state(); fwrite("\"", 1, 1, yyout); }
 
 <incl_state1>[ \t]*	/* forget the white space */
-<incl_state1>[\"<>]	{ 
+<incl_state1>[\"<]	{ 
 	yy_push_state(incl_state2); 
 	if (yyout != dev_null) 
 		return yytext[0]; 
@@ -84,11 +83,13 @@ FILENAME	[\.a-zA-Z0-9_][\.a-zA-Z0-9_/]+
 	}
 	yy_pop_state();
 			}
-<incl_state1>[\"<>\n]   {
+<incl_state2>[\">]   {
 	yy_pop_state();
 	yy_pop_state();
+	if (yyout != dev_null)
+		return yytext[0];
 			}
-<incl_state2>[^\n\"<>]+	{ /* the include filename */
+<incl_state2>[^\n\">]+	{ /* the include filename */
 	if (yyout != dev_null)
 	{
 		yylval.str = strdup(yytext);
@@ -156,7 +157,7 @@ int preprocl_getc(char * buffer, size_t max_size)
 	return read(fileno(yyin), buffer, max_size);
 }
 
-void preprocl_puts(const char * s)
+int preprocl_puts(const char * s)
 {
 	preproc_inputfile_t * curr = new_preproc_inputfile();
 		
@@ -167,4 +168,34 @@ void preprocl_puts(const char * s)
 	curr->state = YY_CURRENT_BUFFER;
 	stack_push(include_stack, curr);
 	yy_switch_to_buffer(yy_scan_string(s));
+
+	return 0;
 }
+
+int preprocl_putf(const char * filename)
+{
+	FILE * new_infile = fopen(filename, "r");
+	
+	if (new_infile == NULL)
+	{
+		fprintf(stderr, "%s: %d: Error: Error opening %s\n", curr_file, yylineno, filename);
+		fprintf(stderr, "%s: %d: Error: ", curr_file, yylineno);
+		perror(NULL);
+		return -1;
+	}
+
+	preproc_inputfile_t * curr = new_preproc_inputfile();
+
+	if (include_stack == NULL)
+		include_stack = new_stack();
+	curr->filename = curr_file;
+	curr->lineno = yylineno;
+	curr->state = YY_CURRENT_BUFFER;
+	stack_push(include_stack, curr);
+	yylineno = 1;
+	curr_file = strdup(filename);
+	yy_switch_to_buffer(yy_create_buffer(new_infile, YY_BUF_SIZE));
+ 
+	return 0;
+}
+
