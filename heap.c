@@ -44,32 +44,32 @@
 #define thread_interrupt() sleep(0)
 /* get a non-exclusive lock on the heap, wait for exclusive locks to go away */
 #define SOFT_LOCK(handle)																	\
-	atomic_increment(&(handle->workers));												\
+	atomic_increment((uint32_t*)&(handle->workers));								\
 	while (handle->flag)																		\
 	{																								\
-		atomic_decrement(&(handle->workers));											\
+		atomic_decrement((uint32_t*)&(handle->workers));							\
 		thread_interrupt();																	\
-		atomic_increment(&(handle->workers));											\
+		atomic_increment((uint32_t*)&(handle->workers));											\
 	}
 /* release non-exclusive lock on the heap */
-#define SOFT_UNLOCK(handle) atomic_decrement(&(handle->workers))
+#define SOFT_UNLOCK(handle) atomic_decrement((uint32_t*)&(handle->workers))
 /* get an exclusive lock on the heap, wait for non-exclusive locks to go away */
 #define HARD_LOCK(handle)																	\
-	atomic_increment(&(handle->flag));													\
-	atomic_increment(&(handle->workers));												\
+	atomic_increment((uint32_t*)&(handle->flag));									\
+	atomic_increment((uint32_t*)&(handle->workers));								\
 	while ((handle->workers != 1) || (handle->flag != 1))							\
 	{																								\
-		atomic_decrement(&(handle->flag));												\
-		atomic_decrement(&(handle->workers));											\
+		atomic_decrement((uint32_t*)&(handle->flag));								\
+		atomic_decrement((uint32_t*)&(handle->workers));							\
 		thread_interrupt();																	\
-		atomic_increment(&(handle->workers));											\
-		atomic_increment(&(handle->flag));												\
+		atomic_increment((uint32_t*)&(handle->workers));							\
+		atomic_increment((uint32_t*)&(handle->flag));								\
 	}
 /* release an exclusive lock on the heap, leave a non-exclusive one */
 #define HARD_UNLOCK(handle)																\
 	do																								\
 	{																								\
-		atomic_decrement(&(handle->flag));												\
+		atomic_decrement((uint32_t*)&(handle->flag));								\
 	}																								\
 	while (0)
 

@@ -1,3 +1,18 @@
+2004-07-22      blytkerchan
+	* module.mk: update
+	* array.c (array_get)[size]: remove, use array->size
+	(array_get)[size]: ditto
+	(array_condense)[size]: ditto
+	(array_search)[size]: ditto
+	(array_put)[size]: ditto
+	[increase]: remove
+	(array_copy): use array_new in stead of new_array
+	(array_merge1): ditto
+	(array_deep_copy): ditto
+	(array_sort_worker): use array_free in stead of free_array
+	* heap.c: change all calls to atomic_increment and atomic_decrement to
+	cast their parameter to uint32_t*
+
 2004-07-21	blytkerchan
 	* Hash.cc:  type-case parameters for all calls to atomic_increment and
 	atomic_decrement

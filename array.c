@@ -76,7 +76,6 @@ void * array_get(array_t * array, size_t i)
 {
 	void * retval = NULL;
 	array_node_t * nodes;
-	size_t size;
 
 	do
 	{
@@ -86,7 +85,7 @@ void * array_get(array_t * array, size_t i)
 	/* we now know nodes == array->nodes and nodes will not be freed until 
 	 * we're done */
 	
-	if (i < size)
+	if (i < array->size)
 		retval = nodes[i].val;
 	/* we no longer need nodes, so we can free the hazardous reference to it */
 	hptr_free(0);
@@ -101,9 +100,7 @@ void * array_get(array_t * array, size_t i)
 int array_put(array_t * array, size_t i, void * val)
 {
 	void * rv;
-	size_t increase;
 	array_node_t * nodes;
-	size_t size;
 
 	do
 	{
@@ -115,7 +112,7 @@ int array_put(array_t * array, size_t i, void * val)
 		/* we no know nodes == array->nodes and nodes will not be freed until 
 		 * we're done */
 		/* we don't resize arrays, so we fail if the write is out-of-bounds */
-		if (i >= size)
+		if (i >= array->size)
 			return -1;
 		rv = NULL;
 		/* we want to know what value we replaced, in order to know whether the
@@ -129,13 +126,13 @@ int array_put(array_t * array, size_t i, void * val)
 	
 	if (rv == NULL)
 	{	/* we replaced an empty node */
-		atomic_increment(&(array->num_entries));
+		atomic_increment((uint32_t*)&(array->num_entries));
 		if (val != NULL)
 			array->condensed = 0;
 	}
 	if (val == NULL)
 	{	/* we emptied a node */
-		atomic_decrement(&(array->num_entries));
+		atomic_decrement((uint32_t*)&(array->num_entries));
 		if (rv != NULL)
 			array->condensed = 0;
 	}
@@ -175,7 +172,7 @@ size_t array_get_numentries(array_t * array)
 array_t * array_copy(array_t * array)
 {
 	size_t size = array->size;
-	array_t * retval = new_array(size);
+	array_t * retval = array_new(size);
 	size_t i;
 
 	for (i = 0; i < size; i++)
@@ -341,7 +338,7 @@ static size_t array_merge2(
  */
 static array_t * array_merge1(array_node_t * array_nodes1, array_node_t * array_nodes2, size_t n, size_t m, libcontain_cmp_func_t cmp_func)
 {
-	array_t * retval = new_array(n + m);
+	array_t * retval = array_new(n + m);
 	size_t next = n + m;
 
 	/* the binary merge implementation changes both N and M, which is why we
@@ -398,6 +395,7 @@ array_t * array_merge(array_t * array1, array_t * array2, libcontain_cmp_func_t 
 		nodes2 = array2->nodes;
 		hptr_register(1, nodes2);
 	} while (nodes2 != array2->nodes);
+	size2 = array2->num_entries;
 	
 	retval = array_merge1(nodes1, nodes2, size1, size2, cmp_func);
 	/* done with both arrays - release the hazardous references.. */
@@ -434,7 +432,6 @@ static int array_condense_helper(const void * ptr1, const void * ptr2)
 void array_condense(array_t * array)
 {
 	array_node_t * nodes;
-	size_t size;
 
 	do
 	{
@@ -444,7 +441,7 @@ void array_condense(array_t * array)
 			hptr_register(0, nodes);
 		} while (nodes != array->nodes);
 		/* we no know nodes == array->nodes and nodes will not be freed until were're done */
-		qsort(array->nodes, size, sizeof(array_node_t), array_condense_helper);
+		qsort(array->nodes, array->size, sizeof(array_node_t), array_condense_helper);
 	} while (nodes != array->nodes);
 	/* we now know that weve condensed nodes and that those nodes still belonged
 	 * to the array when we were done. */
@@ -475,7 +472,7 @@ static void array_sort_worker(array_node_t * array_nodes, size_t n, libcontain_c
 		/* copy the result back to where the original was */
 		memcpy(array_nodes, t_array->nodes, n * sizeof(array_node_t));
 		/* and free the temporary array that resulted from the merge */
-		free_array(t_array);
+		array_free(t_array);
 	}
 	else if (n == 2)
 	{	/* compare the two nodes and exchange if need be */
@@ -521,7 +518,6 @@ void * array_search(array_t * array, void * val, libcontain_cmp_func_t cmp_func)
 	size_t rc;
 	array_node_t * nodes;
 	void * retval = NULL;
-	size_t size;
 
 	do
 	{
@@ -536,7 +532,7 @@ void * array_search(array_t * array, void * val, libcontain_cmp_func_t cmp_func)
 	if (array->sorted)
 		rc = array_binary_search(nodes, 0, array->num_entries - 1, val, cmp_func);
 	else	/* otherwise, a linear search is the only way to go */
-		rc = array_linear_search(nodes, 0, size - 1, val, cmp_func);
+		rc = array_linear_search(nodes, 0, array->size - 1, val, cmp_func);
 
 	if (rc != ~0)
 	{	/* the binary search returns the first node >= the one we're looking for,
@@ -560,7 +556,7 @@ array_t * array_deep_copy(array_t * array, libcontain_copy_func_t array_valcopy_
 	void * val;
 
 	size = array->size;
-	retval = new_array(size);
+	retval = array_new(size);
 	for (i = 0; i < size; i++)
 	{
 		val = array_get(array, i);

@@ -1,19 +1,24 @@
 # the library
-CXX_SRC += 	libcontain/Hash.cc \
-		libcontain/StringHash.cc \
-		libcontain/IntHash.cc \
-		libcontain/NocaseStringHash.cc \
-		libcontain/IniHash.cc \
-		libcontain/c_interface.cc
-SRC +=	libcontain/stack.c \
-	libcontain/queue.c \
-	libcontain/hash.c \
-	libcontain/array.c \
-	libcontain/map.c \
-	libcontain/binomial_tree.c \
-	libcontain/binary.c \
-	libcontain/heap.c \
-	libcontain/prime.c \
-	libcontain/list.c
-GLIB_SRC += 	glib/ghash.c \
-		glib/gprimes.c
+libcontain_CXX_SRC += 	Hash.cc \
+			StringHash.cc \
+			IntHash.cc \
+			NocaseStringHash.cc \
+			IniHash.cc \
+			c_interface.cc
+libcontain_SRC +=	stack.c \
+			queue.c \
+			hash.c \
+			array.c \
+			map.c \
+			binomial_tree.c \
+			binary.c \
+			heap.c \
+			prime.c \
+			list.c
+libcontain_GLIB_SRC = 	glib/ghash.c \
+			glib/gprimes.c
+
+SRC += $(patsubst %,libcontain/%,$(libcontain_SRC))
+CXX_SRC += $(patsubst %,libcontain/%,$(libcontain_SRC))
+GLIB_SRC += $(patsubst %,libcontain/%,$(libcontain_SRC))
+
