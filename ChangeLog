@@ -1,3 +1,14 @@
+2003-09-17	blytkerchan
+	* design.html: add "This page was last updated" tag at the bottom-right
+	* how_you_can_help.html: ditto
+	* progress.html: ditto
+	* empty.html: ditto
+	* index.html: ditto
+	* table.html: ditto
+	* goals.html: ditto
+	* intended_audience.html: ditto
+	* tech_arch.html: ditto
+
 2003-09-11	blytkerchan
 	* empty.html: make it more evident where to put text
 
