@@ -29,6 +29,7 @@ extern FILE * dev_null;
 %x def_state1
 %x def_state2
 %x def_state3
+%x undef_state
 %x cond_state
 
 /* class definitions go here */
@@ -45,6 +46,7 @@ FILENAME	[\.a-zA-Z0-9_][\.a-zA-Z0-9_/]+
 <INITIAL>"!ifdef"	{ return T_IFDEF; }
 <INITIAL>"!ifndef"      { return T_IFNDEF; }
 <INITIAL>"!endif"       { return T_ENDIF; }
+<INITIAL>"!undef"	{ yy_push_state(undef_state); }
 <INITIAL>[^ \t\\\n[\"]+	{ yylval.str = strdup(yytext); return T_TOKEN; }
 <INITIAL>[ \t]*		{ fwrite(yytext, yyleng, 1, yyout); }
 
@@ -82,6 +84,12 @@ FILENAME	[\.a-zA-Z0-9_][\.a-zA-Z0-9_/]+
 		yylineno = 1;
 		yy_pop_state();
 	}
+			}
+<undef_state>[ \t]*      /* forget the white space */
+<undef_state>[^ \t\n]+	{
+	yy_pop_state();
+	yylval.str = strdup(yytext);
+	return T_UNDEF;
 			}
 
 <def_state1>[ \t]*	/* forget the white space */

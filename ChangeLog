@@ -1,4 +1,8 @@
 2004-03-23	blytkerchan
+	* preprocl.l: implement the !undef directive
+	* preprocp.u: ditto
+	* tests/undef.jh: new file
+
 	* preproc.h: new file
 	* preproc.c: ditto
 	* preprocp.y: solve the macro redefinition problem

@@ -34,13 +34,14 @@ void yyerror(char * s)
 
 %debug
 
-%token <str> T_TOKEN T_DEFINE T_DEFINED T_EXPR
+%token <str> T_TOKEN T_DEFINE T_DEFINED T_EXPR T_UNDEF
 %token T_IFDEF T_IF T_IFNDEF T_ENDIF
 %%
 
 whole_file : /* empty*/
 	| token_def whole_file
 	| macro_def whole_file
+	| macro_undef whole_file
 	| macro_cond whole_file
 	;
 
@@ -59,6 +60,27 @@ token_def : T_TOKEN {
 	}
 	;
 
+macro_undef : T_UNDEF {
+	if (yyout != dev_null)
+	{
+		do
+		{
+			if (!token_hash)
+			{
+				fprintf(stderr, "%s: %d: Warning: trying to undefine an undefined macro\n", curr_file, yylineno);
+				break;
+			}
+			curr = hash_get(token_hash, yylval.str);
+			if (curr == NULL)
+			{
+				fprintf(stderr, "%s: %d: Warning: trying to undefine an undefined macro\n", curr_file, yylineno);
+				break;
+			}
+			hash_remove(token_hash, yylval.str);
+		} while (0);
+	}
+	}
+	;
 macro_def : T_DEFINE {
 		if (yyout != dev_null)
 		{
