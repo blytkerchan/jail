@@ -32,7 +32,14 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <stdlib.h>
+#include "arch/include/compare_and_exchange.h"
+#include "arch/include/increment.h"
+#include "arch/include/decrement.h"
 #include "heap.h"
+#include "binomial_tree.h"
+#include "binary.h"
+#include "thread.h"
+
 /* this should tell the system that the rest of the time-slice is not interesting for us - it may be handed over to someone else.. */
 #define thread_interrupt() sleep(0)
 /* get a non-exclusive lock on the heap, wait for exclusive locks to go away */
@@ -66,6 +73,18 @@
 	}																								\
 	while (0)
 
+static heap_node_t * heap_node_new(void)
+{
+	heap_node_t * retval = calloc(1, sizeof(heap_node_t));
+
+	return retval;
+}
+
+static void heap_node_free(heap_node_t * node)
+{
+	free(node);
+}
+
 heap_t * heap_new(heap_val_cmp_func_t heap_val_cmp_func)
 {
 	heap_t * retval = (heap_t*)calloc(1, sizeof(heap_t));
@@ -90,7 +109,7 @@ void heap_free(heap_t * handle)
 
 static binomial_tree_node_t * heap_select_node(binomial_tree_node_t * root, size_t h, size_t n)
 {
-	map_node_t * node;
+	heap_node_t * node;
 	size_t k, r;
 	int exp;
 	
@@ -98,15 +117,15 @@ static binomial_tree_node_t * heap_select_node(binomial_tree_node_t * root, size
 	{
 		if (root->val == NULL)
 		{
-			node = map_node_new();
+			node = heap_node_new();
 			node->flag = 1;
-			if (binomial_tree_node_set_val(root, NULL, node) != 0)
-				map_node_free(node);
+			if (binomial_tree_node_set_value(root, NULL, node) != 0)
+				heap_node_free(node);
 			else
 				return root;
 		}
 		exp = 0;
-		if (compare_and_exchange(&exp, &(root->val->flag), (void*)1) != 0)
+		if (compare_and_exchange(&exp, &(((heap_node_t*)(root->val))->flag), (void*)1) != 0)
 			return NULL;
 		return root;
 	}
@@ -125,20 +144,20 @@ void heap_add(heap_t * handle, void * val)
 	size_t n;
 	binomial_tree_node_t * node = NULL;
 	binomial_tree_node_t * parent;
-	map_node_t * map_node;
-	map_node_t * map_parent_node;
+	heap_node_t * heap_node;
+	heap_node_t * heap_parent_node;
 	int exp, rc;
 
 	SOFT_LOCK(handle);
 	do
 	{
 		o_n = handle->N;
-		n = n + 1;
+		n = o_n + 1;
 	} while (compare_and_exchange(&o_n, &(handle->N), (void*)n));
 	/* these two should never fail.. */
 	node = heap_select_node(binomial_tree_get_root(handle->tree), lg(n) + 1, n - 1);
-	map_node = binomial_heap_node_get_val(node);
-	map_node->val = val;
+	heap_node = binomial_tree_node_get_value(node);
+	heap_node->val = val;
 	while (1)
 	{
 		do {
@@ -146,25 +165,25 @@ void heap_add(heap_t * handle, void * val)
 			binomial_tree_node_register(node, 1);
 			if ((parent = binomial_tree_node_get_parent(node)) == NULL)
 			{	/* root node */
-				map_node->flag = 0;
+				heap_node->flag = 0;
 				SOFT_UNLOCK(handle);
 				return;
 			}
-			if ((map_parent_node = (map_node_t*)binomial_tree_node_get_val(parent)) == NULL)
+			if ((heap_parent_node = (heap_node_t*)binomial_tree_node_get_value(parent)) == NULL)
 				continue;
-		} while (compare_and_exchange(&exp, &(((map_node_t*)(parent->val))->flag), (void*)1) != 0);
-		rc = handle->heap_val_cmp_func(map_node->val, map_parent_node->val);
+		} while (compare_and_exchange(&exp, &(((heap_node_t*)(parent->val))->flag), (void*)1) != 0);
+		rc = handle->heap_val_cmp_func(heap_node->val, heap_parent_node->val);
 		if (rc <= 0)
 		{
-			map_parent_node->flag = 0;
-			map_node->flag = 0;
+			heap_parent_node->flag = 0;
+			heap_node->flag = 0;
 			SOFT_UNLOCK(handle);
 			return;
 		}
 		/* these two can't fail */
-		binomial_tree_node_set_value(parent, map_parent_node, map_node);
-		binomial_tree_node_set_value(node, map_node, map_parent_node);
-		map_parent_node->flag = 0;
+		binomial_tree_node_set_value(parent, heap_parent_node, heap_node);
+		binomial_tree_node_set_value(node, heap_node, heap_parent_node);
+		heap_parent_node->flag = 0;
 		binomial_tree_node_release(node);
 		node = parent;
 	}
@@ -175,18 +194,18 @@ void heap_add(heap_t * handle, void * val)
 void * heap_top(heap_t * handle)
 {
 	binomial_tree_node_t * node;
-	map_node_t * map_node;
+	heap_node_t * heap_node;
 	void * retval;
 
 	SOFT_LOCK(handle);
 	node = binomial_tree_get_root(handle->tree);
-	map_node = (map_node_t*)binomial_tree_node_get_val(node);
-	if (map_node == NULL)
+	heap_node = (heap_node_t*)binomial_tree_node_get_value(node);
+	if (heap_node == NULL)
 	{
 		SOFT_UNLOCK(handle);
 		return NULL;
 	}
-	retval = map_node->val;
+	retval = heap_node->val;
 	binomial_tree_node_release(node);
 
 	SOFT_UNLOCK(handle);
@@ -198,13 +217,13 @@ static void heap_fix(heap_t * handle, binomial_tree_node_t * root)
 	binomial_tree_node_t * left;
 	binomial_tree_node_t * right;
 	binomial_tree_node_t * largest_child;
-	map_node_t * root_node;
-	map_node_t * left_node;
-	map_node_t * right_node;
-	map_node_t * largest_child_node;
+	heap_node_t * root_node;
+	heap_node_t * left_node;
+	heap_node_t * right_node;
+	heap_node_t * largest_child_node;
 	int exp;
 
-	if ((root_node = binomial_tree_node_get_val(root)) == NULL)
+	if ((root_node = binomial_tree_node_get_value(root)) == NULL)
 		return;
 	left = binomial_tree_node_get_left(root);
 	right = binomial_tree_node_get_right(root);
@@ -212,7 +231,7 @@ static void heap_fix(heap_t * handle, binomial_tree_node_t * root)
 	do
 	{
 		exp = 0;
-		if ((left_node = binomial_tree_node_get_val(left)) == NULL)
+		if ((left_node = binomial_tree_node_get_value(left)) == NULL)
 		{
 			root_node->flag = 0;
 			return;
@@ -226,7 +245,7 @@ static void heap_fix(heap_t * handle, binomial_tree_node_t * root)
 	do
 	{
 		exp = 0;
-		if ((right_node = binomial_tree_node_get_val(right)) == NULL)
+		if ((right_node = binomial_tree_node_get_value(right)) == NULL)
 			break;
 	} while (compare_and_exchange(&exp, &(right_node->flag), (void*)1));
 
@@ -236,7 +255,7 @@ static void heap_fix(heap_t * handle, binomial_tree_node_t * root)
 	{
 		if (right_node->val != NULL)
 		{
-			if (handle->heep_val_cmp_func(right_node->val, left_node->val) > 0)
+			if (handle->heap_val_cmp_func(right_node->val, left_node->val) > 0)
 			{
 				largest_child = right;
 				largest_child_node = right_node;
@@ -248,10 +267,10 @@ static void heap_fix(heap_t * handle, binomial_tree_node_t * root)
 		left_node->flag = 0;
 	else if (right_node != NULL)
 		right_node->flag = 0;
-	if (handle->heep_val_cmp_func(largest_child_node, root_node) > 0)
+	if (handle->heap_val_cmp_func(largest_child_node, root_node) > 0)
 	{
-		binomial_heap_node_set_val(root, root_node, largest_child_node);
-		binomial_heap_node_set_val(largest_child, largest_child_node, root_node);
+		binomial_tree_node_set_value(root, root_node, largest_child_node);
+		binomial_tree_node_set_value(largest_child, largest_child_node, root_node);
 		largest_child_node->flag = 0;
 		heap_fix(handle, largest_child);
 		return;
@@ -264,20 +283,20 @@ void heap_pop(heap_t * handle)
 {
 	binomial_tree_node_t * root;
 	binomial_tree_node_t * leaf;
-	map_node_t * map_root;
-	map_node_t * map_leaf;
+	heap_node_t * heap_root;
+	heap_node_t * heap_leaf;
 	
 	HARD_LOCK(handle);
 	root = binomial_tree_get_root(handle->tree);
-	map_root = binomial_tree_node_get_val(root);
-	if (map_root == NULL)
+	heap_root = binomial_tree_node_get_value(root);
+	if (heap_root == NULL)
 	{
 		HARD_UNLOCK(handle);
 		SOFT_UNLOCK(handle);
 		return;
 	}
-	binomial_tree_node_set_val(root, map_root, NULL);
-	map_node_free(map_root);
+	binomial_tree_node_set_value(root, heap_root, NULL);
+	heap_node_free(heap_root);
 	(handle->N)--;
 	if (handle->N == 0)
 	{
@@ -286,9 +305,9 @@ void heap_pop(heap_t * handle)
 		return;
 	}
 	leaf = heap_select_node(root, lg(handle->N) + 1, handle->N);
-	map_leaf = (map_node_t*)binomial_tree_get_val(leaf);
-	binomial_tree_node_set_val(root, NULL, map_leaf);
-	binomial_tree_node_get_val(leaf, map_leaf, NULL);
+	heap_leaf = (heap_node_t*)binomial_tree_node_get_value(leaf);
+	binomial_tree_node_set_value(root, NULL, heap_leaf);
+	binomial_tree_node_set_value(leaf, heap_leaf, NULL);
 	HARD_UNLOCK(handle);
 	heap_fix(handle, root);
 	SOFT_UNLOCK(handle);

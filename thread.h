@@ -34,7 +34,7 @@
 #ifndef _LIBCONTAIN_THREAD_H
 #define _LIBCONTAIN_THREAD_H
 
-#include <stdlib.h>
+#include <unistd.h>
 
 #define thread_interrupt() sleep(0)
 

@@ -37,6 +37,7 @@ libcontain_la_SOURCES = arch/@ARCH@/compare_and_exchange.c \
 			map.c \
 			binomial_tree.c \
 			binary.c \
+			heap.c \
 			list.c $(libcontain_la_CXXSOURCES)
 pkginclude_HEADERS =	hash_config.h \
 			hash.h \
@@ -45,6 +46,7 @@ pkginclude_HEADERS =	hash_config.h \
 			array.h \
 			map.h \
 			binomial_tree.h \
+			heap.h \
 			list.h $(libcontain_la_CXXHEADERS)
 noinst_HEADERS = c_interface.h binary.h
 libcontain_la_LIBADD=libreplace/libreplace.la glib/libglib.la libmemory/libmemory.la

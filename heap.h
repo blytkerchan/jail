@@ -34,6 +34,8 @@
 #ifndef _LIBCONTAIN_HEAP_H
 #define _LIBCONTAIN_HEAP_H
 
+#include "libcontain_config.h"
+
 #define HEAP_DEFAULT_SIZE 	100
 #define HEAP_DEFAULT_GROWTH 	100
 

@@ -1,3 +1,15 @@
+2004-05-05	blytkerchan	debug session
+	* Makefile.am [libcontain_la_SOURCES]: add heap.c
+	[pkginclude_HEADERS]: add heap.h
+	* heap.c: include necessary files
+	use heap_node_t throughout (in stead of map_node_t)
+	name the proper binomial_tree_node_* functions (i.e. don't try using binomial_heap_*
+	(heap_node_new): new function
+	(heap_node_free): ditto
+	(heap_add): set n to o_n + 1, not n + 1
+	* heap.h: include libcontain_config.h
+	* thread.h: include unistd.h in stead of stdlib.h
+
 2004-05-04	blytkerchan
 debug session
 	* binomial_tree.c: include binary.h
