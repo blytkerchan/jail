@@ -1,0 +1,25 @@
+2004-05-07	blytkerchan	First public release of this library
+
+The libmemory library has been integrated into libcontain - the container 
+library. This provides the container library with a solution the the ABA
+problem and renders most of its containers completely thread-safe, bringing
+the library a major step closer to its goal of providing blindingly fast,
+non-blocking container objects for C and C++ programs.
+
+This has also brought this library, libmemory, a step closer to being ready
+for use by the general public: some of the major drawbacks of the algorithm
+and the implementation were resolved only because a resolution was needed at
+the time. For example, the fact that one needs to know the maximum number of
+participating threads for SMR was inacceptable for the applications libcontain
+is needed for. That need has been removed by dynamically increasing and 
+decreasing the thread counter and sizing the deletion queue according to that
+counter.
+
+What this library needs now is testing: there are no unit test cases for this
+library at the moment (though the test cases in libcontain have helped in 
+sorting out a few bugs) and aside from libcontain, no other library or 
+application uses this implementation of SMR. Hence, the first alpha release
+of this library is due. So here it is :)
+
+rlc
+

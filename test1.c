@@ -35,13 +35,7 @@
 
 int main(void)
 {
-	smr_global_data_t smr_config;
-
-	smr_config.p = 1;
-	smr_config.k = 1;
-	smr_config.r = 2;
-	
-	smr_init(smr_config);
+	smr_init(2);
 	void * p = malloc(100);
 	free(p);
 	p = malloc(0);

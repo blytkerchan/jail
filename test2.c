@@ -35,11 +35,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "smr.h"
-#define N_THREADS 	100
+#define N_THREADS 	10
 #define N_ALLOCS 	5
 #define ALLOC_SIZE	100
 #define MAIN_TIMEOUT	60
-#define BATCH_SIZE	5
 
 typedef struct _thread_stat_t
 {
@@ -77,11 +76,7 @@ int main(void)
 	int t;
 	int flag;
 
-	smr_config.p = N_THREADS;
-	smr_config.k = N_ALLOCS;
-	smr_config.r = BATCH_SIZE;
-	
-	smr_init(smr_config);
+	smr_init(N_ALLOCS);
 
 	flag = 1;
 	for (t = 0; t < N_THREADS; t++)

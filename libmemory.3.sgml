@@ -15,7 +15,7 @@
 <title>Description</title>
 <para>This manpage describes the functions provided by the libmemory memory 
 management library.</para>
-<para>This manoage does not say why you should use this library, not does it
+<para>This manpage does not say why you should use this library, nor does it
 provide in-depth information about its implementation, see the <quote>General
 documentation for the libmemory SMR implementation</quote> for that.</para>
 </refsect1>
