@@ -6,9 +6,9 @@
 "text/html; charset=us-ascii">
 </head>
 <body>
-<link href="jail.css" rel=stylesheet type="text/css"/>
+<link href="css/jail.css" rel=stylesheet type="text/css"/>
 <a name="top"/>
-<div align="center"><img src="jail-banner.png" alt=
+<div align="center"><img src="images/jail-banner.png" alt=
 "Just Another Interpreted Language">
 </div>
 <iframe src="menu.html" type="text/html" width="100%" height="50" frameborder=0 scrolling="no">
@@ -46,8 +46,8 @@ Speed, next to ease of use and thread-safety, is of primary concern
 </li>
 </ul>
 </p>
-<h2>Version 0.0-alpha1</h2>
-<p>This is the first alpha release of the Container library. It contains 
+<h2>Version 0.1-alpha1</h2>
+<p>This is the current alpha release of the Container library. It contains 
 implementations for the following objects:
 <ul>
 <li><b>A queue</b><br/>
@@ -68,37 +68,67 @@ This basically means you shouldn't <code>pop</code> from two threads at the
 same time, but you can combine a single <code>pop</code> action with any number
 of <code>top</code> and <code>push</code> actions.</li>
 <li><b>A hash</b><br/>
-The hash included in the library is taken from the Real Life Systems hash 
-library, which is the immediate precursor to the Container library. It was
-not ogirinally designed to be thread-safe and is written in C++. The C 
-interface functions were added for the Container library.<br/>
+Since version 0.1-alpha1, two separate hash implementations are included in this
+library: one from the &quot;Real Life Systems Hash library (libhash)&quot; and
+one from glib.<br/>
+The hash taken from the Real Life Systems hash library, which is the immediate 
+precursor to the Container library, was not originally designed to be 
+thread-safe and is written in C++. The C interface functions were added for 
+the Container library.<br/>
 Currently, the Hash class and its derivatives are not thread-safe yet. There
 should be no problem with concurrent reads, but write actions should not be
 combined with any other actions (including read actions).<br/>
 Making the hash thread-safe for concurrent write operations requires serious
-re-factoring of the underlying implementation and will probably have to wait
-until a thread-safe list has been implemented, so linear hashing can be 
-replaced by list-based hashing (every bucket containing a list).<br/>
+re-factoring of the underlying implementation. This re-factoring is planned for
+a future version, using a list-based hash in lieu of a linear hash.<br/>
 Basically, this means you should see the current hash implementation as a 
 dictionary: write it once and read it often. As this is the most "usual" use
-of a hash anyway, that should not pose much of a problem.</li>
+of a hash anyway, that should not pose much of a problem.<br/>
+The second implementation of the hash is taken from glib and is therefore 
+licensed under GNU LGPL. The algorithm implemented is a lot like the one 
+implemented in the C++ implementation, except that the authors wrote it 
+completely in C and the implementation owns the values stored in it to a 
+certain extent.<br/>
+This implementation was added to the library for the sake of having a pure C
+implementation in the library, which is a requirement for adoption by the cgdb
+project. Their adoption of this library is as yet unclear but, in any case, the
+glib implementation of the hash will be removed when a list-based 
+implementation is ready to take its place. (At that time, it will first be
+deprecated, as will the C interface to the C++ implementation).<br/>
+</li>
+<li><b>A list</b><br/>
+Based on M.M. Micheal's lock-free list algorithm [<a href="#ref2">2</a>], the
+list will enable the creation of a list-based hash to replace the current
+implementations. The list algorithm as implemented is thread-safe, but memory
+management has not been implemented yet, which makes the implementation subject
+to the ABA problem (see [<a href="#ref2">2</a>]). Memory management will be
+implemented in a future version, shortly (i.e. at the time of this writing, the
+necessary library functions have already been written in the libmemory module 
+of the Jail-ust project, but the implementation has not passed QA yet.).
+</li>
+</li>
 </ul>
 </p>
 <p>Some containers are still in the design phase and are therefore not included
 in the library at this time. These include:
 <ul>
-<li><b>A list</b><br/>
-Based on M.M. Micheal's lock-free list algorithm [<a href="#ref2">2</a>], the 
-list will enable the creation of a list-based hash to replace the current 
-implementation, will be fast, non-blocking and thread-safe.</li>
 <li><b>A map</b><br/>
 Because it is difficult to write good hashing functions for use with a hash,
 a map, though slower, will allow the same type of fast, key-based access to 
 stored elements.</li>
-<li><b>A heap</b></li>
+<li><b>A heap</b><br/>
+Under active development. A heap provides access to its largest element and is
+automatically sorted.
+</li>
 </ul>
-Currently, only the list is under active development, but it will probably not
-be ready before the current release reaches the Final stage.
+As it is looking now, the heap and the map might share a significant part of 
+their code (i.e. both may be implemented as binomial trees) but there are 
+certain trade-offs to be considered.<br/>
+The currently committed heap implementation is a linearized binomial tree which
+may be too limited for a non-blocking thread-safe implementation, but which is
+probably extremely fast and without a doubt the most memory-efficient solution.
+To take a look at the ongoing development, please check out CVS or try the 
+latest snapshot. Your comments would be very welcome.
 </p>
 <h2>References</h2>
 <a name="references"/>
@@ -114,6 +144,12 @@ List-Based Sets"; M. M. Micheal; PODC 2002</li>
 </td>
 <td style="width: 20%;" valign="top">
 <!--  RIGHT-HAND SIDE TEXT HERE -->
+<p>
+<h2>Download</h2>
+<a href="http://prdownloads.sourceforge.net/jail-ust/libcontain-0.1-alpha1.tar.gz?download">Version 0.1-alpha1</a><br/>
+<a href="http://prdownloads.sourceforge.net/jail-ust/libcontain-0.0-alpha2.tar.gz?download">Version 0.0-alpha2</a><br/>
+<a href="http://prdownloads.sourceforge.net/jail-ust/libcontain-0.0-alpha1.tar.gz?download">Version 0.0-alpha1</a><br/>
+</p>
 </td>
 </tr>
 </tbody>
@@ -129,7 +165,7 @@ width="210" height="62" border="0" align="right" alt=
 "SourceForge.net Logo"></a>
 </td><td style="vertical-align: bottom; text-align: right; font-size: smaller;">
 <a href="#top">back to top</a><br/>
-This page was last updated: $Date: 2004/02/09 15:25:11 $
+This page was last updated: $Date: 2004/04/19 17:56:06 $
 </td></tr></tbody></table>
 </body>
 </html>

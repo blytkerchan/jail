@@ -1,3 +1,29 @@
+2004-04-19	blytkerchan
+	* design.html: link to CSS in css/ and images in images/
+	* development.html: ditto
+	* download.html: ditto
+	* empty.html: ditto
+	* empty_dev.html: ditto
+	* empty_down.html: ditto
+	* empty_lang.html: ditto
+	* goals.html: ditto
+	* how_you_can_help.html: ditto
+	* index.html: ditto
+	* jailop.html: ditto
+	* jailtype.html: ditto
+	* language.html: ditto
+	* license.html: ditto
+	* menu.html: ditto
+	* progress.html: ditto
+	* table.html: ditto
+	* table_dev.html: ditto
+	* table_down.html: ditto
+	* table_lang.html: ditto
+	* tech_arch.html: ditto
+	* libcontain_down.html: ditto
+	update text for version 0.1-alpha1 of libcontain
+	add links for downloads of available versions
+	
 2004-04-08	blytkerchan
 	* ChangeLog: rectify date of previous change
 	* *.pl: move to ../cgi-bin
