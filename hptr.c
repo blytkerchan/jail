@@ -57,6 +57,7 @@ hptr_global_data_t * hptr_global_data = NULL;
 // Also note we've added a flag to the local data type (hptr_local_data_t)
 // which is 1 if the hptr scanning logic should no longer count on our 
 // "next" field to be valid.
+#if 0
 static void smr_hptr_free_list_enq(hptr_local_data_t * data)
 {
 	int i;
@@ -114,6 +115,22 @@ static void smr_hptr_free_list_enq(hptr_local_data_t * data)
 		}
 	}
 	// when we get here, we're done.
+}
+#endif
+static void smr_hptr_free_list_enq(hptr_local_data_t * data)
+{
+	hptr_local_data_t * exp;
+	
+	for (i = 0; i < smr_global_data->k; i++)
+		data->hp[i] = NULL;
+	data->flag = 1;
+	data->next = NULL;
+	
+	exp = NULL;
+	while (compare_and_exchange_ptr(&exp, &(smr_global_data->free), data) != 0)
+	{
+		data->next = exp;
+	}
 }
 
 // the logic here should be much simpler that that of smr_hptr_free_list_enq: we
