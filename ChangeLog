@@ -1,4 +1,8 @@
 2003-01-29	blytkerchan
+	* design.html: homogenize (normalize?) style
+	* tech_arch.html: ditto
+
+CVS tag site_update_20040129
 	* jailtype.html: add words about pre-defined associative container types
 
 2003-01-28	blytkerchan
