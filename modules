@@ -24,6 +24,6 @@
 # character to interpose another module into the current module.  This
 # can be useful for creating a module that consists of many directories
 # spread out over the entire source repository.
-libcontains-arch -d libcontains/arch arch
-release-libcontains -a libcontains libcontains-arch
+libcontain-arch -d libcontain/arch arch
+release-libcontain -a libcontain libcontain-arch
 
