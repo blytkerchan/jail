@@ -1,4 +1,6 @@
 2004-02-10	blytkerchan
+	* NEWS: add words on the prev. version.
+
 	* list.c: new file
 	* list.h: ditto
 

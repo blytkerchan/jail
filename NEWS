@@ -1,4 +1,25 @@
-$Id: NEWS,v 1.1 2003/10/07 16:42:39 blytkerchan Exp $
+$Id: NEWS,v 1.2 2004/02/10 13:49:45 blytkerchan Exp $
+
+New News
+========
+Tue, Feb 10, 2004: I've just finished implementing the lists described by 
+M.M. Micheal, though I haven't used his "tag" to prevent the ABA problem:
+I will be using the SMR memory management method later on, and I don't have
+a CAS that will take both the pointer and the tag at the same time, at the
+moment. (That, and I don't want to count on the alignment of the structure
+in memory...).
+
+Old News
+========
+Tue, Feb 3, 2004: first alpha release of the container library - no testing 
+has been done whatsoever, except on the hash. I haven't even taken the time to
+re-read the documentation yet. The implementations should work, though, and 
+have been tested marginally separately, but as the testsuite hasn't been 
+implemented yet, there's not much to guarantee that anything here will
+actually work.
+
+Geriatric  News
+===============
 Oct 5, 2003: integrated in Jail
 Aug 15, 2002: First alpha version of the library ready for release.
 
