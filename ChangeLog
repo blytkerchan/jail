@@ -1,3 +1,29 @@
+2004-05-27	blytkerchan
+	* main.php: remove
+	* login_fail.php: new file
+	* login_functions.php: ditto
+	* bookmarks.php: s/session/user/ where appropriate
+	don't connect to mysql DB - done at the start of the site
+	don't disconnect either - done at the end of the site
+	* comments.php: ditto (all three)
+	(show_comments): show comments to non-logged-in users
+	* config.php: new global variables: user, session and login_status
+	* index.php: reformat code
+	include login_functions.php
+	make new logins here - not on login failure
+	include and use login_fail.php when needed
+	s/session/user/ where appropriate
+	start by opening the DB, finish by closing it
+	* login_create.php: re-write
+	* login_menu.php: don't check the session to get the user ID - use the global variable
+
+	* section_menu.php: generate the menu on the fly
+	* session.php (check_session): re-write
+	(close_session): ditto
+	(open_session): remove
+	(update_session_expire): new function
+	(do_session): ditto
+
 2004-05-24	blytkerchan
 	* config.php [$db_cfg]: new variable
 	* functions.php (print_warning): new function

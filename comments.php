@@ -1,45 +1,24 @@
 <?php
-	function add_comment($session, $section, $page, $title, $comment)
+	function add_comment($user, $section, $page, $title, $comment)
 	{
-		global $db_cfg;
 		global $sections;
 		global $section_pages;
 
-		$link = mysql_connect($db_cfg['host'], $db_cfg['user'], $db_cfg['passwd']);
-		if (!$link)
-			return;
-		if (!mysql_select_db($db_cfg['dbname']))
-			return;
-		$query = "INSERT INTO `comments` (`user`, `section`, `page`, `title`, `comment`) VALUES ('$session', '" . $sections[$section] . "', '" . $section_pages[$section][$page]['filename'] . "', '" . mysql_real_escape_string($title) . "', '" . mysql_real_escape_string($comment) . "')";
+		$query = "INSERT INTO `comments` (`user`, `section`, `page`, `title`, `comment`) VALUES ('$user', '" . $sections[$section] . "', '" . $section_pages[$section][$page]['filename'] . "', '" . mysql_real_escape_string($title) . "', '" . mysql_real_escape_string($comment) . "')";
 		mysql_query($query);
-		mysql_close($link);
 	}
 
-	function del_comment($session, $uid)
+	function del_comment($user, $uid)
 	{
-		global $db_cfg;
-
-		$link = mysql_connect($db_cfg['host'], $db_cfg['user'], $db_cfg['passwd']);
-		if (!$link)
-			return;
-		if (!mysql_select_db($db_cfg['dbname']))
-			return;
-		$query = "DELETE FROM `comments` WHERE `uid`='" . mysql_real_escape_string($uid) . "' AND `user`='" . mysql_real_escape_string($session) . "' LIMIT 1";
+		$query = "DELETE FROM `comments` WHERE `uid`='" . mysql_real_escape_string($uid) . "' AND `user`='" . mysql_real_escape_string($user) . "' LIMIT 1";
 		mysql_query($query);
-		mysql_close($link);
 	}
 	
-	function get_comments($session, $section, $page)
+	function get_comments($user, $section, $page)
 	{
-		global $db_cfg;
 		global $sections;
 		global $section_pages;
 
-		$link = mysql_connect($db_cfg['host'], $db_cfg['user'], $db_cfg['passwd']);
-		if (!$link)
-			return 0;
-		if (!mysql_select_db($db_cfg['dbname']))
-			return 0;
 		$query = "SELECT * FROM `comments` WHERE `section`='" . $sections[$section] . "' AND `page`='" . $section_pages[$section][$page]['filename'] . "'";
 		$result = mysql_query($query);
 		if (!$result)
@@ -47,62 +26,62 @@
 		while ($line = mysql_fetch_assoc($result))
 			$retval[] = $line;
 		mysql_free_result($result);
-		mysql_close($link);
 
 		return $retval;
 	}
 
-	function show_comments($session, $section, $page)
+	function show_comments($user, $section, $page)
 	{
 		if (strcmp($_GET['comment'], "do") == 0)
 		{
 			if (strlen($_POST['title']) && strlen($_POST['comment']))
-				add_comment($session, $section, $page, $_POST['title'], $_POST['comment']);
+				add_comment($user, $section, $page, $_POST['title'], $_POST['comment']);
 		}
 		else if (strcmp($_GET['comment'], "display") != 0)
 		{
-			del_comment($session, $_GET['comment']);
+			del_comment($user, $_GET['comment']);
 		}
 	
-		if (check_session($session))
+		$comments = get_comments($user, $section, $page);
+		if ($comments)
 		{
 			echo("<h2>Comments</h2><p>");
-			$comments = get_comments($session, $section, $page);
-			if ($comments)
+			echo("<table width=\"100%\"><tbody>");
+			foreach ($comments as $line)
 			{
-				echo("<table width=\"100%\"><tbody>");
-				foreach ($comments as $line)
-				{
-					?>
-						<tr>
-						<?php if ($line['user'] == $session) { ?>
-						<td>
-						<?php } else { ?>
-						<td colspan="2">
-						<?php } ?>
-						<a href="index.php?comment=display&id=<?php echo($line['uid']); ?>&section=<?php echo($section) ?>&page=<?php echo($page); ?>">
-						<?php echo($line['title']); ?>
+				?>
+					<tr>
+					<?php if ($line['user'] == $user) { ?>
+					<td>
+					<?php } else { ?>
+					<td colspan="2">
+					<?php } ?>
+					<a href="index.php?comment=display&id=<?php echo($line['uid']); ?>&section=<?php echo($section) ?>&page=<?php echo($page); ?>">
+					<?php echo($line['title']); ?>
+					</a>
+					</td>
+					<?php if ($line['user'] == $user) { ?>
+					<td align="right">
+						<a href="index.php?comment=<?php echo($line['uid']); ?>&section=<?php echo($section) ?>&page=<?php echo($page); ?>">
+							<img src="images/trash.png" border="0"/>
 						</a>
-						</td>
-						<?php if ($line['user'] == $session) { ?>
-						<td align="right">
-							<a href="index.php?comment=<?php echo($line['uid']); ?>&section=<?php echo($section) ?>&page=<?php echo($page); ?>">
-								<img src="images/trash.png" border="0"/>
-							</a>
-						</td>
-						<?php } ?>
-						</tr>
-					<?php
-				}
-				echo("</tbody></table>");
+					</td>
+					<?php } ?>
+					</tr>
+				<?php
 			}
-			else
-				echo("No comments on this page<br/>");
-			echo("<a href=\"index.php?section=$section&page=$page&comment=create\">Create a comment</a><br/>");
+			echo("</tbody></table>");
 		}
+		else if ($user)
+		{
+			echo("<h2>Comments</h2><p>");
+			echo("No comments on this page<br/>");
+		}
+		if ($user)
+			echo("<a href=\"index.php?section=$section&page=$page&comment=create\">Create a comment</a><br/>");
 	}
 
-	function create_comment($session, $section, $page)
+	function create_comment($user, $section, $page)
 	{
 		?>
 		<h1>Create a Comment</h1>
@@ -124,13 +103,6 @@
 
 	function get_comment_title($id)
 	{
-		global $db_cfg;
-	
-		$link = mysql_connect($db_cfg['host'], $db_cfg['user'], $db_cfg['passwd']);
-		if (!$link)
-			return 0;
-		if (!mysql_select_db($db_cfg['dbname']))
-			return 0;
 		$query = "SELECT * FROM `comments` WHERE `uid`='$id' LIMIT 1";
 		$result = mysql_query($query);
 		if (!$result)
@@ -138,7 +110,6 @@
 		while ($line = mysql_fetch_assoc($result))
 			$retval[] = $line;
 		mysql_free_result($result);
-		mysql_close($link);
 
 		return $retval[0]['title'];
 	}
@@ -147,11 +118,6 @@
 	{
 		global $db_cfg;
 	
-		$link = mysql_connect($db_cfg['host'], $db_cfg['user'], $db_cfg['passwd']);
-		if (!$link)
-			return 0;
-		if (!mysql_select_db($db_cfg['dbname']))
-			return 0;
 		$query = "SELECT * FROM `comments` WHERE `uid`='$id' LIMIT 1";
 		$result = mysql_query($query);
 		if (!$result)
@@ -159,7 +125,6 @@
 		while ($line = mysql_fetch_assoc($result))
 			$retval[] = $line;
 		mysql_free_result($result);
-		mysql_close($link);
 
 		return $retval[0]['comment'];
 	}

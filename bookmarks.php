@@ -1,50 +1,27 @@
 <?php
-	function set_bookmark($session, $section, $page, $label)
+	function set_bookmark($user, $section, $page, $label)
 	{
-		global $db_cfg;
 		global $sections;
 		global $section_pages;
 
-		$link = mysql_connect($db_cfg['host'], $db_cfg['user'], $db_cfg['passwd']);
-		if (!$link)
-			return 0;
-		if (!mysql_select_db($db_cfg['dbname']))
-			return 0;
-		$query = "INSERT INTO `bookmarks` (`user`, `section`, `page`, `label`) VALUES ('$session', '" . $sections[$section] . "', '" . $section_pages[$section][$page]['filename'] . "', '" . mysql_real_escape_string($label) . "')";
+		$query = "INSERT INTO `bookmarks` (`user`, `section`, `page`, `label`) VALUES ('$user', '" . $sections[$section] . "', '" . $section_pages[$section][$page]['filename'] . "', '" . mysql_real_escape_string($label) . "')";
 		mysql_query($query);
-		mysql_close($link);
 	}
-	function del_bookmark($session, $uid)
+	function del_bookmark($user, $uid)
 	{
-		global $db_cfg;
-
-		$link = mysql_connect($db_cfg['host'], $db_cfg['user'], $db_cfg['passwd']);
-		if (!$link)
-			return 0;
-		if (!mysql_select_db($db_cfg['dbname']))
-			return 0;
-		$query = "DELETE FROM `bookmarks` WHERE `uid`='" . mysql_real_escape_string($uid) . "' AND `user`='" . mysql_real_escape_string($session) . "' LIMIT 1";
+		$query = "DELETE FROM `bookmarks` WHERE `uid`='" . mysql_real_escape_string($uid) . "' AND `user`='" . mysql_real_escape_string($user) . "' LIMIT 1";
 		mysql_query($query);
-		mysql_close($link);
 	}
 	
-	function get_bookmarks($session)
+	function get_bookmarks($user)
 	{
-		global $db_cfg;
-		
-		$link = mysql_connect($db_cfg['host'], $db_cfg['user'], $db_cfg['passwd']);
-		if (!$link) 
-			return 0;
-		if (!mysql_select_db($db_cfg['dbname']))
-			return 0;
-		$query = "SELECT * FROM `bookmarks` WHERE `user`='$session'";
+		$query = "SELECT * FROM `bookmarks` WHERE `user`='$user'";
 		$result = mysql_query($query);
 		if (!$result)
 			return 0;
 		while ($line = mysql_fetch_assoc($result))
 			$retval[] = $line;
 		mysql_free_result($result);
-		mysql_close($link);
 
 		return $retval;
 	}
@@ -52,19 +29,19 @@
 	if (strcmp($_GET['bookmark'], "do") == 0)
 	{
 		if ($_POST['label'])
-			set_bookmark($session, $section, $page, $_POST['label']);
+			set_bookmark($user, $section, $page, $_POST['label']);
 		else
-			set_bookmark($session, $section, $page, $sections[$section] . "/" . $section_pages[$section][$page]["name"]);
+			set_bookmark($user, $section, $page, $sections[$section] . "/" . $section_pages[$section][$page]["name"]);
 	}
 	else if ($_GET['bookmark'])
 	{
-		del_bookmark($session, $_GET['bookmark']);
+		del_bookmark($user, $_GET['bookmark']);
 	}
 	
-	if (check_session($session))
+	if ($user)
 	{
 		echo("<h2>Bookmarks</h2><p>");
-		$bookmarks = get_bookmarks($session);
+		$bookmarks = get_bookmarks($user);
 		if ($bookmarks)
 		{
 			echo("<table width=\"100%\"><tbody>");

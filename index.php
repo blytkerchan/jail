@@ -1,16 +1,44 @@
-<?php include_once("config.php"); ?>
-<?php include_once("functions.php"); ?>
-<?php include_once("comments.php"); ?>
-<?php include_once("session.php"); ?>
-<?php include_once("page_header.php"); ?>
-<?php include_once("section_menu.php"); ?>
 <?php 
+	include_once("config.php");
+	include_once("functions.php");
+	include_once("login_functions.php");
+	include_once("mysql.php");
+	include_once("comments.php");
+	include_once("session.php");
+
+	// open the site's database
+	site_opendb();
+	// check if we're creating a new account
+	if (strcmp($_GET['login'], "make") == 0)
+	{
+		if ($_POST['name'] && (strcmp($_POST['passwd1'], $_POST['passwd2']) == 0))
+		{
+			if (create_account($_POST['name'], $_POST['passwd1'], $_POST['email']))
+			{
+				$_GET['login'] = "do";
+				$_POST['passwd'] = $_POST['passwd1'];
+			}
+			else
+				$login_status = 6;
+		}
+		else
+			$login_status = 5;
+	}
+	// set up the session information & check it (also handles login)
+	do_session();
+	// see where we want to be
 	$section = $_GET['section'];
 	if (!$section || ($section < 0) || ($section >= count($sections)))
 		$section = 0;
 	$page = $_GET['page'];
 	if (!$page)
 		$page = 0;
+	
+	// emit the page header
+	include_once("page_header.php");
+	// emit the section menu
+	include_once("section_menu.php");
+	// start the layout
 ?>
 <table style="width: 100%">
 <tbody>
@@ -34,7 +62,12 @@
 <td valign="top">
 <div align="justify">
 <?php // the center text comes here
-	if (strcmp($_GET['login'], "why") == 0)
+	if ($login_status)
+	{
+		include_once("login_fail.php");
+		login_fail($login_status);
+	}
+	else if (strcmp($_GET['login'], "why") == 0)
 	{
 		include_once("login_why.php");
 	}
@@ -45,7 +78,7 @@
 	else
 	{
 		if (strcmp($_GET['comment'], "create") == 0)
-			create_comment($session, $section, $page);
+			create_comment($user, $section, $page);
 		else if ((strcmp($_GET['comment'], "display") == 0) && $_GET['id'])
 		{
 			$title = get_comment_title($_GET['id']);
@@ -72,7 +105,7 @@
 <td style="width: 20%;" valign="top">
 <?php // the right-hand text comes here
 	include_once("bookmarks.php");
-	show_comments($session, $section, $page);
+	show_comments($user, $section, $page);
 	if (file_exists("text/rh_$filename.php"))
 		include_once("text/rh_$filename.php");
 	else
@@ -82,4 +115,7 @@
 </tr>
 </tbody>
 </table>
-<?php include_once("page_footer.php"); ?>
+<?php 
+	include_once("page_footer.php"); 
+	site_closedb();
+?>

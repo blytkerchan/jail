@@ -1,8 +1,12 @@
 <div align="center">
 <table width="60%" class="menu"><tr>
-<td width="25%"><a class="toc" target="_top" href="index.php?section=0">General</a></td>
-<td width="25%"><a class="toc" target="_top" href="index.php?section=1">Language</a></td>
-<td width="25%"><a class="toc" target="_top" href="index.php?section=2">Development</a></td>
-<td width="25%"><a class="toc" target="_top" href="index.php?section=3">Download</a></td>
+<?php
+	for ($i = 0; $i < count($sections); $i++)
+	{
+		echo("<td width=\"" . 100 / count($sections) . "%\">");
+		echo("<a class=\"toc\" target=\"_top\" href=\"index.php?section=$i\">" . $sections[$i] . "</a></td>");
+		echo("</td>");
+	}
+?>
 </tr></table>
 </div>

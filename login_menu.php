@@ -1,5 +1,5 @@
 <?php
-	if (!check_session($session))
+	if (!$user)
 	{
 	?>
 		<h2>Login</h2>
