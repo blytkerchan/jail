@@ -97,6 +97,7 @@ void libconf_opts_free(libconf_opt_t ** opts);
 void libconf_opt_free(libconf_opt_t * opt);
 libconf_opt_t ** libconf_optdup(const libconf_opt_t ** options);
 libconf_opt_t ** libconf_defaultopts(void);
+libconf_opt_t ** libconf_optconst(libconf_opt_t * options);
 
 libconf_optparam_t * libconf_optparam_new(
 	char * name,

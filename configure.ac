@@ -48,5 +48,6 @@ AC_CONFIG_SUBDIRS([libcontain])
 AC_CONFIG_FILES([Makefile
                  libreplace/Makefile
                  posix/Makefile
+		 tests/Makefile
 		 libconf_config.h])
 AC_OUTPUT

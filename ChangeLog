@@ -1,3 +1,14 @@
+2004-04-05	blytkerchan
+	* tests/test1.c: new file
+	* tests/global_conf_test1: ditto
+	* tests/Makefile.am: ditto
+	* Makefile.am [SUBDIRS]: add subdirs to be compiled
+	[libconf_la_LIBADD]: add libreplace, posix and libcontain
+	* configure.ac: generate tests/Makefile
+	* libconf.h (libconf_optconst): new function
+	* libconf_opt.c (libconf_optconst): new function
+	(libconf_defaultopts): call libconf_optconst
+
 2004-04-02	blytkerchan
 	* libconf.h [libconf_param_type_t]: add PT_NUMERIC_LIST, PT_STRING_LIST and PT_FILENAME_LIST types
 	[libconf_optparam_t]: add val.array_val field

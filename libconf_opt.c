@@ -13,17 +13,22 @@ static const libconf_opt_t default_options[] = {
 	{ NULL, 0, TP_NO, PT_NONE, NULL, TP_NO, PT_NONE, NULL, DOE_NOTHING }
 }; 
 
-libconf_opt_t ** libconf_defaultopts(void)
+libconf_opt_t ** libconf_optconst(libconf_opt_t * options)
 {
 	int i, n;
 	libconf_opt_t ** retval;
 	
-	for (n = 0; default_options[n].co_name; n++);
+	for (n = 0; options[n].co_name; n++);
 	retval = (libconf_opt_t**)calloc(n + 1, sizeof(libconf_opt_t*));
 	for (i = 0; i < n; i++)
-		retval[i] = memdup(&(default_options[i]), sizeof(libconf_opt_t));
+		retval[i] = memdup(&(options[i]), sizeof(libconf_opt_t));
 
 	return retval;
+}
+
+libconf_opt_t ** libconf_defaultopts(void)
+{
+	return libconf_optconst(default_options);
 }
 
 libconf_opt_t ** libconf_optdup(const libconf_opt_t ** options)
