@@ -1,4 +1,7 @@
 2004-04-16	blytkerchan
+	* heap.c: new file
+	* heap.h: ditto
+
 	* array.sgml: new file
 	* libcontain.sgml: ditto
 	* array.c (new_array): initialize condensed attribute to set
