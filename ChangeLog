@@ -1,3 +1,6 @@
+2004-07-18	blytkerchan
+	* Makefile.am: prepare for use with new src tree
+
 2004-07-17	blytkerchan
 	* vector.c: new file
 	* vector.h: ditto
