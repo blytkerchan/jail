@@ -55,16 +55,19 @@ token_def : T_TOKEN {
 	;
 
 macro_def : T_DEFINE {
-		if (!token_hash)
+		if (yyout != dev_null)
 		{
-			token_hash = new_hash(STRING_HASH, NULL, NULL);
+			if (!token_hash)
+			{
+				token_hash = new_hash(STRING_HASH, NULL, NULL);
+			}
+			curr = hash_get(token_hash, yylval.str);
+			if (curr != NULL)
+				fprintf(stderr, "Warning: redefinition of %s\n", yylval.str);
+			curr = yylval.str;
 		}
-		curr = hash_get(token_hash, yylval.str);
-		if (curr != NULL)
-			fprintf(stderr, "Warning: redefinition of %s\n", yylval.str);
-		curr = yylval.str;
 	} 	T_DEFINED {
-		hash_put(token_hash, curr, yylval.str);
+		if (yyout != dev_null) hash_put(token_hash, curr, yylval.str);
 	}
 	;
 
