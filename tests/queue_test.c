@@ -31,8 +31,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <libmemory/smr.h>
-#include <libmemory/hptr.h>
+#include "libmemory/smr.h"
+#include "libmemory/hptr.h"
 #include "test.h"
 #include "../queue.h"
 

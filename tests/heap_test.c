@@ -33,8 +33,8 @@
  */
 #include "test.h"
 #include "../heap.h"
-#include <libmemory/smr.h>
-#include <libmemory/hptr.h>
+#include "libmemory/smr.h"
+#include "libmemory/hptr.h"
 #include <string.h>
 
 void test1(void)

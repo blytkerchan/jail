@@ -2,8 +2,8 @@
 #include "../map.h"
 #include <assert.h>
 #include <string.h>
-#include <libmemory/smr.h>
-#include <libmemory/hptr.h>
+#include "libmemory/smr.h"
+#include "libmemory/hptr.h"
 
 const struct {
 	const char * key;

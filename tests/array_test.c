@@ -31,7 +31,7 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <libmemory/smr.h>
+#include "libmemory/smr.h"
 #include "../array.h"
 #include "test.h"
 
