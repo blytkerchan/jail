@@ -47,8 +47,8 @@ extern "C" {
  * If the exchange took place, the function returns 0. It returns non-zero
  * otherwise.
  */
-int compare_and_exchange(int32_t * exp_ptr, volatile int32_t * tar_ptr, const int32_t src_ptr);
-
+int compare_and_exchange_int(int32_t * exp_ptr, volatile int32_t * tar_ptr, int32_t src_ptr);
+int compare_and_exchange_ptr(void * exp_ptr, volatile void * tar_ptr, const void * src_ptr);
 #ifdef __cplusplus
 }
 #endif
