@@ -19,9 +19,17 @@ h3 {
 }
 
 table.toc {
-	border: thin groove black;
-	background: #FFFFF0;
+        border: thin groove black;
+        background: #FFFFF0;
+        text-align: center;
 }
+
+table.menu {
+	border: thin outset black;
+	background: #FFFFF0;
+	text-align: center;
+}
+
 table.intext {
 	border: thin groove black;
 }

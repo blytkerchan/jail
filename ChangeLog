@@ -1,22 +1,30 @@
-2003-01-30	blytkerchan
+2004-02-02	blytkerchan
+	* ChangeLog: correct dates
+	* design.html, development.html, empty.html, goals.html, how_you_can_help.html, index.html, jailop.html, jailtype.html, language.html, license.html, progress.html, tech_arch.html: add menu bar
+	* development.html, license.html, tech_arch.html: use table_dev.html in stead of table.html
+	* jailop.html, jailtype.html, language.html: use table_lang.html in stead of table.html
+	*  menu.html, table_dev.html, table_lang.html: new files
+	* jail.css: new style table.menu
+	
+2004-01-30	blytkerchan
 	* license.html: new file
 
 	* *.html: re-organize to put the SF logo at the foot of the page..
 
-2003-01-29	blytkerchan
+2004-01-29	blytkerchan
 	* design.html: homogenize (normalize?) style
 	* tech_arch.html: ditto
 
 CVS tag site_update_20040129
 	* jailtype.html: add words about pre-defined associative container types
 
-2003-01-28	blytkerchan
+2004-01-28	blytkerchan
 	* jailtype.html: add words on pre-defined container types
 
-2003-01-27	blytkerchan
+2004-01-27	blytkerchan
 	* jailtype.html: add words on pre-defined types
 
-2003-01-26	blytkerchan
+2004-01-26	blytkerchan
 	* jail.css: define caption style
 	* jailtype.html: add words about namespaces, classes, etc. and start
 	on pre-defined types
@@ -28,7 +36,7 @@ CVS tag site_update_20040129
 	* table.html: use the ``toc'' table class to define the style
 	add a link to jailtype.html
 
-2003-01-21	blytkerchan
+2004-01-21	blytkerchan
 	* *.html: link to jail.css stylesheet
 	set anchor named "top"
 	normalize use of headers (h1 for the first title, etc.)
@@ -36,7 +44,7 @@ CVS tag site_update_20040129
 	* jail.css: new file
 	* jailop.html: ditto
 
-2003-01-20	blytkerchan
+2004-01-20	blytkerchan
 	* index.html: roll back to revision 1.10
 	remove alignment from SF logo
 
@@ -45,7 +53,7 @@ CVS tag site_update_20040129
 	* poll_response.pl: kill warning about uninitialized variable 
 	* poll_result.pl: implement
 
-2003-01-10	blytkerchan
+2004-01-10	blytkerchan
 	* poll_db.pl: new file
 	* poll_result.pl: ditto
 	* poll_http.pl: ditto
@@ -59,7 +67,7 @@ CVS tag site_update_20040129
 	* poll.pl: put the question_id in the form
 	* poll_response.pl: save the response to the database
 
-2003-01-08	blytkerchan
+2004-01-08	blytkerchan
 	* poll.pl: re-introduce PROGID
 
 	* poll.pl: give comment a name in stead of an id
@@ -79,7 +87,7 @@ CVS tag site_update_20040129
 
 	* poll.pl: rename base_url to response_url
 
-2003-01-07	blytkerchan
+2004-01-07	blytkerchan
 	* poll_response.pl: new experimental implementation..
 
 	* jailust.questions.sql: add ask_email field
@@ -104,7 +112,7 @@ CVS tag site_update_20040129
 	* index.html: updated with intended audience info
 	* table.html: updated
 
-2003-01-06	blytkerchan
+2004-01-06	blytkerchan
 	* poll.pl: take examples into account
 	* poll.css: ditto
 	* jailust.examples.sql: new file
