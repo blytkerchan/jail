@@ -1,4 +1,9 @@
 2004-04-12	blytkerchan
+	* test1.c [struct test1_helper1_data]: new type
+	(test1_helper1): new function
+	(test1_helper2): ditto
+	(test1): check the values added to the array
+
 	* Makefile.am: add SRCDIR define to test1's compile flags
 	* test1.c: include assert.h
 	(test1): test result of libconf functions

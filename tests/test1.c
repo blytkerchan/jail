@@ -34,6 +34,34 @@
 #include <assert.h>
 #include "../libconf.h"
 
+struct test1_helper1_data
+{
+	int flag;
+};
+
+void test1_helper1(const void * v, void * d)
+{
+	char * val = (char*)v;
+	struct test1_helper1_data * data = (struct test1_helper1_data*)d;
+	
+	// test that the value does not start with any whitespace or colons
+	switch (val[0])
+	{
+	case ' ' :
+	case '\t' :
+	case '\n' :
+	case ':' :
+		data->flag = 1;
+	default :
+		break;
+	}
+}
+
+int test1_helper2(const void * k1, const void * k2)
+{
+	return 0;
+}
+
 void test1(void)
 {
 	static char * argv[] = 
@@ -50,6 +78,8 @@ void test1(void)
 	int rc = 0;
 	libconf_t * handle = NULL;
 	libconf_opt_t ** t_options = libconf_optconst(options);
+	array_t * array = NULL;
+	struct test1_helper1_data data;
 	
 	handle = libconf_init(SRCDIR"/global_conf_test1", NULL, t_options, NULL, argc, argv);
 	free(t_options);
@@ -59,6 +89,15 @@ void test1(void)
 	if (!rc) rc = libconf_phase4(handle);
 	if (!rc) rc = libconf_phase5(handle);
 	assert(!rc);
+	if (!rc) rc = libconf_getopt(handle, "define", &array);
+	if (!rc)
+	{
+		data.flag = 0;
+		array_foreach(array, test1_helper1, &data);
+		assert(!data.flag);
+		array_search(array, "HELLO", test1_helper2);
+	}
+	
 	libconf_fini(handle);
 }
 
