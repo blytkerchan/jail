@@ -1,4 +1,6 @@
 2004-08-13	blytkerchan
+	* parse.y (translation_unit): rewrite
+
 	* parse.y: for every token, document what it looks like (we don't have
 	a lexical scanner yet)
 	(constructor_definition): new production

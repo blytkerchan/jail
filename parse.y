@@ -32,11 +32,15 @@
 goal : translation_unit 
      ;
 
-/* a translation unit is a series of zero or more declarations and definitions,
- * in any order. A translation unit may be empty. */
-translation_unit : /* empty */
-	| declarations translation_unit
-	| definitions translation_unit
+/* a translation unit is an optional unit declaration followed by any number
+ * of use directives, followed by an interface section, followed by an
+ * implementation, initialization and/or termination section in any order.  */
+translation_unit : 
+	unit_declaration use_directives interface_section
+	| use_directives interface_section
+	| translation_unit implementation_section
+	| translation_unit initialization_section
+	| translation_unit finilization_section
 	;
 
 /** 
