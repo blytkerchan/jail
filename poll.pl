@@ -3,12 +3,11 @@ use Data::Dumper;
 use DBI();
 
 $print_header = 1;
-$base_url     = '/cgi-bin/poll.pl';
+$response_url = '/cgi-bin/poll_response.pl';
 $db_database  = 'jail';
 $db_host      = 'localhost';
 $db_username  = 'ronald';
 $db_password  = '770217104';
-$PROGID       = '$Id: poll.pl,v 1.5 2004/01/07 13:45:03 blytkerchan Exp $';
 
 sub connect_database()
 {
@@ -86,7 +85,7 @@ sub output_body()
 	
 	%question = fetch_question();
 
-	print "<form action=\"$base_url\" method=\"post\" enctype=\"text/plain\" accept-charset=\"utf8\" style=\"width: 210;\">\n";
+	print "<form action=\"$response_url\" method=\"post\" enctype=\"text/plain\" accept-charset=\"utf8\" style=\"width: 210;\">\n";
 	print "<div id=\"question\">".$question{question}."</div>\n";
 
 	$arrayref = $question{examples};
