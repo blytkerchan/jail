@@ -1,0 +1,39 @@
+The project, as such, cannot be build: you can't just check out the libcontain
+module and hope that a simple './configure && make' will work - it won't. The
+same goes for every other module in CVS - you simply can't build them without
+some special action.
+	The reason for this is that most of the modules in CVS depend on eachother 
+to be built: libcontqin for example, needs libreplace and arch to work - arch 
+for the architecture-dependant code and libreplace for the non-portqble but 
+widely-used functions (such as memcmp, strdup, etc.).
+	The CVSROOT/modules file contains a number of "virtual" CVS modules which 
+can be used to check out the different modules for building. Each of those
+modules, once checked out, contains a script called ``bootstrap''. That script 
+is used to pre-configure the buidling - i.e. generate the configure script
+that will generate the Makefiles.
+	Jail-ust uses the GNU Autotools for its compilation configuration. The
+bootstrap script will therefore need recent versions of:
+*	GNU autoconf
+*	GNU automake
+*	GNU libtool
+I know that especially GNU automake is somewhat controversial because of the 
+huge Makefiles it generates (or rather, the huge Mqkefile.in files it creates)
+but though I agree that those files are rather large, Automake comes with a 
+number of features which help in development and which I, personally, find
+well worth the possible drawbacks it may have.
+	Hence, the way to build any of the libraries or other packages in this
+project is illustrated by libcontain:
+$ export CVSROOT=:pserver:anoncvs@cvs.sf.net:/cvsroot/jail-ust
+$ cvs login
+<< enter anoncvs as password >>
+$ cvs co release-libcontain
+<< libcontain and everything it depends on is checked out >>
+$ cd libcontain
+$ sh bootstrap
+$ mkdir .build
+$ cd .build
+$ ../configure
+$ make
+$ make check
+$ make install
+

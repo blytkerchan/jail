@@ -58,6 +58,15 @@ The CVS repository currently contains five "modules":
 * standards
   This directory contains the coding and other standards applicable to the
   project. You can't work on this unless you're a project admin.
+* libreplace
+  Functions commonly found in libc, but not standard - meaning they may have to
+  be replaced on some systems with custom implementations.
+  Functions implemented in this library should only be written in standard C 
+  and should not depend on any non-standard functionality.
+  This is not typically a library you'd want to work on: functions in this 
+  library are added as needed - i.e. if we find out we've been using a function
+  that is les sportably than we may have thought les sportably than we may have
+  thought..
 
 it also contains three files at the root:
 * license.h
