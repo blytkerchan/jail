@@ -1,3 +1,11 @@
+2004-04-08	blytkerchan
+	* LCFlexLexer.cc: apply license
+	* LCFlexLexer.h: ditto
+	* readconf.cc: ditto
+	* readconf.h: ditto
+	* confl.l: ditto
+	* confp.y: ditto
+
 2004-04-05	blytkerchan
 	* LCFlexLexer.cc (yyFlexLexer::yylex): new function
 	* Makefile.am [libconf_posix_la_LIBADD]: add flex' library
