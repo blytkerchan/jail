@@ -5,8 +5,9 @@
 #include <istream>
 #include <ostream>
 #include <FlexLexer.h>
+
 #include "../libconf.h"
-#include "confp.h"
+#include <confp.h>
 
 class LCFlexLexer : public yyFlexLexer
 {

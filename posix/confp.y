@@ -2,6 +2,8 @@
 /* includes go here */
 #include <stdio.h>
 #include <stdarg.h>
+#include <string.h>
+#include "../libconf.h"
 
 /* defines go here */
 /* we want the parser and the scanner to take a parameter */
@@ -10,7 +12,7 @@
 #define HANDLE ((libconf_t*)handle)
 #define setval_prepare()										\
 		HANDLE->temp = strdup(yylval.str)
-#define setval(type) {																		\
+#define setval(type)  																		\
 	{																								\
 		libconf_optparam_t * param = libconf_optparam_new(type, yylval.str);	\
 		hash_put(HANDLE->option_hash, HANDLE->temp, param);						\
@@ -63,7 +65,7 @@ whole_file : /* empty */
 
 config_def /* not empty */
 	: T_UNKNOWN_OPTION {
-		emit_error(HANDLE, "unknown option: %s", yylval.str)
+		emit_error(HANDLE, "unknown option: %s", yylval.str);
 	}
 	| T_TRUEFALSE { setval_prepare(); } T_TRUE { setval(PT_TRUEFALSE); }
 	| T_YESNO { setval_prepare(); } T_YES { setval(PT_YESNO); }
@@ -72,4 +74,3 @@ config_def /* not empty */
 	| T_FILENAME { setval_prepare(); } T_FILE { setval(PT_FILENAME); }
 	;
 %%
-

@@ -1,3 +1,14 @@
+2004-04-01	blytkerchan
+	* readconf.cc: new file
+	* readconf.h: ditto
+	* Makefile.am: ditto
+	* Makefile: remove
+	* LCFlexLexer.h: search for confp.h in standard include path
+	* confp.y: include string.h
+	include libconf.h from parent dir
+	[setval]: remove erroneous {
+	[config_def::T_UNKNOWN_OPTION]: add missing semicolon
+
 2004-03-31	blytkerchan
 	* ChangeLog: new file
 	* LCFlexLexer.cc: ditto
