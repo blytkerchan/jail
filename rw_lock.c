@@ -31,6 +31,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include <assert.h>
+#include "arch/include/compare_and_exchange.h"
 #include "rw_lock.h"
 
 #define READER 1
@@ -38,6 +40,18 @@
 
 static void lt_rwlock_schedule(lt_rwlock_t * lock);
 static int lt_rwlock_list_remove(lt_thread_t * list, lt_thread_t * entry);
+static int lt_rwlock_queue_empty(lt_thread_t * queue);
+static int lt_rwlock_list_empty(lt_thread_t * list);
+static void lt_thread_wake(lt_thread_t * thread);
+static lt_thread_t * lt_rwlock_queue_first(lt_thread_t * queue);
+static int atomic_swap_ptr(volatile void * ptr1, volatile void * ptr2);
+static lt_thread_t * lt_rwlock_queue_deq(lt_thread_t * queue);
+static void lt_rwlock_list_move(lt_thread_t * to, lt_thread_t * from);
+static void lt_rwlock_list_for_each(lt_thread_t * list, void (*)(lt_thread_t * thread));
+static void lt_rwlock_queue_enq(lt_thread_t * queue, lt_thread_t * thread);
+static void lt_thread_suspend(lt_thread_t * thread);
+static void lt_rwlock_list_insert(lt_thread_t * list, lt_thread_t * thread);
+static lt_thread_t * lt_rwlock_list_find(lt_thread_t * list, lt_rwlock_t * thread);
 
 void lt_rwlock_read_lock(lt_rwlock_t * lock)
 {
@@ -81,6 +95,8 @@ void lt_rwlock_read_unlock(lt_rwlock_t * lock)
 
 void lt_rwlock_write_unlock(lt_rwlock_t * lock) 
 {
+	lt_thread_t * place_holder = NULL;
+
 	/* As of this point, arriving readers should go into readers[1], the
 	 * readers in readers[0] should go there too, and readers[1] should 
 	 * be empty.
@@ -91,7 +107,7 @@ void lt_rwlock_write_unlock(lt_rwlock_t * lock)
 	 * we assume readers[1] is empty */
 	assert(lt_rwlock_list_empty(lock->readers[1]));
 	/* so we put the place-holder at readers[0] */
-	atomic_swap(lock->readers[0], place_holder);
+	atomic_swap_ptr(lock->readers[0], place_holder);
 	/* place_holder now contains readers[0]
 	 * we now de-queue ourselves */
 	assert(lt_thread_eq(lt_rwlock_queue_deq(lock->writers), lt_thread_self()) == 0);
@@ -103,7 +119,7 @@ void lt_rwlock_write_unlock(lt_rwlock_t * lock)
 	/* we swap again. As readers[0] only contains sleeping threads, we're sure
 	 * all the threads in there are asleep and won't think they're in
 	 * readers[1] */
-	atomic_swap(place_holder, lock->readers[0]);
+	atomic_swap_ptr(place_holder, lock->readers[0]);
 	/* we move whatever we got from readers[0] between the time put the 
 	 * place-holder in place and the time we removed ourselves from the writers
 	 * queue (which may have made it possible to schedule into readers[1]
@@ -111,7 +127,7 @@ void lt_rwlock_write_unlock(lt_rwlock_t * lock)
 	 * these threads just got lucky */
 	lt_rwlock_list_move(lock->readers[1], place_holder);
 	/* now, we awake everyone in readers[1] */
-	lt_rwlock_list_for_each(lock->readers[1], awake);
+	lt_rwlock_list_for_each(lock->readers[1], lt_thread_wake);
 	/* and we're done */
 }
 
@@ -128,7 +144,7 @@ void lt_rwlock_schedule(lt_rwlock_t * lock)
 	 * we can suspend ourselves. */
 	if (lt_thread_eq(lt_rwlock_queue_first(lock->general), lt_thread_self()) != 0) 
 	{
-		lt_thread_suspend(lt_thread_self())
+		lt_thread_suspend(lt_thread_self());
 	}
 	else 
 	{
@@ -139,9 +155,9 @@ void lt_rwlock_schedule(lt_rwlock_t * lock)
 
 		/* try to become the scheduler */
 		exp = NULL;
-		if (compare_and_exchange(&exp, &(lock->scheduler), lt_thread_self()) != 0) {
+		if (compare_and_exchange_ptr(&exp, &(lock->scheduler), lt_thread_self()) != 0) {
 			/* some other thread is already scheduling - let him do the work */
-			lt_thread_suspend(lt_thread_self())
+			lt_thread_suspend(lt_thread_self());
 		} else {
 			/* we're the scheduler. Because of this, we know we're the only thread
 			 * adding to the two readers lists and the writers queue, and removing
@@ -155,13 +171,13 @@ void lt_rwlock_schedule(lt_rwlock_t * lock)
 				 * done, we'll see where we are and act accordingly */
 				switch (curr->flag)
 				{
-				case reader :
+				case READER :
 					if (lt_rwlock_queue_empty(lock->writers)) 
 					{
 						/* if there are no writers, the thread (which is a reader) 
 						 * goes to the second readers list and can go on 
 						 * immediatly. */
-						lt_thread_list_insert(lock->readers[1], curr);
+						lt_rwlock_list_insert(lock->readers[1], curr);
 						lt_thread_wake(curr);
 					} 
 					else 
@@ -171,7 +187,7 @@ void lt_rwlock_schedule(lt_rwlock_t * lock)
 						lt_rwlock_list_insert(lock->readers[0], curr);
 					}
 					break;
-				case writer :
+				case WRITER :
 					/* in any case, we enqueue the writer */
 					lt_rwlock_queue_enq(lock->writers, curr);
 					/* we then look whether there are any active readers (in 
@@ -183,11 +199,11 @@ void lt_rwlock_schedule(lt_rwlock_t * lock)
 			}
 			/* now, there are no more threads to schedule, so we're done. */
 			exp = lt_thread_self();
-			assert(compare_and_exchange(&exp, &(lock->scheduler), NULL) == 0);
+			assert(compare_and_exchange_ptr(&exp, &(lock->scheduler), NULL) == 0);
 			/* if there are any threads in the general queue now, we wake up the
 			 * first and let him handle the scheduling */
-			if (!lt_thread_queue_empty(lock->general))
-				lt_thread_wake(first(lock->general));
+			if (!lt_rwlock_queue_empty(lock->general))
+				lt_thread_wake(lt_rwlock_queue_first(lock->general));
 		}
 	}	
 
@@ -197,12 +213,12 @@ void lt_rwlock_schedule(lt_rwlock_t * lock)
 		 * we've been woken up. We check which it is by checking where we are. */
 		switch (lt_thread_self()->flag)
 		{
-		case reader :
+		case READER :
 			/* readers can continue if they're in the second list */
-			if (lt_rwlock_list_find(lock->readers[1], lt_thread_self()) == 0)
+			if (lt_rwlock_list_find(lock->readers[1], lt_thread_self()) == NULL)
 				return; /* break out of the endless loop */
 			break;
-		case writer :
+		case WRITER :
 			/* writers can continue if they're the first one in the queue
 			 * and the second readers list is empty */
 			if (lt_rwlock_list_empty(lock->readers[1]) && 

@@ -33,10 +33,13 @@
  */
 #ifndef _libthread_rwlock_h_
 #define _libthread_rwlock_h_
+#include "thread.h"
+
 typedef struct _lt_rwlock_t {
-	readers[2] : lists of threads
-	writers, general : queue of threads
-	scheduler : worker thread doing the scheduling
+	lt_thread_t * readers[2]; /* lists of threads */
+	lt_thread_t * writers; /* writers queue */
+	lt_thread_t * general; /* queue of threads */
+	lt_thread_t * scheduler; /* worker thread doing the scheduling */
 } lt_rwlock_t;
 
 

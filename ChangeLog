@@ -1,3 +1,19 @@
+2004-08-17	blytkerchan	continue translation to C
+	* module.mk [libthread_SRC]: add rw_lock.c
+	* rw_lock.c: include assert.h
+	include compare_and_exchange.h
+	declare static functions for all undefined functions used
+	(lt_rwlock_write_unlock) <place_holder>: new variable
+	use atomic_swap_ptr in stead of atomic_swap
+	use lt_thread_wake in stead of awake
+	(lt_rwlock_scheule): fix type-os and missing semicolons
+	use compare_and_exchange_ptr in stead of compare_and_exchange
+	use READER in stead of reader and WRITER in stead of writer
+	use lt_rwlock_queue_first in stead of first
+	* rw_lock.h: include thread.h
+	[lt_rwlock_t]: translate to C
+	* thread.h [lt_thread_t]: add flag field
+
 2004-08-16	blytkerchan	continue translation to C
 	* rw_lock.c (lt_rwlock_read_unlock): use lt_rwlock_queue_empty on
 	writers - not lt_rwlock_list_empty
