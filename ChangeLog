@@ -1,4 +1,6 @@
 2004-10-19	blytkerchan
+	* module.mk: remove unnecessary make rules
+
 	* preproc.c: don't include libgen.h
 
 2004-10-18	blytkerchan
