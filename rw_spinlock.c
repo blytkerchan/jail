@@ -114,3 +114,11 @@ void rw_spinlock_upgrade(rw_spinlock_t * handle)
 	while (wait != handle->curr);
 }
 
+void rw_spinlock_downgrade(rw_spinlock_t * handle)
+{
+	int wait;
+
+	wait = fetch_and_add(&(handle->next), SHRD);
+	fetch_and_add(&(handle->curr), EXCL);
+	while ((wait % SHRD) != (handle->curr % SHRD));
+}
