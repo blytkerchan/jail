@@ -32,6 +32,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <stdint.h>
+#include "arch/decrement.h"
 
 void atomic_decrement(uint32_t * target)
 {

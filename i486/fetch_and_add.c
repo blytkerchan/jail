@@ -31,8 +31,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "arch/include/fetch_and_add.h"
-#include "arch/include/compare_and_exchange.h"
+#include "arch/fetch_and_add.h"
+#include "arch/compare_and_exchange.h"
 
 int32_t fetch_and_add(volatile int32_t * val, int32_t add)
 {

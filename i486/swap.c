@@ -31,6 +31,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+#include "arch/swap.h"
+
 void * atomic_swap_ptr(void * target, void * src)
 {
 	asm("lock xchg %0, %1"

@@ -32,6 +32,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <stdint.h>
+#include "arch/set.h"
 
 static void atomic_set(void ** target, void * value)
 {

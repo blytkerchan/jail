@@ -1,3 +1,14 @@
+2004-10-26	blytkerchan
+	* version: new file
+	* module.mk: ditto
+	* compare_and_exchange.c: include proper (own) header file
+	* fetch_and_add.c: ditto
+	* membar.c: ditto
+	* swap.c: ditto
+	* decrement.c: ditto
+	* increment.c: ditto
+	* set.c: ditto
+
 2004-09-13	blytkerchan
 	* set.c (atomic_set): make static
 	(atomic_set_ptr): new function

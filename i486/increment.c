@@ -32,6 +32,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <stdint.h>
+#include "arch/increment.h"
 
 void atomic_increment(uint32_t * target)
 {

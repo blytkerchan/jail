@@ -32,6 +32,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <stdint.h>
+#include "arch/compare_and_exchange.h"
 
 int compare_and_exchange_ptr(void * exp_ptr, void * tar_ptr, const void * src_ptr)
 {
