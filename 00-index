@@ -1,12 +1,11 @@
+PLEASE NOTE: none of the material in this directory is covered by the Jail
+license. It is only here for reference by the developers of the Jail-ust
+project and should not be used by anyone else.
+
 00-index		this file
 1996_PODC_queues.pdf	Article on shared queues by Micheal and Scott
 24319101.pdf		i486 instruction reference, downloaded from 
 			http://developer.intel.com/design/pentium/manuals/24319101.pdf
-			PLEASE NOTE: this file is *not* covered under the Jail
-			license: it belongs to Intel and is only here because
-			it is useful as a reference in the arch/i486 
-			development. It can be freely downloaded from the 
-			indicated address.
 ChangeLog		change log for this directory
 lock-free_lists.pdf	An article on lock-free lists and hashes that may be 
 			very useful - YA file that is not covered under the 
