@@ -1,3 +1,8 @@
+2004-09-13	blytkerchan
+	* set.h (atomic_set): remove
+	(atomic_set_ptr): new function
+	(atomic_set_int): ditto
+
 2004-09-12	blytkerchan
 	* membar.h: new file
 

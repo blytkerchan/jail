@@ -38,7 +38,8 @@
 extern "C" {
 #endif
 
-void atomic_set(void * target, void * value);
+void atomic_set_ptr(void * target, void * value);
+void atomic_set_int(int32_t * target, int32_t value);
 
 #ifdef __cplusplus
 }
