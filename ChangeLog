@@ -1,4 +1,9 @@
 2003-01-07	blytkerchan
+	* poll.pl: update config settings
+	update URL of stylesheet
+	repair support of examples
+	* jailust.answers.sql: add some data
+	
 	* jailust.answers.sql: new file
 	* poll.pl: take answers into account
 	* jailust.questions.sql: make `examples' and `answers' more obviously boolean
