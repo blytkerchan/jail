@@ -34,9 +34,17 @@
 #ifndef _ARCH_DECREMENT_H
 #define _ARCH_DECREMENT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 /* Atomically decrement *TARGET */
 void atomic_decrement(uint32_t * target);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _ARCH_DECREMENT_H

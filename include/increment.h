@@ -34,10 +34,18 @@
 #ifndef _ARCH_INCREMENT_H
 #define _ARCH_INCREMENT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 
 /* atomically increment *TARGET */
 void atomic_increment(uint32_t * target);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _ARCH_INCREMENT_H
 

@@ -34,6 +34,9 @@
 #ifndef _COMPARE_AND_EXCHANGE_H
 #define _COMPARE_AND_EXCHANGE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 /** Compare and exchange two pointers.
  * Compare *tar_ptr to *exp_ptr. If they're the same, set *tar_ptr to src_ptr,
  * otherwise set *exp_ptr to *tar_ptr.
@@ -43,5 +46,9 @@
  * otherwise.
  */
 int compare_and_exchange(void * exp_ptr, void * tar_ptr, const void * src_ptr);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // _COMPARE_AND_EXCHANGE_H

@@ -33,6 +33,16 @@
  */
 #ifndef _ARCH_SET_H
 #define _ARCH_SET_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 void atomic_set(void ** target, void * value);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif // _ARCH_SET_H
 
