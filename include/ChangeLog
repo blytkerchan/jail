@@ -1,3 +1,7 @@
+2004-04-12	blytkerchan
+	* compare_and_exchange.h: be slightly more verbose in comments
+	* set.h: new file
+
 2004-04-08	blytkerchan
 	* compare_and_exchange.h: add 2004 to the license's years
 	* decrement.h: ditto

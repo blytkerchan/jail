@@ -31,17 +31,8 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _COMPARE_AND_EXCHANGE_H
-#define _COMPARE_AND_EXCHANGE_H
+#ifndef _ARCH_SET_H
+#define _ARCH_SET_H
+void atomic_set(void ** target, void * value);
+#endif // _ARCH_SET_H
 
-/** Compare and exchange two pointers.
- * Compare *tar_ptr to *exp_ptr. If they're the same, set *tar_ptr to src_ptr,
- * otherwise set *exp_ptr to *tar_ptr.
- * This function guarantees that at the time (src_ptr) is assigned to
- * (*tar_ptr), the value of *tar_ptr is the same as that of *exp_ptr.  
- * If the exchange took place, the function returns 0. It returns non-zero
- * otherwise.
- */
-int compare_and_exchange(void * exp_ptr, void * tar_ptr, const void * src_ptr);
-
-#endif // _COMPARE_AND_EXCHANGE_H
