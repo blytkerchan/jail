@@ -1,4 +1,15 @@
 2003-09-02	blytkerchan
+	* design.html: fix layout
+	* empty.html: ditto
+	* goals.html: ditto
+	* how_you_can_help.html: ditto
+	* index.html: ditto
+	* intended_audience.html: ditto
+	* progress.html: ditto
+	* table.html: ditto
+	* tech_arch.html: ditto
+
+2003-09-02	blytkerchan
 	* empty.html: set width and height of the iframe properly
 	* table.html: target _top for all links
 	* design.html: use iframe for the table
