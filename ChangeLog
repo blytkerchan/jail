@@ -1,3 +1,6 @@
+2004-10-18	blytkerchan
+	* version: new file
+
 2004-07-17	blytkerchan
 	* Makefile.am [SUBDIRS]: add libmemory
 	[jailpp_LDADD]: ditto
