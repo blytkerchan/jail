@@ -1,4 +1,9 @@
 2003-01-07	blytkerchan
+	* jailust.answers.sql: new file
+	* poll.pl: take answers into account
+	* jailust.questions.sql: make `examples' and `answers' more obviously boolean
+	let the second question have answers
+
 	* jailust.examples.sql: name the table properly
 	fix the size of the example (make it TEXT in stead of VARCHAR)
 

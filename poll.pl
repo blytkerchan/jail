@@ -3,7 +3,7 @@ use Data::Dumper;
 use DBI();
 
 $print_header = 1;
-$PROGID       = '$Id: poll.pl,v 1.3 2004/01/07 11:37:00 blytkerchan Exp $';
+$PROGID       = '$Id: poll.pl,v 1.4 2004/01/07 12:33:15 blytkerchan Exp $';
 $base_url     = 'poll.pl';
 $db_database  = 'jail';
 $db_host      = 'localhost';
@@ -36,10 +36,11 @@ sub fetch_question()
 {
 	my $sth;
 	my $question;
-	my $example;
+	my $val;
 	my $question_id;
 	my %retval;
 	my @examples;
+	my @answers;
 	
 	$sth = $db{dbh}->prepare("SELECT MAX(uid) FROM questions");
 	$sth->execute();
@@ -55,9 +56,19 @@ sub fetch_question()
 	{
 		$sth = $db{dbh}->prepare("SELECT * FROM examples WHERE question_id=\'$question_id\'");
 		$sth->execute();
-		while ($example = $sth->fetchrow_hashref())
+		while ($val = $sth->fetchrow_hashref())
 		{
-			push @examples, $$example{example};
+			push @examples, $$val{example};
+		}
+	}
+	if ($$question{answers})
+	{
+		$sth = $db{dbh}->prepare("SELECT * FROM answers WHERE question_id=\'$question_id\'");
+		$sth->execute();
+		while ($val = %sth->fetchrow_hashref())
+		{
+			push @answers, $$val{answer};
+			$retval{unique_answer} = 1 if ($$val{must_be_unique});
 		}
 	}
 	$retval{examples} = \@examples;
@@ -70,6 +81,7 @@ sub output_body()
 	my %question;
 	my $arrayref;
 	my $i;
+	my $template;
 	
 	%question = fetch_question();
 
@@ -85,6 +97,22 @@ sub output_body()
 		print "$_\n";
 		print "</div>\n";
 		$i++;
+	}
+	if ($question{answers})
+	{
+		$arrayref = $question{answers};
+		if ($question{unique_answer})
+		{
+			$template = "<input type=\"radio\" value=\"%s\"/>\n";
+		}
+		else
+		{
+			$template = "<input type=\"checkbox\" value=\"%s\"/>\n";
+		}
+		foreach (@$arrayref)
+		{
+			printf($template, $_);
+		}
 	}
 	print "<div id=\"comment\"><textarea id=\"comment\" style=\"text-align: left; width: 100%; height: 300;\">Your comment here please</textarea></div>\n" if ($question{commentable});
 	print "<div style=\"text-align: right;\"><input type=\"reset\" value=\"Reset\"/><input type=\"submit\" value=\"Submit\"/></div>\n";
