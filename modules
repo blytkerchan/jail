@@ -30,7 +30,7 @@ libcontain-libreplace -d libcontain/libreplace libreplace
 libcontain-libmemory -d libcontain/libmemory libmemory
 libcontain-libcontain -d libcontain/libcontain libcontain
 libcontain-libthread -d libcontain/libthread libthread
-release-libcontain -a libcontain-config libcontain-libcontain libcontain-arch libcontain-libreplace libcontain-libmemory
+release-libcontain -a libcontain-config libcontain-libcontain libcontain-arch libcontain-libreplace libcontain-libmemory libcontain-libthread
 
 libmemory-arch -d libmemory/arch arch
 libmemory-libmemory -d libmemory/libmemory libmemory

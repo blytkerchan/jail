@@ -1,4 +1,6 @@
 2004-08-10	blytkerchan
+	* modules: add libcontain-libthread to libcontain (forgot at last checkin
+
 	* modules: add libthread to libcontain
 
 2004-07-28	blytkerchan
