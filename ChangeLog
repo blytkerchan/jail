@@ -1,3 +1,7 @@
+2004-08-15	blytkerchan
+	* parse.y (translation_unit): remove initialization and finilization
+	sections
+
 2004-08-13	blytkerchan
 	* parse.y (translation_unit): rewrite
 

@@ -39,8 +39,6 @@ translation_unit :
 	unit_declaration use_directives interface_section
 	| use_directives interface_section
 	| translation_unit implementation_section
-	| translation_unit initialization_section
-	| translation_unit finilization_section
 	;
 
 /** 
