@@ -1,3 +1,8 @@
+2004-07-22	blytkerchan
+	* semaphore.c: new file
+	* semaphore.h: ditto
+	* module.mk: ditto
+
 2004-07-19	blytkerchan
 	* how_semaphores_work.txt: new file
 
