@@ -1,0 +1,9 @@
+2003-10-07	blytkerchan
+	* commitinfo: fixed by SourceForge.net team
+
+2003-10-02	blytkerchan
+	* ChangeLog: new file
+	* avail: new file
+	* commitinfo: added cvs_acl script to be run
+	* checkoutlist: added avail to admin files
+
