@@ -35,8 +35,9 @@
 
 void atomic_decrement(uint32_t * target)
 {
-	asm("lock decl %1" 
-	: "=m" (*target)
-	: "0" (*target));	
+	asm("movl %1, %%eax\nlock decl (%%eax)" 
+	: "=m" (target)
+	: "0" (target)
+	: "eax");	
 }
 
