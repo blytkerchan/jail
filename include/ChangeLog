@@ -1,3 +1,6 @@
+2004-08-02	blytkerchan
+	* fetch_and_add.h: new file
+
 2004-07-17	blytkerchan
 	* set.h (atomic_set): take void* as target argument in stead of void**
 
