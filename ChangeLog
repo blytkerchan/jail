@@ -1,4 +1,6 @@
 2004-07-22	blytkerchan
+	* modules: require libmemory for libthread
+
 	* modules: remove libcontain-libmemory-arch - don't need it
 
 2004-07-19	blytkerchan
