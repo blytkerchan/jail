@@ -1,3 +1,8 @@
+2004-09-23	blytkerchan	update instruction reference
+	* 24319101.pdf: remove
+	* 25366714.pdf: new file
+	* 25366614.pdf: ditto
+
 2004-08-11	blytkerchan
 	* links.html: add link to Joe Seigh's atomic_ptr
 
