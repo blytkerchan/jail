@@ -1,3 +1,8 @@
+2004-10-18	blytkerchan
+	* Makefile.am: remove
+	* configure.ac: ditto
+	* bootstrap : ditto
+
 2004-05-11	blytkerchan
 	* Makefile.am [SUBDIRS]: include libmemory
 	* bootstrap: bootstrap libmemory
