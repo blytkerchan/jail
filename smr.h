@@ -42,8 +42,6 @@ typedef struct _smr_global_data_t
 {
 	unsigned int p;		// number of participating threads
 	unsigned int k;		// number of hazard pointers per thread
-	unsigned int n;		// total number of hazard pointers == p * k
-	unsigned int r;		// batch size
 
 	pthread_key_t key;	// the key used for the thread-local data
 

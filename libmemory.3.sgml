@@ -1,0 +1,197 @@
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook V4.0//EN">
+<refentry id="libmemory">
+
+<refmeta>
+<refentrytitle>libmemory</refentrytitle>
+<manvolnum>3</manvolnum>
+</refmeta>
+
+<refnamediv>
+<refname>libmemory - memory management library</refname>
+<refpurpose>Provide an easy-to-use API for memory management using SMR</refpurpose>
+</refnamediv>
+
+<refsect1>
+<title>Description</title>
+<para>This manpage describes the functions provided by the libmemory memory 
+management library.</para>
+<para>This manoage does not say why you should use this library, not does it
+provide in-depth information about its implementation, see the <quote>General
+documentation for the libmemory SMR implementation</quote> for that.</para>
+</refsect1>
+
+<refsect1>
+<title>Synopsis</title>
+<para><screen><![CDATA[
+#include <libmemory/smr.h>
+#include <libmemory/hptr.h>
+
+/* SMR functions */
+int smr_init(unsigned int n_hptr);
+int smr_thread_init(void);
+void smr_thread_fini(void);
+void smr_fini(void);
+void * smr_malloc(size_t size);
+void smr_free(void * ptr);
+
+/* HPTR functions */
+int hptr_init(void);
+void hptr_fini(void);
+int hptr_register(unsigned int index, void * ptr);
+void hptr_free(unsigned int index);
+]]></screen></para>
+</refsect1>
+
+<refsect1>
+<title>Safe Memory Reclamation and Hazard Pointers</title>
+<para>The library consists of two distinct parts: the SMR (=Safe Memory
+Reclamation) part and the HPTR (= Hazard PoinTeR) part. Basically, the SMR 
+part takes care of allocating and freeing memory and provides malloc(3) and
+free(3) implementations that wrap around the standard ones. The HPTR part
+is used to register a reference as "hazardous" which makes sure the memory
+associated with the pointer is not freed. See the general documentation for
+more in-depth information.</para>
+<para>The two parts of the library are initialized separately, but are rarely
+used separately: the HPTR part of the library is useless without the SMR part,
+and SMR doesn't work too well without hazard pointers.</para>
+</refsect1>
+
+<refsect1>
+<title>Functions</title>
+<para>
+<variablelist>
+
+<!--
+<varlistentry><term><function>
+function name
+</function></term>
+<listitem><para>one-liner function description</para>
+<para>more verbose function description</para>
+<para>info pertaining thread-safety</para>
+</listitem></varlistentry>
+-->
+
+<varlistentry><term><function>
+int smr_init(unsigned int n_hptr);
+</function></term>
+<listitem><para>Initialize the SMR part of the library.</para>
+<para>Initialize the library for use with N_HPTR hazard pointers. The number of
+hazard pointers used by the implementation is invariable: it is determined only
+by the client implementation's algorithms. See the documentation of the client
+implementation's algorithm for the minimal number required by the 
+implementation. (I, rlc, recommend using a macro named 
+<function>&lt;impl&gt;_MIN_HPTRS</function> that gives this number. E.g. for 
+libcontain, this would be LIBCONTAIN_MIN_HTPRS, which would be defined if 
+<emphasis>any</emphasis> of libcontain's headers were included.)</para>
+<para>This function should be called from the main thread, before the 
+(optional) call to <function>hptr_init</function> and before any threads are
+created.</para>
+</listitem></varlistentry>
+
+<varlistentry><term><function>
+int smr_thread_init(void);
+</function></term>
+<listitem><para>Perform per-thread initialization for the SMR implementation.</para>
+<para>This function performs per-thread initialization actions for the SMR 
+implementation, needed by the other functions. It <emphasis>must</emphasis> be
+called at the start of each thread.</para>
+<para>This function can be called from any number of threads at the same time.
+The actions it performs on global data (there are some) are atomic, which makes
+them safe for multi-threaded applications.</para>
+</listitem></varlistentry>
+
+<varlistentry><term><function>
+void smr_thread_fini(void);
+</function></term>
+<listitem><para>Perform per-thread finilization for the SMR implementation.</para>
+<para>This function performs per-thread finilization actions for the SMR 
+implementation. These actions prevent memory leaks. This function should be 
+called at the end of the execution of each thread.</para>
+<para>This function can be called from any number of threads at the same time
+without restrictions. All actions performed on global data are atomic.</para>
+</listitem></varlistentry>
+
+<varlistentry><term><function>
+void smr_fini(void);
+</function></term>
+<listitem><para>Perform finilization tasks for the SMR implementation.</para>
+<para>This function finilizes the works of the SMR implementation and renders
+it unusable. It frees all memory owned by the library to prevent memory leaks.
+You should call this function at the end of your program.</para>
+<para>This function must not be called from any thread but the main one.</para>
+</listitem></varlistentry>
+
+<varlistentry><term><function>
+void * smr_malloc(size_t size);
+</function></term>
+<listitem><para>Allocate a chunk of memory of size SIZE</para>
+<para>This function actually doesn't have much to do with the SMR 
+implementation: it fixes (or rather: works around) a common bug in the 
+malloc(3) implementation of many libc implementations and guarantees to
+return a valid pointer when called with SIZE 0.</para>
+<para>This function is as thread-safe as the underlying malloc(3) implementation
+of the libc library.</para>
+</listitem></varlistentry>
+
+<varlistentry><term><function>
+void smr_free(void * ptr);
+</function></term>
+<listitem><para>Free the memory associated with pointer PTR</para>
+<para>This function queues the pointer PTR for deletion but will not actually
+free the associated memory until no more hazardous references to the pointer
+exist.</para>
+<para>This function is as thread-safe as the underlying free(3) implementation
+from the libc library</para>
+</listitem></varlistentry>
+
+<varlistentry><term><function>
+int hptr_init(void);
+</function></term>
+<listitem><para>Perform initialization tasks for use of hazard pointers</para>
+<para>Initialize the HPTR part of the library. This function should be called
+exactly once, from the main thread, before any threads are created.</para>
+<para>This function is not intended to be called from more than one thread at
+a time.</para>
+</listitem></varlistentry>
+
+<varlistentry><term><function>
+void hptr_fini(void);
+</function></term>
+<listitem><para>Perform finilization tasks for the HPTR part of the library</para>
+<para>This function freesall memory owned by the HPTR part of the library and 
+renders the use of the library impossible.</para>
+<para>This function should only be called once, at the end of the execution of
+the library</para>
+</listitem></varlistentry>
+
+<varlistentry><term><function>
+int hptr_register(unsigned int index, void * ptr);
+</function></term>
+<listitem><para>Register a hazardous reference to pointer PTR at index INDEX</para>
+<para>This function registers a hazardous reference to pointer PTR. This means
+that subsequent calls to smr_free(3) will not free the memory associated to the
+pointer while the reference (or rather, a reference) exists.</para>
+<para>You can call this function from any number of threads at a time.</para>
+</listitem></varlistentry>
+
+<varlistentry><term><function>
+void hptr_free(unsigned int index);
+</function></term>
+<listitem><para>Clear hazardous reference number INDEX of the calling thread</para>
+<para>This function clears the hazardous reference at number INDEX, allowing 
+the referenced pointer to be freed by a call to smr_free(3)</para>
+<para>This functon can be called from any number of threads at a time.</para>
+</listitem></varlistentry>
+
+</variablelist>
+</para>
+</refsect1>
+
+<refsect1>
+<title>Author</title>
+<para>The author of this library is Ronald Landheer-Cieslak. You can reach
+him (that is: me) at <email>ronald@landheer.com</email>. Please don't hesistate
+to drop me a line.</para>
+</refsect1>
+
+</refentry>

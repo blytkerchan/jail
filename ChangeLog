@@ -1,3 +1,15 @@
+2004-04-27	blytkerchan
+	* libmemory.3.sgml: new file
+	* hptr.c: provide full path to compare_and_exchange.h in include
+	(hptr_get_local_data): allocate K hazard pointers per thread, not N
+	* smr.c (smr_get_private_data): calculate size of dlist - no of threads may change en-route
+	(smr_scan_worker): ditto
+	(smr_cleanup_private_data): add FIXME note
+	(smr_init): only take number of hazard pointers per thread as parameter
+	(smr_thread_init): increment number of active threads
+	(smr_thread_fini): decrement number of active threads
+	* smr.h [smr_global_data_t]: remove N and R fields - calculated on the fly
+
 2004-03-19	blytkerchan
 	* Makefile: remove
 	* configure.ac: new file

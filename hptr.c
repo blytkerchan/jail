@@ -37,7 +37,7 @@
 
 #include <stdlib.h>
 
-#include "compare_and_exchange.h"
+#include "arch/include/compare_and_exchange.h"
 
 extern smr_global_data_t * smr_global_data;
 hptr_global_data_t * hptr_global_data = NULL;
@@ -45,6 +45,7 @@ hptr_global_data_t * hptr_global_data = NULL;
 static void hptr_register_local_data(hptr_local_data_t * data)
 {
 	void * exp;
+	
 try_again:
 	while (smr_global_data->last->next != NULL)
 	{
@@ -68,7 +69,7 @@ static hptr_local_data_t * hptr_get_local_data(void)
 	{
 		retval = (hptr_local_data_t*)malloc(sizeof(hptr_local_data_t));
 		pthread_setspecific(hptr_global_data->key, retval);
-		retval->hp = (void**)malloc(smr_global_data->n * sizeof(void*));
+		retval->hp = (void**)malloc(smr_global_data->k * sizeof(void*));
 		hptr_register_local_data(retval);
 	}
 
