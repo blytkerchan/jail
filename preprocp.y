@@ -82,7 +82,7 @@ macro_def : T_DEFINE {
 		{
 			if (!token_hash)
 			{
-				token_hash = new_hash(STRING_HASH, NULL, NULL);
+				token_hash = hash_new(STRING_HASH, 0, NULL, NULL);
 			}
 			curr = hash_get(token_hash, yylval.str);
 			if (curr != NULL)
