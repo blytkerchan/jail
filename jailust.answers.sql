@@ -21,5 +21,5 @@ CREATE TABLE answers (
 -- Dumping data for table `questions`
 --
 
-INSERT INTO answers VALUES (0,'1','This is an answer','1');
-INSERT INTO answers VALUES (1,'1','This is another answer','1');
+INSERT INTO answers VALUES (0,'1','This is an answer','0');
+INSERT INTO answers VALUES (1,'1','This is another answer','0');

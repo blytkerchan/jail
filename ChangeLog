@@ -1,4 +1,7 @@
 2003-01-08	blytkerchan
+	* jailust.answers.sql: use checkbox in stead of radio
+	* jailust.questions.sql: make question commentable
+
 	* poll.pl: set names on radio buttons & check boxes.
 
 	* poll.pl: set width of poll form to 200 pixels
