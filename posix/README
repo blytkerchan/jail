@@ -1,0 +1,8 @@
+The configuration file format:
+
+* anything from a semicolon (;) or a pound (#) to the end of line is a comment
+* lists are separated by colons (:)
+* config token names must start with an alphabetic character, a dot or an 
+  underscore and may further contain numeric characters - i.e., they must
+  correspond to the following regex:
+  	/[A-Za-z._]+[A-Za-z0-9._]*/

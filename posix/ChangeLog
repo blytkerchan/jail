@@ -1,0 +1,9 @@
+2004-03-31	blytkerchan
+	* ChangeLog: new file
+	* LCFlexLexer.cc: ditto
+	* LCFlexLexer.h: ditto
+	* Makefile: ditto
+	* README: ditto
+	* confl.l: ditto
+	* confp.h: ditto
+
