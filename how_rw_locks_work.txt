@@ -41,6 +41,7 @@ Let lt_rwlock_t be a structure conforming to:
 lt_rwlock_t : struct {
 	readers[2] : lists of threads
 	writers, general : queue of threads
+	scheduler : worker thread doing the scheduling
 }
 On return of lt_rwlock_new(), all queues and lists are empty.
 
@@ -49,5 +50,160 @@ are *_lock or *_unlock calls in progress or one or more *_lock call has not
 been paired with a *_unlock call) the results are undefined.
 
 lt_rwlock_read_lock(lock : lt_rwlock_t*) {
-	
+	# first, we set a flag in our thread descriptor that identifiers us as a
+	# reader
+	lt_thread_self()^.flag := reader;
+
+	# now, we have ourselves scheduled
+	# when we get out of this one, we are not only scheduled, but we can
+	# continue through the lock as a reader
+	lt_rwlock_schedule(lock);
 }
+
+lt_rwlock_write_lock(lock : lt_rwlock_t*) {
+	# first, we set a flag in our thread descriptor that identifiers us as a
+	# writer
+	lt_thread_self()^.flag := writer;
+
+	# now, we have ourselves scheduled
+	# when we get out of this one, we are not only scheduled, but we can
+	# continue through the lock as a writer
+	lt_rwlock_schedule(lock);
+}
+
+lt_rwlock_read_unlock(lock : lt_rwlock_t*) {
+	# first, we get ourselves out of the readers list
+	assert(remove(lock^.readers[1], lt_thread_self()) == OK);
+	# now, if the readers list is empty, there are no more active readers and
+	# a writer is therefore eligable for the lock. Otherwise, we're done
+	if (!empty(lock^.writers)) {
+		if (empty(lock^.readers[1])) {
+			awake(first(lock^.writers));
+		}
+	}
+}
+
+lt_rwlock_write_unlock(lock : lt_rwlock_t*) {
+	# As of this point, arriving readers should go into readers[1], the readers
+	# in readers[0] should go there too, and readers[1] should be empty.
+	# Hence, we us place-holder lists for arriving readers, which we will add
+	# to readers[1] once we're sure the scheduler will take the proper list
+	place_holder: empty list of threads;
+
+	# we assume readers[1] is empty
+	assert(empty(lock^.readers[1]));
+	# so we put the place-holder at readers[0]
+	atomic_swap(lock^.readers[0], place_holder);
+	# place_holder now contains readers[0]
+	# we now de-queue ourselves
+	assert(lt_thread_eq(deq(lock^.writers), lt_thread_self()) == 0);
+	# if the writers queue is empty, it will schedule into readers[1];
+	# if not, it will continue scheduling into readers[0], which is now the
+	# place-holder.
+	# we add whatever we swapped out to readers[1]
+	move(lock^.readers[1], place_holder);
+	# we swap again. As readers[0] only contains sleeping threads, we're sure
+	# all the threads in there are asleep and won't think they're in readers[1]
+	atomic_swap(place_holder, lock^.readers[0]);
+	# we move whatever we got from readers[0] between the time put the 
+	# place-holder in place and the time we removed ourselves from the writers
+	# queue (which may have made it possible to schedule into readers[1]
+	# to readers[1]. If the scheduler is still scheduling into readers[0],
+	# these threads just got lucky
+	move(lock^.readers[1], place_holder);
+	# now, we awake everyone in readers[1]
+	for_each(lock^.readers[1], awake);
+	# and we're done
+}
+
+lt_rwlock_schedule(lock : lt_rwlock_t*) {
+	curr : lt_thread_t*;
+
+	# now, the local thread is enqueued in the general queue. This guarantees
+	# that at some time in the future, it will be scheduled
+	enq(lock^.general, lt_thread_self());
+
+	# now, if it's not the first one in the queue, it should do its own
+	# scheduling. Otherwise, some other thread will take care of it and
+	# we can suspend ourselves.
+	if (lt_thread_eq(first(lock^.general), lt_thread_self()) != 0) {
+		suspend(lt_thread_self())
+	} else {
+		# we were the first, so either someone is already scheduling is, or we 
+		# start scheduling everybody behind us until the general queue is empty.
+
+		# try to become the scheduler
+		if (CAS(NULL, lock^.scheduler, lt_thread_self) != OK) {
+			# some other thread is already scheduling - let him do the work
+			suspend(lt_thread_self())
+		} else {
+			# we're the scheduler. Because of this, we know we're the only thread
+			# adding to the two readers lists and the writers queue, and removing
+			# from the general queue.
+
+			while (!empty(lock^.general)) {
+				# get the next thread to schedule
+				curr = deq(lock^.general)
+				# note that we don't handle ourselves specially here: when we're
+				# done, we'll see where we are and act accordingly
+				case curr^.flag in
+				reader)
+					if (empty(lock^.writers)) {
+						# if there are no writers, the thread (which is a reader) 
+						# goes to the second readers list and can go on immediatly.
+						insert(lock^.readers[1], curr);
+						awake(curr);
+					} else {
+						# if there are writers, the thread will have to continue 
+						# sleeping until the writers are done.
+						insert(lock^.readers[0], curr);
+					}
+					;;
+				writer)
+						# in any case, we enqueue the writer
+						enq(lock^.writers, curr);
+						# we then look whether there are any active readers (in 
+						# lock^.readers[1]). If not, we wake the reader
+						if (empty(lock^.readers[1])) {
+							awake(curr);
+						}
+					;;
+				esac 
+			}
+			# now, there are no more threads to schedule, so we're done.
+			assert(CAS(lt_thread_self, lock^.scheduler, NULL) == OK);
+			# if there are any threads in the general queue now, we wake up the
+			# first and let him handle the scheduling
+			if (!empty(lock^.general))
+				awake(first(lock^.general));
+		}
+	}	
+
+	while (1) {
+		# when we get here, we've either been scheduling the other threads or
+		# we've been woken up. We check which it is by checking where we are.
+		case lt_thread_self()^.flag in
+		reader)
+			# readers can continue if they're in the second list
+			if (find(lock^.readers[1], lt_thread_self()) == OK)
+				break; # out of the endless loop
+			;;
+		writer)
+			# writers can continue if they're the first one in the queue
+			# and the second readers list is empty
+			if (empty(lock^.readers[1]) && 
+				(lt_thread_eq(lt_thread_self(), first(lock^.writers)) == 0))
+				break; # out of the endless loop
+			;;
+		esac
+		# we didn't break out of the loop, so we sleep
+		suspend(lt_thread_self());
+	}
+}
+
+Note: two threads may actually be scheduling at the same time: one thay is in
+either *_lock function and one that is in the lt_rwlock_write_unlock function.
+Basically, the former works around the latter. If all operations on the queues
+and the lists are atomic and non-blocking (which they should be) these two
+should not interfere with eachother.
+
