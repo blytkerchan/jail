@@ -31,11 +31,13 @@ libcontain_la_SOURCES = arch/@ARCH@/compare_and_exchange.c \
 			stack.c \
 			queue.c \
 			hash.c \
+			array.c \
 			list.c $(libcontain_la_CXXSOURCES)
 pkginclude_HEADERS =	hash_config.h \
 			hash.h \
 			stack.h \
 			queue.h \
+			array.h \
 			list.h $(libcontain_la_CXXHEADERS)
 noinst_HEADERS = c_interface.h
 libcontain_la_LIBADD=libreplace/libreplace.la glib/libglib.la
