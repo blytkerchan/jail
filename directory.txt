@@ -1,0 +1,14 @@
+There are a few files that should always be present in a directory in the
+project source tree:
+* AUTHORS:	the list of authors that applies to the files in the directory
+		with, for each author:
+		- the pseudonym
+		- the full name
+		- the E-mail address
+		- the role of the person in the project
+		an entry might look like this:
+		|	"blytkerchan": Ronald Landheer-Cieslak
+		|		blytkerchan@users.sourceforge.net
+		|		project leader/manager
+* ChangeLog:	the list of changes applied to files in the directory
+
