@@ -1,3 +1,6 @@
+2005-03-03	blytkerchan
+	* modules: new module work-libmemory
+
 2004-10-26	blytkerchan
 	* modules (release-libcontain): add libarch
 	make arch directory contain only headers

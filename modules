@@ -38,6 +38,7 @@ libmemory-libarch -d libmemory/libarch arch/i486
 libmemory-libmemory -d libmemory/libmemory libmemory
 libmemory-config -d libmemory config
 release-libmemory -a libmemory-config libmemory-libmemory libmemory-arch libmemory-libarch
+work-libmemory -a libmemory-config libmemory-libmemory
 
 preprocessor-preprocessor -d preprocessor/preprocessor preprocessor
 preprocessor-config -d preprocessor config
