@@ -1,3 +1,6 @@
+2004-02-04	blytkerchan
+	* config-libhash: remove
+
 2004-02-03	blytkerchan
 	* Makefile.am: update
 	* configure.in: ditto
