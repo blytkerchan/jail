@@ -200,13 +200,14 @@ int list_delete(list_t * list, void * val)
 
 void * list_search(list_t * list, void * val)
 {
+	list_node_t * node;
 	list_state_t * state = (list_state_t*)alloca(sizeof(list_state_t));
 	state->prev = NULL;
 	state->curr = NULL;
 	state->cval = NULL;
 	state->cmark = 0;
 	
-	list_node_t * node = list_find(state, list, val);
+	node = list_find(state, list, val);
 
 	hptr_free(0);
 	hptr_free(1);

@@ -136,6 +136,12 @@ void hash_free(hash_t * hash)
 
 void *hash_get(hash_t * hash, void *key)
 {
+	void * retval;
+	unsigned int _hash;
+	list_t * list;
+	hash_node_t * node;
+	hash_node_t * rnode;
+
 #if ! DONT_USE_OBSOLETE
 #if ! DONT_USE_GLIB
 	if (hash->glib_hash)
@@ -146,12 +152,6 @@ void *hash_get(hash_t * hash, void *key)
 		return cxx_hash_get(hash->cxx_hash, key);
 #endif 
 #endif // ! DONT_USE_OBSOLETE
-
-	void * retval;
-	unsigned int _hash;
-	list_t * list;
-	hash_node_t * node;
-	hash_node_t * rnode;
 	
 	_hash = hash->hash(key);
 	list = hash->buckets[_hash % hash->n_buckets];

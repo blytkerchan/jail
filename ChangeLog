@@ -1,4 +1,10 @@
-2004-08-10	blytkerchan	solve race condition in vector with rw-spinlock
+2004-08-10	blytkerchan	compile with gcc 2.95.4
+	* array.c (array_sort_worker): move declaration for t_array up a bit
+	* hash.c (hash_get): move variable declarations before optional code
+	* list.c (list_search): move declaration of node to the top of the
+	function
+	
+solve race condition in vector with rw-spinlock
 	* vector.h: include libthread/rw_spinlock.h
 	[vector_t]: new member lock
 	* vector.c (interal_resize): new function

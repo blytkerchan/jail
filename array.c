@@ -462,13 +462,14 @@ static void array_sort_worker(array_node_t * array_nodes, size_t n, libcontain_c
 	if (n > 2)
 	{
 		size_t m = n / 2;
+		array_t * t_array;
 
 		/* sort the left half */
 		array_sort_worker(array_nodes, m + n % 2, cmp_func);
 		/* sort the right half */
 		array_sort_worker(array_nodes + m + n % 2, m, cmp_func);
 		/* merge the two halves */
-		array_t * t_array = array_merge1(array_nodes, array_nodes + m + n % 2, m + n % 2, m, cmp_func);
+		t_array = array_merge1(array_nodes, array_nodes + m + n % 2, m + n % 2, m, cmp_func);
 		/* copy the result back to where the original was */
 		memcpy(array_nodes, t_array->nodes, n * sizeof(array_node_t));
 		/* and free the temporary array that resulted from the merge */
