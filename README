@@ -33,43 +33,15 @@ the thread actually starts scanning) is also a global constant and is more
 or less a function of P and K. This has also become a global variable - under
 the same conditions as P and K (i.e. initialized once for the time being).
 
-Shortcomings in the Design
-==========================
-While studying the algorithm, I have found a potentially serious shortcoming
-that may cause programs using *any* implementation of the algorithm (including
-this one) to crash or behave unpredictably.
-
-In fact, the function Scan (implemented as smr_scan() in this implementation) 
-is called when the batch is full and will attempt to free the pointers queued 
-for deletion in the thread-local dlist. The shortcoming is this: if the pointers
-in the dlist are all dereferenced, the dlist will still be full when Scan() is
-done. The next call to DeleteNode (implemented as smr_free() in this 
-implementation) will add a new pointer to the thread-local dlist, which will
-be placed at dlist[dcount] - one index to the right of the end of the dlist.
-A buffer overrun will follow.
+Note that the batch size (global constant R) must be greater than (and not 
+equal to) P * K. If not, Scan() is not guaranteed to free up enough space
+to let DeleteNode do its work properly.
 
 The "Optimized" Version
 =======================
 The algorithm described by M.M. Micheal includes an optimized version which
 has not been implemented here, as I can't make any assumptions on the 
 structure of anything you might be using, nor its size.
-
-Note, though, that due to the following function description, the problem
-stated above will not result in a crash, but will result in no memory ever
-being freed:
-
-DeleteNode(node : *NodeType) {
-  node^.smrp <- dlist; dlist <- node; dcount++;
-  if dcount == R Scan() // <<< HERE!
-}
-
-The line marked with <<< HERE! should be:
-  if dcount >= R Scan()
-in which case the optimized version would not have the problem.
-
-Again, because the optimized versions makes some assumptions about the "nodes"
-stored at the pointers - assumptions that I cannot make - I have not 
-implemented it.
 
 Required System Features
 ========================

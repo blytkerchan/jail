@@ -1,4 +1,15 @@
+2004-03-03	blytkerchan
+	* README: remove mention of the bug in the algorithm as it is invalid:
+	a short discussion with mr Micheal has shown this..
+
 2004-02-25	blytkerchan
+	* hptr.c: don't include increment.h and decrement.h
+	(hptr_register): remove unnecessary call to atomic_increment
+	(hptr_free): remove unnuecessary call to atomic_decrement
+	(hptr_get_local_data): don't use the hpcount field in hptr_local_data_t
+	* hptr.h <hptr_local_data_t>: remove hpcount field
+	* Makefile: don't build increment and decrement
+
 	* *: import into Jail repository and apply Jail license
 
 	* libmemory.sgml: finalize

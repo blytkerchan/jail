@@ -42,7 +42,6 @@ typedef struct _hptr_global_data_t
 typedef struct _hptr_local_data_t
 {
 	void ** hp;
-	unsigned int hpcount;
 	struct _hptr_local_data_t * next;
 } hptr_local_data_t;
 

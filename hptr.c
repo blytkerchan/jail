@@ -38,8 +38,6 @@
 #include <stdlib.h>
 
 #include "compare_and_exchange.h"
-#include "increment.h"
-#include "decrement.h"
 
 extern smr_global_data_t * smr_global_data;
 hptr_global_data_t * hptr_global_data = NULL;
@@ -70,7 +68,6 @@ static hptr_local_data_t * hptr_get_local_data(void)
 	{
 		retval = (hptr_local_data_t*)malloc(sizeof(hptr_local_data_t));
 		pthread_setspecific(hptr_global_data->key, retval);
-		retval->hpcount = 0;
 		retval->hp = (void**)malloc(smr_global_data->n * sizeof(void*));
 		hptr_register_local_data(retval);
 	}
@@ -131,7 +128,6 @@ int hptr_register(unsigned int index, void * ptr)
 	
 	local_data = hptr_get_local_data();
 	while (compare_and_exchange(&exp, &(local_data->hp[index]), ptr));
-	atomic_increment(&(local_data->hpcount));
 
 	return(0);
 }
@@ -143,6 +139,5 @@ void hptr_free(unsigned int index)
 
 	local_data = hptr_get_local_data();
 	while (compare_and_exchange(&exp, &(local_data->hp[index]), NULL));
-	atomic_decrement(&(local_data->hpcount));
 }
 

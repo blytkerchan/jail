@@ -1,6 +1,6 @@
 CFLAGS=-g -Iarch/include -Wall -Werror
 LDFLAGS=-Wall -Werror -g -O2
-COMMON_OBJS=smr.o hptr.o arch/i486/increment.o arch/i486/decrement.o arch/i486/compare_and_exchange.o
+COMMON_OBJS=smr.o hptr.o arch/i486/compare_and_exchange.o
 
 all : test1 test2 
 
