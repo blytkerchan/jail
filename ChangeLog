@@ -1,3 +1,14 @@
+2004-05-03	blytkerchan	debug session
+	* Makefile.am [AM_CFLAGS]: new variable
+	* hptr.c (hptr_register_local_data): make it possible to register local data if none is registered yet..
+	(hptr_get_local_data): use calloc for allocations
+	(hptr_init): ditto
+	* smr.c (smr_get_private_data): ditto
+	(smr_init): ditto
+	(smr_binary_search_worker): compare the pointers, not what they point to
+	handle the case that mid == lower (or mid == upper)
+	(smr_scan_worker): handle the case that new hazard pointers are allocated and set during phase 1
+
 2004-04-30	blytkerchan	repair compilation
 	* configure.ac: find pthread_setspecific function in pthread library
 

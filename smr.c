@@ -48,11 +48,11 @@ static smr_private_data_t * smr_get_private_data(void)
 	retval = pthread_getspecific(smr_global_data->key);
 	if (retval == NULL)
 	{
-		retval = (smr_private_data_t*)malloc(sizeof(smr_private_data_t));
+		retval = (smr_private_data_t*)calloc(1, sizeof(smr_private_data_t));
 		pthread_setspecific(smr_global_data->key, retval);
 		retval->dcount = 0;
 		retval->dsize = (smr_global_data->k * smr_global_data->p) + 1;
-		retval->dlist = (void**)malloc(retval->dsize * sizeof(void*));
+		retval->dlist = (void**)calloc(retval->dsize, sizeof(void*));
 	}
 	
 	return retval;
@@ -85,7 +85,7 @@ int smr_init(unsigned int n_hptr)
 {
 	int rv;
 	
-	smr_global_data = (smr_global_data_t*)malloc(sizeof(smr_global_data_t));
+	smr_global_data = (smr_global_data_t*)calloc(1, sizeof(smr_global_data_t));
 	smr_global_data->p = 1;
 	smr_global_data->k = n_hptr;  
 	rv = pthread_key_create(&(smr_global_data->key), smr_cleanup_private_data);
@@ -126,12 +126,20 @@ static unsigned int smr_binary_search_worker(void ** list, size_t lower, size_t 
 			return ~0;
 	}
 	mid = (lower + upper) / 2;
-	if ((*(int*)ptr) > (*(int*)list[mid]))
+	if (((int)ptr) > ((int)list[mid]))
+	{
+		if (mid == upper)
+			return ~0;
 		return smr_binary_search_worker(list, mid + 1, upper, ptr);
+	}
 	else
 	{
-		if ((*(int*)ptr) < (*(int*)list[mid]))
+		if (((int)ptr) < ((int)list[mid]))
+		{
+			if (mid == lower)
+				return ~0;
 			return smr_binary_search_worker(list, lower, mid - 1, ptr);
+		}
 		else
 			return mid;
 	}
@@ -153,12 +161,16 @@ static void smr_scan_worker(smr_private_data_t * priv_data)
 	void ** plist;
 	void ** new_dlist;
 	hptr_local_data_t * hptr_data;
-	unsigned int R = (smr_global_data->k * smr_global_data->p);
-	unsigned int new_dsize = R + 1;
-	
+	unsigned int R;
+	unsigned int new_dsize;
+
+smr_scan_worker_start:
+	R = smr_global_data->k * smr_global_data->p;
+	new_dsize = R + 1;
 	p = new_dcount = 0;
 	plist = (void**)alloca(R * sizeof(void*));
-	new_dlist = (void**)malloc(new_dsize * sizeof(void*));
+	memset(plist, 0, R * sizeof(void*));
+	new_dlist = (void**)calloc(new_dsize, sizeof(void*));
 		
 	// stage 1
 	hptr_data = smr_global_data->first;
@@ -168,6 +180,11 @@ static void smr_scan_worker(smr_private_data_t * priv_data)
 		{
 			if ((hptr = hptr_data->hp[i]) != NULL)
 				plist[p++] = hptr;
+			if (p == R)
+			{
+				free(new_dlist);
+				goto smr_scan_worker_start;
+			}
 		}
 		hptr_data = hptr_data->next;
 	}

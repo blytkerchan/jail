@@ -45,8 +45,24 @@ hptr_global_data_t * hptr_global_data = NULL;
 static void hptr_register_local_data(hptr_local_data_t * data)
 {
 	void * exp;
+	int registered = 0;
 	
 try_again:
+	if (smr_global_data->first == NULL)
+	{
+		exp = NULL;
+		if (compare_and_exchange(&exp, &(smr_global_data->first), data) != 0)
+			goto try_again;
+		registered = 1;
+	}
+	if (smr_global_data->last == NULL)
+	{
+		exp = NULL;
+		if (compare_and_exchange(&exp, &(smr_global_data->last), smr_global_data->first) != 0)
+			goto try_again;
+	}
+	if (registered)
+		return;
 	while (smr_global_data->last->next != NULL)
 	{
 		exp = smr_global_data->last;
@@ -67,9 +83,9 @@ static hptr_local_data_t * hptr_get_local_data(void)
 	retval = pthread_getspecific(hptr_global_data->key);
 	if (retval == NULL)
 	{
-		retval = (hptr_local_data_t*)malloc(sizeof(hptr_local_data_t));
+		retval = (hptr_local_data_t*)calloc(1, sizeof(hptr_local_data_t));
 		pthread_setspecific(hptr_global_data->key, retval);
-		retval->hp = (void**)malloc(smr_global_data->k * sizeof(void*));
+		retval->hp = (void**)calloc(smr_global_data->k, sizeof(void*));
 		hptr_register_local_data(retval);
 	}
 
@@ -111,7 +127,7 @@ try_again:
 
 int hptr_init(void)
 {
-	hptr_global_data = (hptr_global_data_t *)malloc(sizeof(hptr_global_data_t));
+	hptr_global_data = (hptr_global_data_t *)calloc(1, sizeof(hptr_global_data_t));
 	pthread_key_create(&(hptr_global_data->key), hptr_cleanup_local_data);
 
 	return(0);
