@@ -42,6 +42,14 @@ AC_PROG_MAKE_SET
 AC_PROG_LIBTOOL
 
 # Checks for libraries.
+AC_CHECK_FUNC([pthread_setspecific], , [
+	AC_CHECK_LIB([pthread], [pthread_setspecific], [
+		LIBS="-lpthread $LIBS"
+	], [
+		echo "Error: you need pthread_setspecific & friends for this library!"
+		(exit 1); exit 1;
+	], [])
+])
 
 # Checks for header files.
 AC_HEADER_STDC

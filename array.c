@@ -37,6 +37,8 @@
 #include <libmemory/hptr.h>
 #include "arch/include/set.h"
 #include "arch/include/compare_and_exchange.h"
+#include "arch/include/increment.h"
+#include "arch/include/decrement.h"
 #include "array.h"
 #include "binary.h"
 #include "thread.h"
@@ -117,7 +119,7 @@ void array_put(array_t * array, size_t i, void * val)
 				increase = (((i - size) / increase) + 1) * increase;
 				array_resize(array, size + increase);
 			}
-		} while (nodes != array->nodes)
+		} while (nodes != array->nodes);
 		rv = NULL;
 		while (compare_and_exchange(&rv, &(nodes[i].val), val) != 0);
 	} while (nodes != array->nodes);
@@ -156,7 +158,7 @@ void array_push_back(array_t * array, void * val)
 				{
 					nodes = array->nodes;
 					hptr_register(0, nodes);
-				} while (nodes != array->nodes)
+				} while (nodes != array->nodes);
 				size = array->size;
 				if (!size)
 					continue;
@@ -196,11 +198,10 @@ size_t array_get_numentries(array_t * array)
 
 void array_resize(array_t * array, size_t n_size)
 {
-	array_node_t * new_nodes = calloc(size, sizeof(array_node_t));
+	array_node_t * new_nodes = calloc(n_size, sizeof(array_node_t));
 	array_node_t * o_nodes;
 	array_node_t * nodes;
 	size_t size;
-	int exp = 0;
 	
 	do
 	{
@@ -237,7 +238,7 @@ void array_resize(array_t * array, size_t n_size)
 			continue;
 		}
 		size = 0;
-		compare_and_exchange(&size, &(array->size), n_size);
+		compare_and_exchange(&size, &(array->size), (void*)n_size);
 		free(o_nodes);
 	} while (n_size < array->size);
 	hptr_free(0);
@@ -250,7 +251,7 @@ array_t * array_copy(array_t * array)
 	size_t i;
 
 	for (i = 0; i < size; i++)
-		array_put(retval, array_get(array, i));
+		array_put(retval, i, array_get(array, i));
 
 	return retval;
 }
@@ -522,6 +523,7 @@ void * array_search(array_t * array, void * val, array_cmp_func_t cmp_func)
 	size_t rc;
 	array_node_t * nodes;
 	void * retval = NULL;
+	size_t size;
 
 	do
 	{
@@ -544,12 +546,12 @@ void * array_search(array_t * array, void * val, array_cmp_func_t cmp_func)
 		retval = nodes[rc].val;
 	hptr_free(0);
 	
-	return reval;
+	return retval;
 }
 
 void array_set_default_increase(array_t * array, size_t increase)
 {
-	atomic_set(&(array->increase), increase);
+	atomic_set((void**)(&(array->increase)), (void*)increase);
 }
 
 array_t * array_deep_copy(array_t * array, array_valcopy_func_t array_valcopy_func)
@@ -557,6 +559,7 @@ array_t * array_deep_copy(array_t * array, array_valcopy_func_t array_valcopy_fu
 	size_t i;
 	size_t size;
 	array_t * retval;
+	void * val;
 
 	do
 	{
@@ -567,7 +570,7 @@ array_t * array_deep_copy(array_t * array, array_valcopy_func_t array_valcopy_fu
 	{
 		val = array_get(array, i);
 		if (val != NULL)
-			array_put(retval, array_valcopy_func(array->nodes[i].val));
+			array_put(retval, i, array_valcopy_func(array->nodes[i].val));
 	}
 
 	return retval;

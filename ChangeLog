@@ -1,3 +1,19 @@
+2004-04-30	blytkerchan	repairing compilation :)
+	* Makefile.am [SUBDIRS]: move libmemory before local
+	[libcontain_la_LIBADD]: add libmemory
+	* array.c: include increment.h and decrement.h from architecture-specific code
+	(array_put): add missing semicolon
+	(array_push_back): ditto
+	(array_resize): use n_size in stead of size to allocate the new nodes
+	remove unused variable exp
+	cast n_size to pointer in compare_and_exchange call
+	(array_copy): repair call to array_put
+	(array_search): define size variable
+	repaire type-o
+	(array_deep_copy): define val variable
+	repair call to array_put
+	* configure.in: find pthread_setspecific function in pthread library
+
 2004-04-29	blytkerchan	using libmemory in array implementation
 	* how_arrays_work: new file
 	* thread.h: ditto
