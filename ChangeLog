@@ -1,4 +1,8 @@
 2003-09-02	blytkerchan
+	* table.html: new file
+	* empty.html: use OBJECT element to include table.html
+
+2003-09-02	blytkerchan
 	* tech_arch.html: update references to dereference new files
 
 2003-08-25	blytkerchan
