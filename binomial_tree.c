@@ -36,6 +36,7 @@
 #include <libmemory/hptr.h>
 #include "arch/include/compare_and_exchange.h"
 #include "binomial_tree.h"
+#include "binary.h"
 
 binomial_tree_t * binomial_tree_new(void)
 {
@@ -123,7 +124,7 @@ binomial_tree_node_t * binomial_tree_node_get_left(binomial_tree_node_t * node)
 		o_node = node->left;
 		if (o_node != NULL)
 			hptr_register(0, o_node);
-	} while (o_node != node->left)
+	} while (o_node != node->left);
 	if (o_node != NULL)
 		return o_node;
 	n_node = binomial_tree_node_new(node);
@@ -218,18 +219,18 @@ int binomial_tree_node_set_value(binomial_tree_node_t * node, void * curr, void 
 
 static binomial_tree_node_t * binomial_tree_node_select(binomial_tree_node_t * root, unsigned int level, unsigned int nodeind)
 {
-	unsigned int h, K, n, F, r;
+	unsigned int h, n, K, F, r;
 
 	h = level + 1;
-	K = pow2(h) - 1;
-	n = K + nodeind;
+	n = pow2(level) + nodeind - 1;
 binomial_tree_node_select_start:
+	K = pow2(h) - 1;
 	F = pow2(h - 2);
 	r = K - n;
 
 	if (n == 0)
 		return root;
-	if (r >= F)
+	if (r > F)
 	{
 		root = binomial_tree_node_get_left(root);
 		h--;
@@ -285,7 +286,7 @@ void binomial_tree_node_foreach(binomial_tree_node_t * root, binomial_tree_node_
 			if ((val = node->val) != NULL)
 			{
 				found_node = 1;
-				func(val);
+				func(val, data);
 			}
 		}
 		if (found_node)
@@ -295,10 +296,16 @@ void binomial_tree_node_foreach(binomial_tree_node_t * root, binomial_tree_node_
 		else
 			break;
 	}
+	hptr_register(0, root);
+	hptr_free(1);
 }
 
 void binomial_tree_foreach(binomial_tree_t * handle, binomial_tree_node_foreach_func_t func, void * data)
 {
-	binomial_tree_node_foreach(binomial_tree_get_root(handle), func, data);
+	binomial_tree_node_t * root;
+
+	root = binomial_tree_get_root(handle);
+	binomial_tree_node_foreach(root, func, data);
+	binomial_tree_node_release(root);
 }
 

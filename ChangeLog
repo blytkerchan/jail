@@ -1,4 +1,18 @@
-2004-05-04	blytkerchan	implementing hazard pointers in the binomial tree
+2004-05-04	blytkerchan
+debug session
+	* binomial_tree.c: include binary.h
+	(binomial_tree_node_get_left): add missing semicolon
+	(binomial_tree_node_select): set K after the label
+	don't use K when setting n
+	take right branch when r == F
+	(binomial_tree_node_foreach): don't forget to pass data to func
+	(binomial_tree_node_foreach): release hazardous reference in register 1
+	(binomial_tree_foreach): release hazardous reference to root
+	* binomial_tree.h: include libcontain_config.h
+	* map.c: whitespace change
+	* TODO: update
+
+implementing hazard pointers in the binomial tree
 	* binomial_tree.c: include libmemory headers
 	(binomial_tree_get_root): make a hazardous reference to the node before returning it
 	(binomial_tree_node_get_left): ditto

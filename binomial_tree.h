@@ -34,6 +34,8 @@
 #ifndef _LIBCONTAIN_BINOMIAL_TREE_H
 #define _LIBCONTAIN_BINOMIAL_TREE_H
 
+#include "libcontain_config.h"
+
 typedef struct _binomial_tree_node_t {
 	void * val;
 	struct _binomial_tree_node_t * left;

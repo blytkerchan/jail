@@ -1,8 +1,9 @@
 Milestone | Mission
 ----------+------------------------------------------------------------------
-0.1-alpha2| * repair ``make distcheck''
+0.1-beta1 | * repair ``make distcheck''
 0.2       | * make hash thread-safe
           | * add heap
+	  | * integrate libmemory
 0.3       | * add a hash implementation that uses lists as buckets
           | * deprecate the use of NULL as helper functions in hash interface
 	  | * deprecate the use of the C++ implementation of the hash with the
