@@ -37,6 +37,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include "../libconf.h"
+#include "../libreplace/macros.h"
 
 /* defines go here */
 /* we want the parser and the scanner to take a parameter */
@@ -62,7 +63,7 @@
 							param->val.array_val, (void*)atoi(yylval.str));			\
 					else																			\
 						array_push_back(														\
-							param->val.array_val, strdup(yylval.str));				\
+							param->val.array_val, trim(strdup(yylval.str)));		\
 					break;																		\
 				}																					\
 			}																						\

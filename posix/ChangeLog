@@ -1,4 +1,7 @@
 2004-04-12	blytkerchan
+	* confp.y: include ../libreplace/macros.h
+	strip values added to existing arrays
+
 	* Makefile.am: take MT_SAFE option into account
 	* confl.l: ditto
 	* confp.y: enable parser debugging
