@@ -52,9 +52,10 @@ static lt_thread_t * _lt_thread_list_find(lt_thread_list_state_t * state, lt_thr
 	int rv;
 	
 try_again:
-	/* the hazardous reference here is a slight modification of MM Micheal's algorithm: 
-	 * in the original algorithm, no hazard pointer is used to hold prev if prev is
-	 * the head of the list. I do this mostly for consistency: hptr2 contains prev, hptr0
+	/* the hazardous reference here is a slight modification of MM 
+	 * Micheal's algorithm: in the original algorithm, no hazard
+	 * pointer is used to hold prev if prev is the head of the list. I
+	 * do this mostly for consistency: hptr2 contains prev, hptr0
 	 * contains next and hptr1 contains curr */
 	do
 	{

@@ -1,3 +1,7 @@
+2004-12-14	blytkerchan
+	* rw_lock.c: make comments easier to read on a 80*25 screen
+	* thread_list.c: ditto
+
 2004-10-28	blytkerchan
 	* barrier.c: canonicalize arch includes
 	* critical_section.c: ditto

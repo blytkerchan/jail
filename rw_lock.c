@@ -160,60 +160,71 @@ void lt_rwlock_schedule(lt_rwlock_t * lock)
 	}
 	else 
 	{
-		/* we were the first, so either someone is already scheduling is, or 
-		 * we start scheduling everybody behind us until the general queue is
-		 * empty. */
+		/* we were the first, so either someone is already scheduling 
+		 * is, or we start scheduling everybody behind us until the
+		 * general queue is empty. */
 		void * exp;
 
 		/* try to become the scheduler */
 		exp = NULL;
 		if (compare_and_exchange_ptr(&exp, &(lock->scheduler), lt_thread_self()) != 0) {
-			/* some other thread is already scheduling - let him do the work */
+			/* some other thread is already scheduling - let him
+			 * do the work */
 			lt_thread_suspend(lt_thread_self());
 		} else {
-			/* we're the scheduler. Because of this, we know we're the only thread
-			 * adding to the two readers lists and the writers queue, and removing
-			 * from the general queue. */
+			/* we're the scheduler. Because of this, we know we're
+			 * the only thread adding to the two readers lists and
+			 * the writers queue, and removing from the general
+			 * queue. */
 
 			while (!lt_thread_queue_empty(lock->general)) 
 			{
 				/* get the next thread to schedule */
 				curr = lt_thread_queue_deq(lock->general);
-				/* note that we don't handle ourselves specially here: when we're
-				 * done, we'll see where we are and act accordingly */
+				/* note that we don't handle ourselves
+				 * specially here: when we're done, we'll
+				 * see where we are and act accordingly */
 				switch (curr->flag)
 				{
 				case READER :
 					if (lt_thread_queue_empty(lock->writers)) 
 					{
-						/* if there are no writers, the thread (which is a reader) 
-						 * goes to the second readers list and can go on 
+						/* if there are no writers,
+						 * the thread (which is a
+						 * reader) goes to the second
+						 * readers list and can go on 
 						 * immediatly. */
 						lt_thread_list_insert(lock->readers[1], curr);
 						lt_thread_wake(curr);
 					} 
 					else 
 					{
-						/* if there are writers, the thread will have to continue 
-						 * sleeping until the writers are done. */
+						/* if there are writers, the
+						 * thread will have to continue 
+						 * sleeping until the writers
+						 * are done. */
 						lt_thread_list_insert(lock->readers[0], curr);
 					}
 					break;
 				case WRITER :
 					/* in any case, we enqueue the writer */
 					lt_thread_queue_enq(lock->writers, curr);
-					/* we then look whether there are any active readers (in 
-					 * lock->readers[1]). If not, we wake the writer */
+					/* we then look whether there are any
+					 * active readers (in 
+					 * lock->readers[1]). If not, we wake
+					 * the writer */
 					if (lt_thread_list_empty(lock->readers[1])) 
 						lt_thread_wake(curr);
 					break;
 				}
 			}
-			/* now, there are no more threads to schedule, so we're done. */
+			/* now, there are no more threads to schedule, so
+			 * we're done. */
 			exp = lt_thread_self();
 			assert(compare_and_exchange_ptr(&exp, &(lock->scheduler), NULL) == 0);
-			/* if there are any threads in the general queue now, we wake up the
-			 * first and let him handle the scheduling */
+			/* if there are any threads in the general queue now,
+			 * we wake up the first and let him handle the
+			 * scheduling */
 			if (!lt_thread_queue_empty(lock->general))
 				lt_thread_wake(lt_thread_queue_first(lock->general));
 		}
@@ -221,8 +232,9 @@ void lt_rwlock_schedule(lt_rwlock_t * lock)
 
 	while (1) 
 	{
-		/* when we get here, we've either been scheduling the other threads or
-		 * we've been woken up. We check which it is by checking where we are. */
+		/* when we get here, we've either been scheduling the other
+		 * threads or we've been woken up. We check which it is by
+		 * checking where we are. */
 		switch (lt_thread_self()->flag)
 		{
 		case READER :
@@ -231,8 +243,8 @@ void lt_rwlock_schedule(lt_rwlock_t * lock)
 				return; /* break out of the endless loop */
 			break;
 		case WRITER :
-			/* writers can continue if they're the first one in the queue
-			 * and the second readers list is empty */
+			/* writers can continue if they're the first one in
+			 * the queue and the second readers list is empty */
 			if (lt_thread_list_empty(lock->readers[1]) && 
 				(lt_thread_eq(lt_thread_self(), lt_thread_queue_first(lock->writers)) == 0))
 				return; /* break out of the endless loop */
