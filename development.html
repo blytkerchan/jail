@@ -58,19 +58,44 @@ might, if needed, allow access to external databases.</p>
 part depends on, and work on it to get a minimal working implementation so we
 can get started on other parts. The container library is such a part, so 
 development on it is active. The memory manager is another such part.</p>
-
-
-<!-- PUT THIS IS LICENSING.HTML
-<p>Jail's licensing scheme revolves around a BSD-like license with an added
-clause which lets me (rlc) decide whether or not the code is also covered by the
-GNU General Public License, and for whom. I've copied this idea from Cygwin, as
-I think it can be helpful in pushing people to making useful contributions. 
-Written approval of publishing the code without covering it with the GNU Public
-License will be granted to those who make a useful contribution to the project,
-either by contributing source code, know-how or money. (Any money contributed
-will be added to an account for the Jail project, that will serve only for the
-project. None of the developers are paid).</p>
--->
+<h2>Status</h2>
+<p>The project currently periodically releases the libcontain library. At the
+time of this writing, May 4, 2004, preparations are being made to integrate
+libmemory into libcontain and release both libmemory and libcontain.</p>
+<p>Releases of libcontain are governed mostly by its own development plan,
+which currently looks somewhat like this:
+<table>
+<tbody>
+<tr class="title"><td>Milestone</td><td>Mission</td></tr>
+<tr><td>0.1-beta1</td><td><ul><li>repair ``make distcheck''</ul></td></tr>
+<tr><td>0.2</td><td><ul><li>make hash thread-safe</li><li>add heap</li><li>Integrate libmemory</li></ul></td></tr>
+<tr><td>0.3</td><td><ul><li>add hash implementation that uses lists as buckets</li><li>deprecate the use of NULL as helper functions in hash interface</li><li>deprecate the use of the C++ implementation of the hash with the C interface</li></ul></td></tr>
+<tr><td>0.4</td><td><ul><li>in the HASH, HASS and HASI file formats, add the number of entries in the hash and grow to fit on read</li></ul></td></tr>
+<tr><td>???</td><td><ul><li>make template interfaces for each container</li></ul></td></tr>
+</tbody>
+</table>
+While working according to this plan, for version 0.2, two new containers were
+added: a heap and a map. Both are based on a binomial tree (which is why both
+were added at the same time). Libmemory is being integrated at the moment, 
+which leaves making the Hash implementation thread-safe.</p>
+<p>It is, at present, unclear whether the glib hash implementation will stay
+in the library: there are some major differences in the design of the glib 
+implementation vis-&agrave;-vis the design of libcontain - most notably with
+respect to the ownership of was is stored in the hash. It may be that the
+implementation is either deprecated or removed before version 0.3, and/or that
+it is not made thread-safe when the C++ implementation is.</p>
+<p>The C++ implementation has some other flaws - mainly because of the fact
+that my C++ skills were rather rusty back then. There may be a version 0.2
+before it is made completely thread-safe, in which case the mission of making
+it thread-safe will be moved to milestone 0.3 (and the other milestones will be
+bumped).</p>
+<p>For the time being, however, the plan still stands. Version 0.2 is under
+development, and version 0.1 has an alpha version "in the wild" waiting
+for feedback. Please feel free to test-drive the library a bit - I'm rather
+sure you'll like it. Also note that the licensing of this free software is
+rather relaxed for contributors, so if you want to use it in commercial, closed
+software, the fact that this is free software should not be a show-stopper for
+you.</p>
 </div>
 </td>
 <td width="20%" valign="top">
@@ -90,7 +115,7 @@ width="210" height="62" border="0" align="right" alt=
 "SourceForge.net Logo"></a>
 </td><td style="vertical-align: bottom; text-align: right; font-size: smaller;">
 <a href="#top">back to top</a><br/>
-This page was last updated: $Date: 2004/04/19 17:56:06 $
+This page was last updated: $Date: 2004/05/04 21:22:16 $
 </td></tr></tbody></table>
 </body>
 </html>
