@@ -1,3 +1,7 @@
+2003-10-28	blytkerchan
+	* stack.c: rewrite
+	* stack.h: ditto
+
 2003-10-22	blytkerchan
 	* stack.c: new file
 	* stack.h: ditto

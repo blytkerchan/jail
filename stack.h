@@ -34,11 +34,16 @@
 #ifndef _LIBCONTAIN_STACK_H
 #define _LIBCONTAIN_STACK_H
 
-typedef struct stack_node_t;
+typedef struct stack_node_t {
+	void 	* val;
+	struct stack_node_t * next;
+	int removed;
+} stack_node_t;
+
 typedef struct stack_t
 {
 	stack_node_t	* top;
-};
+} stack_t;
 
 /* All stack operations are guaranteed to be thread-safe, meaning you can do 
  * them all on the same stack at the same time, if you want.
