@@ -35,6 +35,7 @@
 #define _LIBCONTAIN_BINOMIAL_TREE_H
 
 #include "libcontain_config.h"
+#include "types.h"
 
 typedef struct _binomial_tree_node_t {
 	void * val;
@@ -46,8 +47,6 @@ typedef struct _binomial_tree_node_t {
 typedef struct {
 	binomial_tree_node_t * trunk;
 } binomial_tree_t;
-
-typedef void (*binomial_tree_node_foreach_func_t)(void * val, void * data);
 
 /* create a new, empty, binomial tree */
 binomial_tree_t * binomial_tree_new(void);
@@ -90,6 +89,6 @@ void * binomial_tree_node_get_value(binomial_tree_node_t * node);
  * return 0 if successful, nonzero if not. */
 int binomial_tree_node_set_value(binomial_tree_node_t * node, void * curr, void * val);
 /* walk the entire tree and call func on the value of each node. Pass data along to func for each call. */
-void binomial_tree_node_foreach(binomial_tree_node_t * root, binomial_tree_node_foreach_func_t func, void * data);
-void binomial_tree_foreach(binomial_tree_t * handle, binomial_tree_node_foreach_func_t func, void * data);
+void binomial_tree_node_foreach(binomial_tree_node_t * root, libcontain_foreach_func_t func, void * data);
+void binomial_tree_foreach(binomial_tree_t * handle, libcontain_foreach_func_t func, void * data);
 #endif

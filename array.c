@@ -265,7 +265,7 @@ array_t * array_copy(array_t * array)
  * otherwise. If all items are smaller than the searched-for item, ~0 is
  * returned.
  */
-static size_t array_binary_search(array_node_t * array_nodes, size_t lower, size_t upper, void * val, array_cmp_func_t cmp_func)
+static size_t array_binary_search(array_node_t * array_nodes, size_t lower, size_t upper, void * val, libcontain_cmp_func_t cmp_func)
 {
 	size_t low = lower;
 	size_t high = upper;
@@ -308,7 +308,7 @@ static size_t array_binary_search(array_node_t * array_nodes, size_t lower, size
 
 /* An implementation of a linear search 
  */
-static size_t array_linear_search(array_node_t * array_nodes, size_t lower, size_t upper, void * val, array_cmp_func_t cmp_func)
+static size_t array_linear_search(array_node_t * array_nodes, size_t lower, size_t upper, void * val, libcontain_cmp_func_t cmp_func)
 {
 	size_t curr;
 	
@@ -336,7 +336,7 @@ static size_t array_merge2(
 	size_t * m, 
 	array_node_t * array_nodes3, 
 	size_t next, 
-	array_cmp_func_t cmp_func)
+	libcontain_cmp_func_t cmp_func)
 {
 	size_t k = pow2(lg(*n / *m)) - 1;
 
@@ -373,7 +373,7 @@ static size_t array_merge2(
  * 
  * The return value is a new, merged array
  */
-static array_t * array_merge1(array_node_t * array_nodes1, array_node_t * array_nodes2, size_t n, size_t m, array_cmp_func_t cmp_func)
+static array_t * array_merge1(array_node_t * array_nodes1, array_node_t * array_nodes2, size_t n, size_t m, libcontain_cmp_func_t cmp_func)
 {
 	array_t * retval = new_array(n + m);
 	size_t next = n + m;
@@ -393,7 +393,7 @@ static array_t * array_merge1(array_node_t * array_nodes1, array_node_t * array_
 	return retval;
 }
 
-array_t * array_merge(array_t * array1, array_t * array2, array_cmp_func_t cmp_func)
+array_t * array_merge(array_t * array1, array_t * array2, libcontain_cmp_func_t cmp_func)
 {
 	array_node_t * nodes1;
 	array_node_t * nodes2;
@@ -479,7 +479,7 @@ void array_condense(array_t * array)
  * array_nodes is an array of array_node_t's
  * n is the number of nodes in array_nodes
  */
-static void array_sort_worker(array_node_t * array_nodes, size_t n, array_cmp_func_t cmp_func)
+static void array_sort_worker(array_node_t * array_nodes, size_t n, libcontain_cmp_func_t cmp_func)
 {
 	if (n > 2)
 	{
@@ -503,7 +503,7 @@ static void array_sort_worker(array_node_t * array_nodes, size_t n, array_cmp_fu
 	}
 }
 
-void array_sort(array_t * array, array_cmp_func_t cmp_func)
+void array_sort(array_t * array, libcontain_cmp_func_t cmp_func)
 {
 	array_node_t * nodes;
 	
@@ -518,7 +518,7 @@ void array_sort(array_t * array, array_cmp_func_t cmp_func)
 	hptr_free(0);
 }
 
-void * array_search(array_t * array, void * val, array_cmp_func_t cmp_func)
+void * array_search(array_t * array, void * val, libcontain_cmp_func_t cmp_func)
 {
 	size_t rc;
 	array_node_t * nodes;
@@ -554,7 +554,7 @@ void array_set_default_increase(array_t * array, size_t increase)
 	atomic_set((void**)(&(array->increase)), (void*)increase);
 }
 
-array_t * array_deep_copy(array_t * array, array_valcopy_func_t array_valcopy_func)
+array_t * array_deep_copy(array_t * array, libcontain_copy_func_t array_valcopy_func)
 {
 	size_t i;
 	size_t size;
@@ -576,7 +576,7 @@ array_t * array_deep_copy(array_t * array, array_valcopy_func_t array_valcopy_fu
 	return retval;
 }
 
-void array_foreach(array_t * array, array_foreach_func_t array_foreach_func, void * data)
+void array_foreach(array_t * array, libcontain_foreach_func_t array_foreach_func, void * data)
 {
 	int i;
 	size_t size;

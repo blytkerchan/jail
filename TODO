@@ -1,13 +1,11 @@
 Milestone | Mission
 ----------+------------------------------------------------------------------
-0.1-beta1 | * repair ``make distcheck''
-0.2       | * make hash thread-safe
-          | * add heap
-	  | * integrate libmemory
+0.2-beta1 | * repair ``make distcheck''
 0.3       | * add a hash implementation that uses lists as buckets
-          | * deprecate the use of NULL as helper functions in hash interface
-	  | * deprecate the use of the C++ implementation of the hash with the
+          | * obsolete the use of NULL as helper functions in hash interface
+	  | * obsolete the use of the C++ implementation of the hash with the
 	  |   C interface
+	  | * obsolete the glib implementation
 0.4	  | * in the HASH, HASS and HASI file formats, add the number of entries
           |   in the hash and grow to fit on read
 ???       | * Make a template interface for each container

@@ -34,6 +34,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <libmemory/smr.h>
+#include <libmemory/hptr.h>
 
 #include "hash.h"
 #include "c_interface.h"
@@ -41,13 +43,42 @@
 #include "glib/ghash.h"
 #endif // DONT_USE_GLIB
 
-hash_t * new_hash(libhash_hashtype hash_type,
-						hash_key_hash_func_t hash_func,
-						hash_key_cmp_func_t compare_func)
-				    {
-	hash_t * retval = (hash_t*)malloc(sizeof(hash_t));
-	memset(retval, 0, sizeof(hash_t));
+hash_node_t * hash_node_new(void)
+{
+	hash_node_t * retval = calloc(1, sizeof(hash_node_t));
+
+	return retval;
+}
+
+void hash_node_free(hash_node_t * hash_node)
+{
+	free(hash_node);
+}
+
+int hash_node_cmp(const void * node1, const void * node2)
+{
+	const hash_node_t * hash_node1 = (const hash_node_t *)node1;
+	const hash_node_t * hash_node2 = (const hash_node_t *)node2;
+	int rc;
 	
+	if ((rc = hash_node1->hash - hash_node2->hash) == 0)
+		return hash_node1->cmp(hash_node1->key, hash_node2->key);
+	else return rc;
+}
+
+hash_t * hash_new(
+#if ! DONT_USE_OBSOLETE
+	libhash_hashtype hash_type,
+#endif // ! DONT_USE_OBSOLETE
+	size_t n_buckets,
+	libcontain_hash_func_t hash_func,
+	libcontain_cmp_func_t compare_func
+)
+{
+	int i;
+	hash_t * retval = (hash_t*)calloc(1, sizeof(hash_t));
+
+#if ! DONT_USE_OBSOLETE
 	switch (hash_type)
 	{
 #if ! DONT_USE_CXX
@@ -62,26 +93,50 @@ hash_t * new_hash(libhash_hashtype hash_type,
 		retval->glib_hash = g_hash_table_new(hash_func, compare_func);
 		return retval;
 #endif
-	default :
-		return NULL;
 	}
+#endif
+	if (n_buckets == 0)
+		n_buckets = HASH_DEFAULT_BUCKETS;
+	retval->buckets = (list_t**)calloc(n_buckets, sizeof(list_t*));
+	for (i = 0; i < n_buckets; i++)
+		retval->buckets[i] = list_new(hash_node_cmp);
+	retval->cmp = compare_func;
+	retval->hash = hash_func;
+	retval->n_buckets = n_buckets;
+
+	return retval;
 }
 
-void delete_hash(hash_t * hash)
+void hash_free_helper(const void * val, void * data)
 {
+	hash_node_free((hash_node_t*)val);
+}
+
+void hash_free(hash_t * hash)
+{
+	int i;
+#if ! DONT_USE_OBSOLETE
 #if ! DONT_USE_GLIB
 	if (hash->glib_hash)
 		g_hash_table_destroy(hash->glib_hash);
-#endif 
+#endif // ! DONT_USE_GLIB
 #if ! DONT_USE_CXX
 	if (hash->cxx_hash)
 		cxx_delete_hash(hash->cxx_hash);
-#endif
+#endif // ! DONT_USE_CXX
+#endif // ! DONT_USE_OBSOLETE
+	
+	for (i = 0; i < hash->n_buckets; i++)
+	{
+		list_foreach(hash->buckets[i], hash_free_helper, NULL);
+		list_free(hash->buckets[i]);
+	}
 	free(hash);
 }
 
-void *hash_get(hash_t * hash, const void *key)
+void *hash_get(hash_t * hash, void *key)
 {
+#if ! DONT_USE_OBSOLETE
 #if ! DONT_USE_GLIB
 	if (hash->glib_hash)
 		return g_hash_table_lookup(hash->glib_hash, key);
@@ -90,10 +145,36 @@ void *hash_get(hash_t * hash, const void *key)
 	if (hash->cxx_hash)
 		return cxx_hash_get(hash->cxx_hash, key);
 #endif 
-	return NULL;
+#endif // ! DONT_USE_OBSOLETE
+
+	void * retval;
+	unsigned int _hash;
+	list_t * list;
+	hash_node_t * node;
+	hash_node_t * rnode;
+	
+	_hash = hash->hash(key);
+	list = hash->buckets[_hash % hash->n_buckets];
+	node = hash_node_new();
+	node->key = key;
+	/* the following searches the list twice. I don't especially like that but
+	 * in this setup we need a hazardous reference to the hash node, which 
+	 * means that once we've registered it, we need to know it is still OK */
+	while ((rnode = list_search(list, node)) != hptr_get(3))
+	{
+		hptr_register(3, rnode);
+	} 
+	if (rnode)
+		retval = rnode->val;
+	else
+		retval = NULL;
+	hptr_free(3);
+	hash_node_free(node);
+	
+	return retval;
 }
 
-int hash_put(hash_t * hash, const void *key, const void *value)
+int hash_put(hash_t * hash, void *key, void *value)
 {
 #if ! DONT_USE_GLIB
 	if (hash->glib_hash)
@@ -109,7 +190,7 @@ int hash_put(hash_t * hash, const void *key, const void *value)
 	return -1;
 }
 
-int hash_remove(hash_t * hash, const void *key)
+int hash_remove(hash_t * hash, void *key)
 {
 #if ! DONT_USE_GLIB
 	if (hash->glib_hash)
@@ -162,21 +243,21 @@ void ** hash_keys(hash_t * hash)
 
 struct hash_search_t
 {
-	hash_val_cmp_func_t compare;
+	libcontain_cmp_func_t compare;
 	void * searchfor;
 	void * retval;
 };
 
-static void hash_search_helper(void * key, void * val, void * data)
+static void hash_search_helper(const void * key, const void * val, void * data)
 {
 	struct hash_search_t * s_data = (struct hash_search_t*)data;
 	if (s_data->compare(val, s_data->searchfor) == 0)
 	{
-		s_data->retval = val;
+		s_data->retval = (void*)val;
 	}
 }
 
-void * hash_search(hash_t * hash, void * searchfor, hash_val_cmp_func_t compare)
+void * hash_search(hash_t * hash, void * searchfor, libcontain_cmp_func_t compare)
 {
 	
 	struct hash_search_t hash_search_data;
@@ -188,12 +269,12 @@ void * hash_search(hash_t * hash, void * searchfor, hash_val_cmp_func_t compare)
 	return hash_search_data.retval;
 }
 
-void hash_foreach(hash_t * hash, hash_foreach_helper_func_t func, void * data)
+void hash_foreach(hash_t * hash, libcontain_foreach2_func_t func, void * data)
 {
 #if ! DONT_USE_GLIB
 	if (hash->glib_hash)
 	{
-		g_hash_table_foreach(hash->glib_hash, func, data);
+		g_hash_table_foreach(hash->glib_hash, (GHFunc)func, data);
 		return;
 	}
 #endif

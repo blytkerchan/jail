@@ -35,8 +35,7 @@
 #define LIBCONTAIN_LIST_H
 
 #include "libcontain_config.h"
-
-typedef int (*list_compare_fn_t)(const void * val1, const void * val2);
+#include "types.h"
 
 typedef struct _list_node_t
 {
@@ -48,11 +47,11 @@ typedef struct _list_node_t
 typedef struct _list_t
 {
 	list_node_t * head;
-	list_compare_fn_t cmp_func;
+	libcontain_cmp_func_t cmp_func;
 } list_t;
 
-list_t * new_list(list_compare_fn_t cmp_func);
-void free_list(list_t * list);
+list_t * list_new(libcontain_cmp_func_t cmp_func);
+void list_free(list_t * list);
 int list_insert(list_t * list, void * val);
 int list_delete(list_t * list, void * val);
 
@@ -65,6 +64,6 @@ int list_delete(list_t * list, void * val);
  * value, the comparison function will only look at the key, whereas it 
  * will be the value you're ultimately interested in. */
 void * list_search(list_t * list, void * val);
-
+void list_foreach(list_t * list, libcontain_foreach_func_t helper, void * data);
 
 #endif // LIBCONTAIN_LIST_H

@@ -38,36 +38,58 @@
 extern "C" {
 #endif
 
+#include <sys/types.h>
+#include "types.h"
+#include "list.h"
+
+#define HASH_DEFAULT_BUCKETS 7
+
 typedef struct _hash_t
 {
+#if ! DONT_USE_OBSOLETE
 	void * cxx_hash;
 	void * glib_hash;
+#endif // ! DONT_USE_OBSOLETE
+	list_t ** buckets;
+	size_t n_buckets;
+	libcontain_cmp_func_t cmp;
+	libcontain_hash_func_t hash;
 } hash_t;
 
+typedef struct _hash_node_t
+{
+	unsigned int hash;
+	void * key;
+	void * val;
+	libcontain_cmp_func_t cmp;
+} hash_node_t;
+
+#if ! DONT_USE_OBSOLETE
 typedef enum {
 	NORMAL_HASH,
 	STRING_HASH,
 	INT_HASH,
 	GLIB_HASH,
 } libhash_hashtype;
+#endif // ! DONT_USE_OBSOLETE
 
-typedef int (*hash_key_cmp_func_t)(const void * k1, const void * k2);
-typedef unsigned int (*hash_key_hash_func_t)(const void * key);
-typedef int (*hash_val_cmp_func_t)(const void * v1, const void * v2);
-typedef void (*hash_foreach_helper_func_t)(void * key, void * val, void * data);
-
-hash_t * new_hash(libhash_hashtype hash_type, 
-						hash_key_hash_func_t hash_func,
-						hash_key_cmp_func_t compare_func);
-void delete_hash(hash_t * hash);
-void *hash_get(hash_t * hash, const void *key);
-int hash_put(hash_t * hash, const void *key, const void *value);
-int hash_remove(hash_t * hash, const void *key);
+hash_t * hash_new(
+#if ! DONT_USE_OBSOLETE
+	libhash_hashtype hash_type, 
+#endif // ! DONT_USE_OBSOLETE
+	size_t n_buckets,
+	libcontain_hash_func_t hash_func,
+	libcontain_cmp_func_t compare_func
+);
+void hash_free(hash_t * hash);
+void *hash_get(hash_t * hash, void *key);
+int hash_put(hash_t * hash, void *key, void *value);
+int hash_remove(hash_t * hash, void *key);
 void ** hash_keys(hash_t * hash);
 
 /* search the hash by value */
-void * hash_search(hash_t * hash, void * searchfor, hash_val_cmp_func_t compare);
-void hash_foreach(hash_t * hash, hash_foreach_helper_func_t func, void * data);
+void * hash_search(hash_t * hash, void * searchfor, libcontain_cmp_func_t compare);
+void hash_foreach(hash_t * hash, libcontain_foreach2_func_t func, void * data);
 
 #ifdef __cplusplus
 }

@@ -264,7 +264,7 @@ binomial_tree_node_select_start:
  * of hazard pointers (we have three) and we don't want to lock the tree.
  * The select algorithm is a non-recursive adaption of the one found in
  * the file ``how_heaps_work''. */ 
-void binomial_tree_node_foreach(binomial_tree_node_t * root, binomial_tree_node_foreach_func_t func, void * data)
+void binomial_tree_node_foreach(binomial_tree_node_t * root, libcontain_foreach_func_t func, void * data)
 {
 	unsigned int level = 0;
 	unsigned int nodeind = 0;
@@ -300,7 +300,7 @@ void binomial_tree_node_foreach(binomial_tree_node_t * root, binomial_tree_node_
 	hptr_free(1);
 }
 
-void binomial_tree_foreach(binomial_tree_t * handle, binomial_tree_node_foreach_func_t func, void * data)
+void binomial_tree_foreach(binomial_tree_t * handle, libcontain_foreach_func_t func, void * data)
 {
 	binomial_tree_node_t * root;
 

@@ -41,7 +41,7 @@
 static map_node_t * map_node_new(void * key, void * val);
 static void map_node_free(map_node_t * handle);
 
-map_t * map_new(map_key_cmp_func_t cmp_func)
+map_t * map_new(libcontain_cmp_func_t cmp_func)
 {
 	map_t * retval;
 
@@ -52,7 +52,7 @@ map_t * map_new(map_key_cmp_func_t cmp_func)
 	return retval;
 }
 
-void map_free_helper(void * dat1, void * dat2)
+void map_free_helper(const void * dat1, void * dat2)
 {
 	map_node_free((map_node_t*)dat1);
 }
@@ -159,7 +159,7 @@ typedef struct
 	binomial_tree_node_t * dnode_right;
 } map_remove_helper_data_t;
 
-static void map_remove_helper(void * val, void * data)
+static void map_remove_helper(const void * val, void * data)
 {
 	binomial_tree_node_t * curr;
 	map_node_t * cval;

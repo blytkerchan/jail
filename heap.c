@@ -85,7 +85,7 @@ static void heap_node_free(heap_node_t * node)
 	free(node);
 }
 
-heap_t * heap_new(heap_val_cmp_func_t heap_val_cmp_func)
+heap_t * heap_new(libcontain_cmp_func_t heap_val_cmp_func)
 {
 	heap_t * retval = (heap_t*)calloc(1, sizeof(heap_t));
 	retval->tree = binomial_tree_new();
@@ -94,9 +94,9 @@ heap_t * heap_new(heap_val_cmp_func_t heap_val_cmp_func)
 	return retval;
 }
 
-static void heap_free_helper(void * dat1, void * dat2)
+static void heap_free_helper(const void * dat1, void * dat2)
 {
-	free(dat1);
+	free((void*)dat1);
 }
 
 void heap_free(heap_t * handle)

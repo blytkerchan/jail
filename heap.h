@@ -39,9 +39,8 @@
 #define HEAP_DEFAULT_SIZE 	100
 #define HEAP_DEFAULT_GROWTH 	100
 
+#include "types.h"
 #include "binomial_tree.h"
-
-typedef int (*heap_val_cmp_func_t)(void * val1, void * val2);
 
 typedef struct {
 	void * val;
@@ -51,13 +50,13 @@ typedef struct {
 typedef struct 
 {
 	binomial_tree_t * tree;
-	heap_val_cmp_func_t heap_val_cmp_func;
+	libcontain_cmp_func_t heap_val_cmp_func;
 	size_t N;
 	unsigned int workers;
 	int flag;
 } heap_t;
 
-heap_t * heap_new(heap_val_cmp_func_t heap_val_cmp_func);
+heap_t * heap_new(libcontain_cmp_func_t heap_val_cmp_func);
 void heap_free(heap_t * handle);
 void heap_add(heap_t * handle, void * val);
 void * heap_top(heap_t * handle);

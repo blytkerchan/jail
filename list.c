@@ -48,12 +48,12 @@ typedef struct _list_state_t
 } list_state_t;
 
 
-static void list_free_node(list_node_t * node)
+static void list_node_free(list_node_t * node)
 {
 	free(node);
 }
 
-static list_node_t * list_new_node(void * val)
+static list_node_t * list_node_new(void * val)
 {
 	list_node_t * retval = (list_node_t *)malloc(sizeof(list_node_t));
 	retval->mark = 0;
@@ -115,7 +115,7 @@ try_again:
 	}
 }
 
-static int list_insert_node(list_t * list, list_node_t * node)
+static int list_node_insert(list_t * list, list_node_t * node)
 {
 	void * val;
 	int retval;
@@ -150,10 +150,10 @@ static int list_insert_node(list_t * list, list_node_t * node)
 
 int list_insert(list_t * list, void * val)
 {
-	list_node_t * n_node = list_new_node(val);
-	if (list_insert_node(list, n_node) != 0)
+	list_node_t * n_node = list_node_new(val);
+	if (list_node_insert(list, n_node) != 0)
 	{
-		list_free_node(n_node);
+		list_node_free(n_node);
 	}
 	else
 		return 0;
@@ -185,7 +185,7 @@ int list_delete(list_t * list, void * val)
 			continue;
 		if (compare_and_exchange(&(state->curr), &(state->prev->next), state->next) == 0)
 		{
-			list_free_node(state->curr);
+			list_node_free(state->curr);
 			retval = 0;
 			break;
 		}
@@ -217,12 +217,52 @@ void * list_search(list_t * list, void * val)
 	return state->cval;
 }
 
-list_t * new_list(list_compare_fn_t cmp_func)
+list_t * list_new(libcontain_cmp_func_t cmp_func)
 {
 	list_t * retval = (list_t*)malloc(sizeof(list_t));
 	retval->cmp_func = cmp_func;
-	retval->head = list_new_node(NULL);
+	retval->head = list_node_new(NULL);
 
 	return retval;
+}
+
+void list_free(list_t * list)
+{
+	list_node_t * curr;
+	list_node_t * next;
+
+	curr = list->head;
+	while (curr)
+	{
+		next = curr->next;
+		free(curr);
+		curr = next;
+	}
+	free(list);
+}
+
+void list_foreach(list_t * list, libcontain_foreach_func_t helper, void * data)
+{
+	list_node_t * curr;
+	list_node_t * next;
+	
+	do
+	{
+		curr = list->head;
+		hptr_register(0, curr);
+	} while (curr != list->head);
+	while (curr != NULL)
+	{
+		helper(curr->val, data);
+		do
+		{
+			next = curr->next;
+			hptr_register(1, next);
+		} while (next != curr->next);
+		curr = next;
+		hptr_register(0, curr);
+	}
+	hptr_free(0);
+	hptr_free(1);
 }
 

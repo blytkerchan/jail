@@ -78,8 +78,8 @@ extern "C" void ** cxx_hash_keys(Hash * hash)
 	return(hash->keys());
 }
 
-extern "C" void cxx_hash_for_each(Hash * hash, hash_foreach_helper_func_t func, void * data)
+extern "C" void cxx_hash_for_each(Hash * hash, libcontain_foreach2_func_t func, void * data)
 {
-	hash->for_each(func, data);
+	hash->for_each((void (*)(void*, void*, void*))func, data);
 }
 

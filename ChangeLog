@@ -1,3 +1,60 @@
+2004-05-11	blytkerchan	start implementing list-based hash
+	* hash.c: include libmemory headers
+	(hash_node_new): new function
+	(hash_node_free): ditto
+	(hash_node_cmp): ditto
+	(hash_new): take new parameter n_buckets
+	enclose hash type parameter in conditional block
+	return newly created hash even if the type is not well-specified
+	enclose old code in conditional block
+	(hash_free_helper): new function
+	(hash_free): free the hash (new type, type not specified)
+	enclose old code in conditional block
+	(hash_get): enclose old code in conditional block
+	implement getting from new implementation
+	* hash.h: reflect above changes
+	* hash_config.h.in: add DONT_USE_OBSOLETE
+	* libcontain_config.h: bump LIBCONTAIN_MIN_HPTRS
+start normalizing interfaces
+	* map.c: s/map_key_cmp_func_t/libcontain_cmp_func_t/g
+	(map_free_helper): constify
+	(map_remove_helper): ditto
+	* map.h: reflect above changes
+	* list.c: s/list_compare_fn_t/libcontain_cmp_func_t/g
+	(list_node_free): rename from list_free_node
+	(list_node_new): rename from list_new_node
+	(list_node_insert): rename from list_insert_node
+	(list_insert): reflect above
+	(list_new): rename from new_list
+	(list_free): new function
+	(list_foreach): ditto
+	* list.h: reflect above changes
+	* heap.c: s/heap_val_cmp_func_t/libcontain_cmp_func_t/g
+	(heap_free_helper): constify, cast to compensate
+	* heap.h: reflect above changes
+	* hash.c: s/hash_val_cmp_func_t/libcontain_cmp_func_t/g
+	s/hash_key_hash_func_t/libcontain_hash_func_t/g
+	s/hash_key_cmp_func_t/libcontain_cmp_func_t/g
+	s/hash_foreach_helper_func_t/libcontain_foreach2_func_t/g
+	(hash_new): rename from new_hash
+	(hash_free): rename from delete_hash
+	(hash_put): de-constify parameters
+	(hash_remove): ditto
+	(hash_search_helper): constify parameters, ugly cast to compensate
+	* hash.h: reflect above changes
+	* array.c: s/array_cmp_func_t/libcontain_cmp_func_t/g
+	s/array_valcopy_func_t/libcontain_copy_func_t/g
+	s/array_foreach_func_t/libcontain_foreach_func_t/g
+	* array.h: reflect above changes
+	* binomial_tree.c: s/binomial_tree_node_foreach_func_t/libcontain_foreach_func_t/g
+	* binomial_tree.h: reflect above changes
+	* c_interface.cc (cxx_hash_for_each): s/hash_foreach_helper_func_t/libcontain_foreach2_func_t/g
+	ugly cast to compensate..
+	* c_interface.h: reflect above changes
+updating files after 0.2-alpha1 release
+	* NEWS: add the news added to the SF news page
+	* TODO: update
+
 2004-05-07	blytkerchan
 Making Hash thread-safe
 	* Hash.cc (get): re-write to increment and decrement reader count on container as appropriate

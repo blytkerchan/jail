@@ -35,8 +35,7 @@
 #define _LIBCONTAIN_MAP_H
 
 #include "binomial_tree.h"
-
-typedef int (*map_key_cmp_func_t)(void * k1, void * k2);
+#include "types.h"
 
 typedef struct _map_node_t {
 	void * key;
@@ -46,10 +45,10 @@ typedef struct _map_node_t {
 
 typedef struct _map_t {
 	binomial_tree_t * tree;
-	map_key_cmp_func_t cmp_func;
+	libcontain_cmp_func_t cmp_func;
 } map_t;
 
-map_t * map_new(map_key_cmp_func_t cmp_func);
+map_t * map_new(libcontain_cmp_func_t cmp_func);
 void map_free(map_t * handle);
 void map_insert(map_t * handle, void * key, void * val);
 void * map_get(map_t * handle, void * key);

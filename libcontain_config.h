@@ -36,7 +36,7 @@
 
 /* The minimal amount of hazard pointers we need */
 #ifndef LIBCONTAIN_MIN_HPTRS
-#define LIBCONTAIN_MIN_HPTRS	3
+#define LIBCONTAIN_MIN_HPTRS	4
 #endif
 
 #endif // _LIBCONTAIN_LIBCONTAIN_CONFIG_H
