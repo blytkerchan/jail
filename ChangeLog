@@ -1,3 +1,9 @@
+2004-07-17	blytkerchan
+	* vector.c: new file
+	* vector.h: ditto
+	* array.c: remove resize()
+	* array.h: ditto
+
 2004-07-16	blytkerchan
 	* version: new file
 	* bootstap: removed
