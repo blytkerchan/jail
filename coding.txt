@@ -251,6 +251,27 @@ changes should be put in like this:
 	* version.c <HAVE_WINDOWS> (APIversion): use Windows-style versioning
 	in stead of Libtool-style.
 
+Naming macros and constants
+===========================
+Macros that can be replaced by equivalent functions should be. Those that can
+not but should in some near future should be named in all-uppercase.
+Macros that evaluate their parameters more than once should be avoided. Those
+that do should be named in all-uppercase.
+Macros and constants that can be used in constant expressions should be named
+in all-uppercase.
+All other macros and constants follow the same naming rules as other
+identifiers.
+
+What is encoded in names
+========================
+We *do not* encode scope or type information in the names of identifiers: we 
+encode *functionality* only. Exceptions to this are to me avoided like the
+plague and are only admissible if there are name clashes, in which case:
+* member variables get an extra underscore at the end (appended)
+* parameters get an extra underscore at the front (prepended)
+* local variables do not change name.
+Avoid hiding identifiers from surrounding scopes - it's confusing.
+
 Final remarks
 =============
 Parts not mentioned here follow the GNU coding standards, except for the
