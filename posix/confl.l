@@ -11,6 +11,7 @@ alpha			[A-Za-z]
 digit			[0-9]
 special		[_.]
 cmt_char		[#;]
+space			[ \t]
 
 config_name	({special}|{alpha})+({special}|{alpha}|{digit})*
 filename		([/]|{special}|{alpha}|{digit})+
@@ -31,6 +32,8 @@ filename		([/]|{special}|{alpha}|{digit})+
 	} while ((c != '\n') && (c != 0));
 				}
 
+<INITIAL>{space}*			/* forget about white spaces */
+<INITIAL>\n					/* forget about newlines */
 <INITIAL>{config_name}	{ /* OK, we just matched a token - let's see what it is :) */
 	libconf_opt_t * option;
 
@@ -76,29 +79,29 @@ filename		([/]|{special}|{alpha}|{digit})+
 		abort();
 	}
 				}
-<yesno_state>[Nn][Oo]	|
-<yesno_state>[Yy][Ee][Ss]	{
+<yesno_state>{space}*[Nn][Oo]	|
+<yesno_state>{space}*[Yy][Ee][Ss]	{
 		yylval.str = yytext;
 		BEGIN(0);
 		return T_YES;
 	}
-<truefalse_state>[Tt][Rr][Uu][Ee]	|
-<truefalse_state>[Ff][Aa][Ll][Ss][Ee] {
+<truefalse_state>{space}*[Tt][Rr][Uu][Ee]	|
+<truefalse_state>{space}*[Ff][Aa][Ll][Ss][Ee] {
 		yylval.str = yytext;
 		BEGIN(0);
 		return T_TRUE;
 	}
-<numeric_state>{digit}+	{
+<numeric_state>{space}*{digit}+	{
 		yylval.str = yytext;
 		BEGIN(0);
 		return T_NUM;
 	}
-<string_state>[!\n]* {
+<string_state>{space}*[^\n]* {
 		yylval.str = yytext;
 		BEGIN(0);
 		return T_STR;
 	}
-<filename_state>{filename} {
+<filename_state>{space}*{filename} {
 		yylval.str = yytext;
 		BEGIN(0);
 		return T_FILE;

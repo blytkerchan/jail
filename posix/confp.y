@@ -14,7 +14,8 @@
 		HANDLE->temp = strdup(yylval.str)
 #define setval(type)  																		\
 	{																								\
-		libconf_optparam_t * param = libconf_optparam_new(type, yylval.str);	\
+		libconf_optparam_t * param = libconf_optparam_new(							\
+			HANDLE->temp, type, yylval.str);												\
 		hash_put(HANDLE->option_hash, HANDLE->temp, param);						\
 	}
 
@@ -67,10 +68,10 @@ config_def /* not empty */
 	: T_UNKNOWN_OPTION {
 		emit_error(HANDLE, "unknown option: %s", yylval.str);
 	}
-	| T_TRUEFALSE { setval_prepare(); } T_TRUE { setval(PT_TRUEFALSE); }
-	| T_YESNO { setval_prepare(); } T_YES { setval(PT_YESNO); }
-	| T_NUMERIC { setval_prepare(); } T_NUM { setval(PT_NUMERIC); }
-	| T_STRING { setval_prepare(); } T_STR { setval(PT_STRING); }
-	| T_FILENAME { setval_prepare(); } T_FILE { setval(PT_FILENAME); }
+	| T_TRUEFALSE { setval_prepare(); } ':' T_TRUE { setval(PT_TRUEFALSE); }
+	| T_YESNO { setval_prepare(); } ':' T_YES { setval(PT_YESNO); }
+	| T_NUMERIC { setval_prepare(); } ':' T_NUM { setval(PT_NUMERIC); }
+	| T_STRING { setval_prepare(); } ':' T_STR { setval(PT_STRING); }
+	| T_FILENAME { setval_prepare(); } ':' T_FILE { setval(PT_FILENAME); }
 	;
 %%
