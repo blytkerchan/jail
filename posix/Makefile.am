@@ -1,6 +1,6 @@
 noinst_LTLIBRARIES=libconf_posix.la
 libconf_posix_la_SOURCES=confp.y LCFlexLexer.cc readconf.cc
-libconf_posix_la_LIBADD=confl.lo
+libconf_posix_la_LIBADD=confl.lo -lfl
 noinst_HEADERS=LCFlexLexer.h readconf.h
 EXTRA_DIST=confp.c confl.cc confp.h confl.l
 AM_LFLAGS=-+

@@ -67,6 +67,11 @@ void emit_error(libconf_t * handle, const char * fmt, ...)
 		exit(1);
 }
 
+void yyerror(char * str)
+{
+	fprintf(stderr, "%s\n", str);
+}
+
 %}
 
 %union {

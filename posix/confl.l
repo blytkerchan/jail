@@ -1,5 +1,6 @@
 %{
 /* includes go here */
+#define YY_DECL int LCFlexLexer::yylex(void)
 #include "LCFlexLexer.h"
 /* defines go here */
 

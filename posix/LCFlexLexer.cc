@@ -13,3 +13,4 @@ extern "C" int yylex(YYSTYPE * lvalp, void * handlep)
 	return ((LCFlexLexer*)(((libconf_t*)handlep)->Lexer))->yylex(lvalp);
 }
 
+int yyFlexLexer::yylex(void) { return 0; }
