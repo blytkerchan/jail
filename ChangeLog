@@ -1,3 +1,10 @@
+2005-02-24	blytkerchan
+	* deque.c (deque_node_alloc): rename from node_alloc
+	(deque_node_free): rename from node_free
+	(deque_stabilize_front): new function
+	(deque_stabilize_back): ditto
+	(deque_stabilize): implement
+
 2005-02-23	blytkerchan	adding partial deque implementation
 	* deque.c: new file
 	* deque.h: ditto

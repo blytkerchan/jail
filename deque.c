@@ -29,7 +29,7 @@ struct deque_
 	size_t size;
 };
 
-static int node_alloc(deque_t * handle)
+static int deque_node_alloc(deque_t * handle)
 {
 	node_t * exp;
 	node_t * new_node;
@@ -52,7 +52,7 @@ static int node_alloc(deque_t * handle)
 	return -1;
 }
 
-static void node_free(deque_t * handle, int n)
+static void deque_node_free(deque_t * handle, int n)
 {
 	node_t * node = NULL;
 	atomic_swap_ptr(&node, &(handle->nodes[n]));
@@ -81,21 +81,83 @@ void deque_free(deque_t * handle)
 	free(handle);
 }
 
-void deque_stabilize(deque_t * handle, deque_stat_t stat)
+void deque_stabilize_front(deque_t * handle, deque_stat_t stat)
 {
 	// HERE!!
 }
 
 void deque_stabilize_back(deque_t * handle, deque_stat_t stat)
 {
-	// HERE!!
+	int prev;
+	int prevnext;
+	deque_stat_t new_stat;
+	deque_stat_t exp_stat;
+	node_t * prevnext_node;
+	node_t right_node;
+
+	// register a hazardous reference on the right-most (back) node
+	do
+	{
+		right_node = handle->nodes[stat.s.right];
+		hptr_register(0, right_node);
+	} while (right_node != handle->nodes[stat.s.right]);
+	// register a hazardous reference on the node just left of it
+	prev = right_node->stat.s.left;
+	do
+	{
+		prevnode = handle->nodes[prev];
+		hptr_register(1, prevnode);
+	} while (prevnode != handle->nodes[prev]);
+	// check that the state of the deque hasn't changed
+	if (handle.stat.i != stat.i)
+		return;
+	// see whether the node on the right-hand side of the node on the left-hand
+	// side of the right-most node is the right-most node
+	// if not, the queue is not "stable"
+	prevnext = prevnode->stat.s.right;
+	if (prevnext != stat.s.right)
+	{	// the deque is not stable, so we need to stabilize
+		// check if the state of the queue is still the same
+		if (handle->stat.i != stat.i)
+			return;
+		
+		int prevprev = prevnode->stat.s.left;
+		new_stat.s.left = prevprev;
+		new_stat.s.right = stat.s.right;
+		new_stat.s.status = stat.s.status;
+		exp_stat.s.left = prevprev;
+		exp_stat.s.right = prevnext;
+		exp_stat.s.status = prevnode->stat.s.status;
+		if (compare_and_exchange_int(&(exp_stat.i), &(prevnode->stat.i), newstat.i) != 0)
+			return;
+	}
+	// the queue is stable - tag it as such
+	new_stat.s.left = stat.s.left;
+	new_stat.s.right = stat.s.right;
+	new_stat.s.status = STABLE;
+	compare_and_exchange_int(&(stat.i), &(handle->stat.i), new_stat.i);
+}
+
+void deque_stabilize(deque_t * handle, deque_stat_t stat)
+{
+	switch (stat.s.status)
+	{
+	case LPUSH :
+		deque_stabilize_front(handle, stat);
+		break;
+	case RPUSH :
+		deque_stabilize_back(handle, stat);
+		break;
+	default :
+		break;
+	}
 }
 
 void deque_push_back(deque_t * handle, void * val)
 {
 	deque_stat_t stat;
 	deque_stat_t new_stat;
-	int n = node_alloc(handle);
+	int n = deque_node_alloc(handle);
 	
 	handle->nodes[n]->data = val;
 	while (1)
