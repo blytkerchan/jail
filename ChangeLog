@@ -1,4 +1,7 @@
 2003-09-02	blytkerchan
+	* empty.html: attempt to fix link to SF logo
+
+2003-09-02	blytkerchan
 	* table.html: new file
 	* empty.html: use OBJECT element to include table.html
 
