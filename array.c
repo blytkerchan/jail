@@ -85,10 +85,10 @@ void * array_get(array_t * array, size_t i)
 	} while (nodes != array->nodes);
 	
 	if (i < size)
-		retval = array->nodes[i].val;
+		retval = nodes[i].val;
 	hptr_free(0);
 
-	return NULL;
+	return retval;
 }
 
 void array_put(array_t * array, size_t i, void * val)

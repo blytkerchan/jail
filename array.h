@@ -33,14 +33,15 @@
  */
 #ifndef _LIBCONTAIN_ARRAY_H
 #define _LIBCONTAIN_ARRAY_H
-
-#include <sys/types.h>
 /* Arrays are containers that can be indexed by integers, that are easy to 
  * search and iterate, and that rarely change size. 
  * Arrays can easily be sorted, but are not sorted by default.
  * Sorted arrays can easily be searched. In the case of unsorted arrays, that 
  * is somewhat more difficult..
  */
+#include "libcontain_config.h"
+
+#include <sys/types.h>
 
 #define ARRAY_DEFAULT_SIZE 100
 #define ARRAY_DEFAULT_INCREASE 100

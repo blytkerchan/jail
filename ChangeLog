@@ -1,3 +1,9 @@
+2004-05-03	blytkerchan	debug session
+	* array.c (array_get): use local nodes pointer in stead of the descriptor's nodes pointer
+	return retval, not NULL
+	* array.h: move the descriptive comment up
+	include libcontain_config.h
+
 2004-04-30	blytkerchan	repairing compilation :)
 	* Makefile.am [SUBDIRS]: move libmemory before local
 	[libcontain_la_LIBADD]: add libmemory
