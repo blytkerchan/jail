@@ -34,12 +34,14 @@
 #ifndef _LIBTHREAD_BARRIER_H_
 #define _LIBTHREAD_BARRIER_H_
 
+#include <stdint.h>
+
 typedef struct 
 {
-	unsigned int stages;
-	unsigned int * arrive;
-	unsigned int index;
-	unsigned int num_threads;
+	uint32_t stages;
+	uint32_t * arrive;
+	uint32_t index;
+	uint32_t num_threads;
 } barrier_t;
 
 /* Create a new barrier.
@@ -47,7 +49,7 @@ typedef struct
  * to synchronize. The created barrier is initialized in such a way that it
  * is ready for use by barrier_wait(). Do not use this barrier to synchronize
  * a number of threads that is not exactly NUM_THREADS! */
-barrier_t * barrier_new(unsigned int num_threads);
+barrier_t * barrier_new(uint32_t num_threads);
 
 /* Free the resources associated with a barrier.
  * This function frees all resources associated with a barrier, rendering it

@@ -41,14 +41,14 @@ void critical_section_enter(critical_section_t * critical_section)
 			continue;
 		if (old_next != NULL)
 		{
-			compare_and_exchange(&old_tail, &(critical_section->tail), old_next);
+			compare_and_exchange_ptr(&old_tail, &(critical_section->tail), old_next);
 			continue;
 		}
 		
-		if (compare_and_exchange(&old_next, &(old_tail->next), n_node) == 0)
+		if (compare_and_exchange_ptr(&old_next, &(old_tail->next), n_node) == 0)
 			break;
 	}
-	compare_and_exchange(&old_tail, &(critical_section->tail), n_node);
+	compare_and_exchange_ptr(&old_tail, &(critical_section->tail), n_node);
 	hptr_free(0);
 
 	n_node = lt_thread_self();
@@ -94,10 +94,10 @@ void critical_section_leave(critical_section_t * critical_section)
 			old_tail = critical_section->tail;
 			hptr_register(0, old_tail);
 		} while (old_tail != critical_section->tail);
-		assert(compare_and_exchange(&exp, &(critical_section->head->next), new_head) == 0);
+		assert(compare_and_exchange_ptr(&exp, &(critical_section->head->next), new_head) == 0);
 		exp = head_node;
-		compare_and_exchange(&exp, &(critical_section->tail), critical_section->head);
-	} while (compare_and_exchange(&new_head, &(head_node->next), NULL) != 0);
+		compare_and_exchange_ptr(&exp, &(critical_section->tail), critical_section->head);
+	} while (compare_and_exchange_ptr(&new_head, &(head_node->next), NULL) != 0);
 #if CRITICAL_SECTION_USE_SEM
 	sem_post(&(new_head->priv_sem));
 #endif

@@ -1,3 +1,16 @@
+2004-08-11	blytkerchan
+	* barrier.h: use uint32_t in stead of unsigned int throughout
+	* barrier.c: ditto
+	(barrier_wait): use compare_and_exchange_int in stead of obsolete
+	compare_and_exchange
+	* critical_section.c (critical_section_enter): use 
+	compare_and_exchange_ptr in stead of obsolete compare_and_exchange
+	(critical_section_leave): ditto
+	* semaphore.c (lt_sem_wait): use compare_and_exchange_int in stead of
+	obsolete compare_and_exchange
+	(lt_sem_enq): use compare_and_exchange_ptr in stead of obsolete
+	compare_and_exchange
+
 2004-08-10	blytkerchan	compile with gcc-2.95.4
 	* rw_spinlock.c: move includes up
 	include stdlib.h for calloc

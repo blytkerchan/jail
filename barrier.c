@@ -41,7 +41,7 @@
 #include "arch/include/compare_and_exchange.h"
 
 /* blindingly obvious... */
-barrier_t * barrier_new(unsigned int num_threads)
+barrier_t * barrier_new(uint32_t num_threads)
 {
 	barrier_t * retval;
 
@@ -51,7 +51,7 @@ barrier_t * barrier_new(unsigned int num_threads)
 	 * comments on the barrier_wait function below for an explanation
 	 * on the initialization value. This is ceil(lg(num_threads)), BTW. */
 	retval->stages = lg(num_threads - 1) + 1;
-	retval->arrive = calloc(num_threads, sizeof(unsigned int));
+	retval->arrive = calloc(num_threads, sizeof(uint32_t));
 	retval->num_threads = num_threads;
 
 	return retval;
@@ -93,12 +93,12 @@ void barrier_free(barrier_t * barrier)
  * it's worth the trouble, though.. */
 void barrier_wait(barrier_t * barrier)
 {
-	unsigned int index = 0;
-	unsigned int stage;
-	unsigned int neighbour_offs = 1;
+	uint32_t index = 0;
+	uint32_t stage;
+	uint32_t neighbour_offs = 1;
 
 	// get the index of the arriving process
-	while (compare_and_exchange(&index, &(barrier->index), (void*)(index + 1)));
+	while (compare_and_exchange_int(&index, &(barrier->index), (index + 1)));
 	// if we're the last one to arrive, we set the index back to zero for 
 	// next time
 	if (index == barrier->num_threads - 1)

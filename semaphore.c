@@ -103,7 +103,7 @@ void lt_sem_wait(lt_sem_t * sem)
 			value = sem->value;
 			if (value > 0) {
 				// try to get the semaphore
-				if (compare_and_exchange(&value, &(sem->value), (void*)(value - 1)) != 0)
+				if (compare_and_exchange_int(&value, &(sem->value), value - 1) != 0)
 				{
 					continue;	// try again
 				} else break;	// OK
@@ -155,13 +155,13 @@ static void lt_sem_enq(lt_sem_t * sem, lt_thread_t * thread)
 			continue;
 		if (old_next != NULL)
 		{
-			compare_and_exchange(&old_tail, &(sem->tail), old_next);
+			compare_and_exchange_ptr(&old_tail, &(sem->tail), old_next);
 			continue;
 		}
-		if (compare_and_exchange(&old_next, &(old_tail->next), thread) == 0)
+		if (compare_and_exchange_ptr(&old_next, &(old_tail->next), thread) == 0)
 			break;
 	}
-	compare_and_exchange(&old_tail, &(sem->tail), thread);
+	compare_and_exchange_ptr(&old_tail, &(sem->tail), thread);
 	hptr_free(0);
 }
 
