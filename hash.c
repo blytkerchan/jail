@@ -182,7 +182,33 @@ void hash_put(hash_t * hash, void *key, void *value)
 
 int hash_remove(hash_t * hash, void *key)
 {
-	return -1;
+	list_node_t * list_node;
+	unsigned int _hash;
+	list_state_t list_state;
+	hash_node_t hash_node;
+	
+	memset(&hash_node, 0, sizeof(hash_node_t));
+	hash_node.key = key;
+	_hash = hash->hash(key);
+	while (1)
+	{
+		memset(&list_state, 0, sizeof(list_state_t));
+		list_node = list_node_find(&list_state, hash->buckets[_hash % hash->n_buckets], hash_node_cmp, &hash_node);
+		if (list_node == NULL)
+		{
+			hptr_free(0);
+			hptr_free(1);
+			hptr_free(2);
+			return -1;
+		}
+		if (compare_and_exchange_ptr(&list_node, &(list_state.prev->next), list_state.next) == 0)
+			break;
+	}
+	hptr_free(0);
+	hptr_free(1);
+	hptr_free(2);
+
+	return 0;
 }
 
 void ** hash_keys(hash_t * hash)

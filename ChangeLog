@@ -1,4 +1,7 @@
-2004-10-22	blytkerchan	implement lock-free hash implementation
+2004-10-22	blytkerchan
+	* hash.c (hash_remove): implement
+
+implement lock-free hash implementation
 	* hash.h: include list_node.h
 	[hash_t]: new member n_entries
 	change type of buckets member to list_node_t
