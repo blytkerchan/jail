@@ -1,4 +1,6 @@
 2004-02-10	blytkerchan
+	* TODO: update
+
 	* IniHash,cc: use libreplace in stead of libswing
 	* IniHash.h: don't expect libhash to be there
 	* Makefile.am: compile IniHash into libcontain
