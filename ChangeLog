@@ -1,4 +1,6 @@
 2003-01-07	blytkerchan
+	* poll.pl: preparations for usage on a server (committed in earlier commit - forgot to mention it here)
+
 	* intended_audience.html: removed - contents moved to index.html
 	* index.html: updated with intended audience info
 	* table.html: updated
