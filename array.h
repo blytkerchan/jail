@@ -66,7 +66,7 @@ array_t * array_new(size_t size);
 void array_free(array_t * array);
 
 void * array_get(array_t * array, size_t i);
-void array_put(array_t * array, size_t i, void * val);
+int array_put(array_t * array, size_t i, void * val);
 size_t array_get_size(array_t * array);
 size_t array_get_numentries(array_t * array);
 array_t * array_copy(array_t * array);

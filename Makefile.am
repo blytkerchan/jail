@@ -1,5 +1,5 @@
 # Makefile.am - process with automake and configure script..
-SUBDIRS=glib tests 
+SUBDIRS=glib# tests 
 EXTRA_DIST=Hash.7 README.in Hash.7.pod arch hash_config.h.in
 
 # the library

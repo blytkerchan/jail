@@ -1,4 +1,7 @@
 2004-07-18	blytkerchan
+	* Makefile.am: don't compile stuff in test
+	* array.h (array_put): fix prototype
+
 	* Makefile.am: prepare for use with new src tree
 
 2004-07-17	blytkerchan
