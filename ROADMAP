@@ -15,6 +15,13 @@ The CVS repository currently contains five "modules":
     recognised
   - C
     for the rest
+* doc
+  This directory contains documentation that may be of interest to the 
+  developers involved in the project. It is not intended for documentation
+  on the language and tools themselves - we'll use jaildoc for that.
+  If you reference a document that may be hard to find, feel free to put it
+  here but *please* don't use any non-open formats when doing so (e.g. no 
+  Microsoft Word files, please).
 * htdocs
   This directory contains the website sources - available at jail-ust.sf.net
   If you want to work on this, you need to know about HTML.
