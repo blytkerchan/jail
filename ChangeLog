@@ -1,4 +1,7 @@
 2004-08-09	blytkerchan
+	* banner2.xcf: move to banners/
+	* banner2.png: ditto
+
 	* banner2.xcf: new file
 	* banner2.png: ditto - generated from banner2.xcf
 
