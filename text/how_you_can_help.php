@@ -1,4 +1,6 @@
 <h1><a name="How_you_can_help"></a>How you can help</h1>
+<a name="who"/>
+<h2>Who we need</h2>
 <p>The language (Jail) and the programs that implement it are a
 work in progress. We need</p>
 <ul>
@@ -34,3 +36,21 @@ databases</li>
 </ul>
 <p>We need all those people to put their heads together and define
 the language we call Jail.</p>
+<?php back_to_top() ?>
+<a name="what"/>
+<h2>OK, so how can I help?</h2>
+<p>Well, for starters, you can subscribe to the jail-ust-lang discussion group:
+just send an E-mail to jail-ust-lang-subscribe at lists.sf.net and you will be
+added to the group.</p>
+<p>If you're a programmer (or a student in programming/computer science) you 
+can help out with the development of the different components: we need porters
+for the architecture-dependant code most at the moment, but if you want to do
+something else, that's fine too.</p>
+<p>We need testers as well: at the moment, the only actually released software
+is aimed at developers, but things like the preprocessor will be released 
+(hopefully) soon.</p>
+<p>Proof-reading is nice too: in 
+<?php link_to_section("language", "the language section") ?> of this site, 
+there's a growing amount of documentation on the language that needs reading
+and commenting. Comments should be sent to the jail-ust-lang list.</p>
+
