@@ -4,13 +4,13 @@
 		global $sections;
 		global $section_pages;
 
-		$query = "INSERT INTO `comments` (`user`, `section`, `page`, `title`, `comment`, `date`) VALUES ('$user', '" . $sections[$section] . "', '" . $section_pages[$section][$page]['filename'] . "', '" . mysql_real_escape_string($title) . "', '" . mysql_real_escape_string($comment) . "', NOW())";
+		$query = "INSERT INTO `comments` (`user`, `section`, `page`, `title`, `comment`, `date`) VALUES ('$user', '" . $sections[$section] . "', '" . $section_pages[$section][$page]['filename'] . "', '" . mysql_escape_string($title) . "', '" . mysql_escape_string($comment) . "', NOW())";
 		mysql_query($query);
 	}
 
 	function del_comment($user, $uid)
 	{
-		$query = "DELETE FROM `comments` WHERE `uid`='" . mysql_real_escape_string($uid) . "' AND `user`='" . mysql_real_escape_string($user) . "' LIMIT 1";
+		$query = "DELETE FROM `comments` WHERE `uid`='" . mysql_escape_string($uid) . "' AND `user`='" . mysql_escape_string($user) . "' LIMIT 1";
 		mysql_query($query);
 	}
 	

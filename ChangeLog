@@ -1,4 +1,9 @@
 2004-05-28	blytkerchan
+	* bookmarks.php: %s/mysql_real_escape_string/mysql_escape_string/g
+	* comments.php: ditto
+	* login_functions.php: ditto
+	* session.php: ditto
+
 	* mysql.php: new file (used previously: 2004-05-27)
 	* bookmarks.php: set style for input elements to inputbox
 	* comments.php: set date on new comments

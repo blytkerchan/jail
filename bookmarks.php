@@ -4,12 +4,12 @@
 		global $sections;
 		global $section_pages;
 
-		$query = "INSERT INTO `bookmarks` (`user`, `section`, `page`, `label`) VALUES ('$user', '" . $sections[$section] . "', '" . $section_pages[$section][$page]['filename'] . "', '" . mysql_real_escape_string($label) . "')";
+		$query = "INSERT INTO `bookmarks` (`user`, `section`, `page`, `label`) VALUES ('$user', '" . $sections[$section] . "', '" . $section_pages[$section][$page]['filename'] . "', '" . mysql_escape_string($label) . "')";
 		mysql_query($query);
 	}
 	function del_bookmark($user, $uid)
 	{
-		$query = "DELETE FROM `bookmarks` WHERE `uid`='" . mysql_real_escape_string($uid) . "' AND `user`='" . mysql_real_escape_string($user) . "' LIMIT 1";
+		$query = "DELETE FROM `bookmarks` WHERE `uid`='" . mysql_escape_string($uid) . "' AND `user`='" . mysql_escape_string($user) . "' LIMIT 1";
 		mysql_query($query);
 	}
 	

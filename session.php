@@ -3,7 +3,7 @@ function check_session($session)
 {
 	$retval = 0;
 	
-	$query = "SELECT * FROM `sessions` WHERE `uid`='".mysql_real_escape_string($session)."' LIMIT 1";
+	$query = "SELECT * FROM `sessions` WHERE `uid`='".mysql_escape_string($session)."' LIMIT 1";
 	$result = mysql_query($query);
 	$line = mysql_fetch_assoc($result);
 	mysql_free_result($result);
@@ -32,7 +32,7 @@ function close_session($session)
 
 function create_session($name, $passwd)
 {
-	$query = "SELECT * FROM `users` WHERE `name`='" . mysql_real_escape_string($name) . "' AND `passwd`=PASSWORD('" . mysql_real_escape_string($passwd) . "') LIMIT 1";
+	$query = "SELECT * FROM `users` WHERE `name`='" . mysql_escape_string($name) . "' AND `passwd`=PASSWORD('" . mysql_escape_string($passwd) . "') LIMIT 1";
 	$result = mysql_query($query);
 	$line = mysql_fetch_assoc($result);
 	mysql_free_result($result);
