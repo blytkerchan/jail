@@ -1,4 +1,6 @@
-$Id: ChangeLog,v 1.2 2003/10/07 21:23:11 blytkerchan Exp $
+2003-10-09	blytkerchan
+	* TODO: update
+
 2003-10-07	blytkerchan
 	* Hash.cc: added/replaced copyright notice
 	* Hash.h: ditto
