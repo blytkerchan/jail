@@ -43,6 +43,9 @@
 #include "binary.h"
 #include "thread.h"
 
+static void interal_resize(vector_t * vector, size_t n_size);
+static void internal_condense(vector_t * vector);
+
 /* This may seem obvious, and it is! Allocate a new vector of SIZE entries */
 vector_t * vector_new(size_t size)
 {
@@ -57,12 +60,14 @@ vector_t * vector_new(size_t size)
 	retval->increase = VECTOR_DEFAULT_INCREASE;
 	retval->sorted = 0;
 	retval->condensed = 1;
+	retval->lock = rw_spinlock_new();
 	
 	return retval;
 }
 
 void vector_free(vector_t * vector)
 {
+	rw_spinlock_free(vector->lock);
 	free(vector->nodes);
 	free(vector);
 }
@@ -73,6 +78,7 @@ void * vector_get(vector_t * vector, size_t i)
 	vector_node_t * nodes;
 	size_t size;
 
+	rw_spinlock_read_lock(vector->lock);
 	do
 	{
 		do
@@ -89,6 +95,8 @@ void * vector_get(vector_t * vector, size_t i)
 		retval = nodes[i].val;
 	hptr_free(0);
 
+	rw_spinlock_read_unlock(vector->lock);
+	
 	return retval;
 }
 
@@ -99,6 +107,7 @@ void vector_put(vector_t * vector, size_t i, void * val)
 	vector_node_t * nodes;
 	size_t size;
 
+	rw_spinlock_read_lock(vector->lock);
 	do
 	{
 		do
@@ -118,7 +127,7 @@ void vector_put(vector_t * vector, size_t i, void * val)
 			{
 				increase = vector->increase;
 				increase = (((i - size) / increase) + 1) * increase;
-				vector_resize(vector, size + increase);
+				internal_resize(vector, size + increase);
 			}
 		} while (nodes != vector->nodes);
 		rv = NULL;
@@ -138,6 +147,7 @@ void vector_put(vector_t * vector, size_t i, void * val)
 			vector->condensed = 0;
 	}
 	vector->sorted = 0;
+	rw_spinlock_read_unlock(vector->lock);
 }
 
 void vector_push_back(vector_t * vector, void * val)
@@ -145,11 +155,12 @@ void vector_push_back(vector_t * vector, void * val)
 	vector_node_t * nodes;
 	size_t num_entries, size;
 	void * exp;
-	
+
+	rw_spinlock_read_lock(vector->lock);
 	do
 	{
 		if (vector->condensed == 0)
-			vector_condense(vector);
+			internal_condense(vector);
 		do
 		{
 			num_entries = vector->num_entries;
@@ -166,7 +177,7 @@ void vector_push_back(vector_t * vector, void * val)
 			} while (nodes != vector->nodes);
 			if (num_entries >= size)
 			{
-				vector_resize(vector, size + vector->increase);
+				internal_resize(vector, size + vector->increase);
 				continue;
 			}
 		} while (nodes != vector->nodes);
@@ -178,26 +189,36 @@ void vector_push_back(vector_t * vector, void * val)
 	if (val != NULL)
 		atomic_increment(&(vector->num_entries));
 	vector->sorted = 0;
+
+	rw_spinlock_read_unlock(vector->lock);
 }
 
 size_t vector_get_size(vector_t * vector)
 {
 	size_t retval;
 
+	rw_spinlock_read_lock(vector->lock);
 	do
 	{
 		retval = vector->size;
 	} while (!retval);
+	rw_spinlock_read_unlock(vector->lock);
 	
 	return retval;
 }
 
 size_t vector_get_numentries(vector_t * vector)
 {
-	return vector->num_entries;
+	size_t retval;
+
+	rw_spinlock_read_lock(vector->lock);
+	retval = vector->num_entries;
+	rw_spinlock_read_unlock(vector->lock);
+	
+	return retval;
 }
 
-void vector_resize(vector_t * vector, size_t n_size)
+static void interal_resize(vector_t * vector, size_t n_size)
 {
 	vector_node_t * new_nodes = calloc(n_size, sizeof(vector_node_t));
 	vector_node_t * o_nodes;
@@ -222,7 +243,7 @@ void vector_resize(vector_t * vector, size_t n_size)
 			hptr_free(0);
 			return;
 		}
-		/* FIXME: race condition starts here */
+		rw_spinlock_upgrade(vector->lock);
 		memcpy(new_nodes, nodes, 
 			(size < n_size ? size : n_size) * sizeof(vector_node_t));
 		o_nodes = nodes;
@@ -232,7 +253,7 @@ void vector_resize(vector_t * vector, size_t n_size)
 			free(new_nodes);
 			continue;
 		}
-		/* FIXME: race condition ends after the following line */
+		rw_spinlock_downgrade(vector->lock);
 		if (compare_and_exchange(&o_nodes, &(vector->nodes), new_nodes) != 0)
 		{
 			free(new_nodes);
@@ -245,14 +266,23 @@ void vector_resize(vector_t * vector, size_t n_size)
 	hptr_free(0);
 }
 
+void vector_resize(vector_t * vector, size_t n_size)
+{
+		  rw_spinlock_read_lock(vector->lock);
+		  internal_resize(vector, n_size);
+		  rw_spinlock_read_unlock(vector->lock);
+}
+
 vector_t * vector_copy(vector_t * vector)
 {
 	size_t size = vector->size;
 	vector_t * retval = new_vector(size);
 	size_t i;
 
+	rw_spinlock_read_lock(vector->lock);
 	for (i = 0; i < size; i++)
 		vector_put(retval, i, vector_get(vector, i));
+	rw_spinlock_read_unlock(vector->lock);
 
 	return retval;
 }
@@ -401,6 +431,7 @@ vector_t * vector_merge(vector_t * vector1, vector_t * vector2, libcontain_cmp_f
 	vector_t * retval;
 	size_t size1, size2;
 
+	rw_spinlock_read_lock(vector->lock);
 	do
 	{
 		do
@@ -427,11 +458,12 @@ vector_t * vector_merge(vector_t * vector1, vector_t * vector2, libcontain_cmp_f
 	retval = vector_merge1(nodes1, nodes2, size1, size2, cmp_func);
 	hptr_free(0);
 	hptr_free(1);
+	rw_spinlock_read_unlock(vector->lock);
 
 	return retval;
 }
 
-static int vector_condense_helper(const void * ptr1, const void * ptr2)
+static int internal_condense_helper(const void * ptr1, const void * ptr2)
 {
 	vector_node_t * node1 = (vector_node_t*)ptr1;
 	vector_node_t * node2 = (vector_node_t*)ptr2;
@@ -452,7 +484,7 @@ static int vector_condense_helper(const void * ptr1, const void * ptr2)
 	}
 }
 
-void vector_condense(vector_t * vector)
+static void internal_condense(vector_t * vector)
 {
 	vector_node_t * nodes;
 	size_t size;
@@ -470,10 +502,19 @@ void vector_condense(vector_t * vector)
 			if (!size)
 				continue;
 		} while (nodes != vector->nodes);
-		qsort(vector->nodes, size, sizeof(vector_node_t), vector_condense_helper);
+		rw_spinlock_upgrade(vector->lock);
+		qsort(vector->nodes, size, sizeof(vector_node_t), internal_condense_helper);
 		vector->condensed = 1;
+		rw_spinlock_downgrade(vector->lock);
 	} while (nodes != vector->nodes);
 	hptr_free(0);
+}
+
+void vector_condense(vector_t * vector)
+{
+	rw_spinlock_read_lock(vector->lock);
+	internal_condense(vector);
+	rw_spinlock_read_unlock(vector->lock);
 }
 
 /* This is an implementation of a binary merge sort
@@ -508,8 +549,9 @@ void vector_sort(vector_t * vector, libcontain_cmp_func_t cmp_func)
 {
 	vector_node_t * nodes;
 	
+	rw_spinlock_read_lock(vector->lock);
 	if (vector->condensed == 0)
-		vector_condense(vector);
+		internal_condense(vector);
 	do
 	{
 		nodes = vector->nodes;
@@ -517,6 +559,7 @@ void vector_sort(vector_t * vector, libcontain_cmp_func_t cmp_func)
 	} while (nodes != vector->nodes);
 	vector_sort_worker(nodes, vector->num_entries, cmp_func);
 	hptr_free(0);
+	rw_spinlock_read_unlock(vector->lock);
 }
 
 void * vector_search(vector_t * vector, void * val, libcontain_cmp_func_t cmp_func)
@@ -526,6 +569,7 @@ void * vector_search(vector_t * vector, void * val, libcontain_cmp_func_t cmp_fu
 	void * retval = NULL;
 	size_t size;
 
+	rw_spinlock_read_lock(vector->lock);
 	do
 	{
 		do
@@ -546,6 +590,7 @@ void * vector_search(vector_t * vector, void * val, libcontain_cmp_func_t cmp_fu
 	if (rc != ~0)
 		retval = nodes[rc].val;
 	hptr_free(0);
+	rw_spinlock_read_unlock(vector->lock);
 	
 	return retval;
 }
@@ -562,6 +607,7 @@ vector_t * vector_deep_copy(vector_t * vector, libcontain_copy_func_t vector_val
 	vector_t * retval;
 	void * val;
 
+	rw_spinlock_read_lock(vector->lock);
 	do
 	{
 		size = vector->size;
@@ -573,6 +619,7 @@ vector_t * vector_deep_copy(vector_t * vector, libcontain_copy_func_t vector_val
 		if (val != NULL)
 			vector_put(retval, i, vector_valcopy_func(vector->nodes[i].val));
 	}
+	rw_spinlock_read_unlock(vector->lock);
 
 	return retval;
 }
@@ -583,6 +630,7 @@ void vector_foreach(vector_t * vector, libcontain_foreach_func_t vector_foreach_
 	size_t size;
 	void * val;
 
+	rw_spinlock_read_lock(vector->lock);
 	do
 	{
 		size = vector->size;
@@ -594,4 +642,6 @@ void vector_foreach(vector_t * vector, libcontain_foreach_func_t vector_foreach_
 		if (val != NULL)
 			vector_foreach_func(val, data);
 	}
+	rw_spinlock_read_unlock(vector->lock);
 }
+

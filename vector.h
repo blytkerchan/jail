@@ -40,6 +40,7 @@
  * is somewhat more difficult..
  */
 #include "libcontain_config.h"
+#include "libthread/rw_spinlock.h"
 
 #include <sys/types.h>
 #include "types.h"
@@ -61,6 +62,7 @@ typedef struct _vector_t
 	int sorted;
 	int condensed;
 	int flag;
+	rw_spinlock * lock;
 } vector_t;
 
 /* Create a new, empty vector of size SIZE */

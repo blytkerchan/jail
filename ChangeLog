@@ -1,3 +1,30 @@
+2004-08-10	blytkerchan	solve race condition in vector with rw-spinlock
+	* vector.h: include libthread/rw_spinlock.h
+	[vector_t]: new member lock
+	* vector.c (interal_resize): new function
+	(internal_condense): ditto
+	(vector_new): initialize the new lock member
+	(vector_free): free the new lock member
+	(vector_get): set a read lock on the vector while working
+	(vector_get_size): ditto
+	(vector_get_numentries): ditto
+	(vector_copy): ditto
+	(vector_merge): ditto
+	(vector_sort): ditto
+	(vector_search): ditto
+	(vector_deep_copy): ditto
+	(vector_foreach): ditto
+	(vector_put): ditto
+	use internal_resize in stead of vector_resize, due to locking
+	(vector_push_back): ditto (both)
+	use internal_condense in stead of vector_condense, due to locking
+	(vector_resize): move contents to internal_resize after applying
+	write-lock to prevent race condition
+	call internal_resize after applying read lock
+	(vector_condense): move contents to internal_condense after applying
+	write lock to prevent qsort being run concurrently
+	call internal_condense after applying read lock
+
 2004-07-23	blytkerchan
 	* binary.c: move to libreplace
 	* binary.h: ditto
