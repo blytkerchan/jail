@@ -1,4 +1,23 @@
-$Id: ChangeLog,v 1.1 2003/10/07 16:42:39 blytkerchan Exp $
+$Id: ChangeLog,v 1.2 2003/10/07 21:23:11 blytkerchan Exp $
+2003-10-07	blytkerchan
+	* Hash.cc: added/replaced copyright notice
+	* Hash.h: ditto
+	* IniHash.cc: ditto
+	* IniHash.h: ditto
+	* IntHash.cc: ditto
+	* IntHash.h: ditto
+	* NocaseStringHash.cc: ditto
+	* NocaseStringHash.h: ditto
+	* StringHash.cc: ditto
+	* StringHash.h: ditto
+	* c_interface.cc: ditto
+	* hash.h: ditto
+	* test1.cc: ditto
+	* test2.cc: ditto
+	* test3.cc: ditto
+	* test4.cc: ditto
+	* test5.cc: ditto
+
 2003-10-05	blytkerhan
 	* AUTHORS: update to Jail's standards
 	* COPYING: removed

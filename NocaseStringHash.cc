@@ -1,23 +1,37 @@
-/* $Id: NocaseStringHash.cc,v 1.1 2003/10/07 16:42:39 blytkerchan Exp $ */
-/* Formatted log output
-   Copyright (C) 2002
-   Ronald Landheer <info@rlsystems.net>
-
-This file is part of the Real Life Systems Hash Library (libhash).
-
-libhash is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-libhash is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with libhash; if not, write to the Free Software
-Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
+/* $Id: NocaseStringHash.cc,v 1.2 2003/10/07 21:23:11 blytkerchan Exp $ */
+/* Jail: Just Another Interpreted Language
+ * Copyright (c) 2003, Ronald Landheer-Cieslak
+ * All rights reserved
+ * 
+ * This is free software. You may distribute it and/or modify it and
+ * distribute modified forms provided that the following terms are met:
+ *
+ * * Redistributions of the source code must retain the above copyright
+ *   notice, this list of conditions and the following disclaimer;
+ * * Redistributions in binary form must reproduce the above copyright
+ *   notice, this list of conditions and the following disclaimer in
+ *   the documentation and/or other materials provided with the distribution;
+ * * None of the names of the authors of this software may be used to endorse
+ *   or promote this software, derived software or any distribution of this 
+ *   software or any distribution of which this software is part, without 
+ *   prior written permission from the authors involved;
+ * * Unless you have received a written statement from Ronald Landheer-Cieslak
+ *   that says otherwise, the terms of the GNU General Public License, as 
+ *   published by the Free Software Foundation, version 2 or (at your option)
+ *   any later version, also apply.
+ * 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 /*** 
 // Includes */
 #if !defined(_WIN32) || defined (__CYGWIN__)
