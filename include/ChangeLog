@@ -1,3 +1,6 @@
+2004-08-10	blytkerchan	compiling with gcc version 2.95.4
+	* fetch_and_add.h (fetch_and_add): make first param volatile
+
 2004-08-03	blytkerchan
 	* fetch_and_add.h: include stdint.h
 
