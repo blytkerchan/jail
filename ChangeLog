@@ -1,4 +1,6 @@
 2004-07-27	blytkerchan
+	* barrier.c (barrier_wait): replace thread_interrupt with lt_thread_interrupt
+
 	* how_semaphores_work: update
 	* semaphore.c (lt_sem_new): rename from lt_sem_create
 	include thread.h

@@ -109,7 +109,7 @@ void barrier_wait(barrier_t * barrier)
 		atomic_increment((uint32_t*)&(barrier->arrive[index]));
 		neighbour_offs = pow2(stage);
 		while (barrier->arrive[(index + neighbour_offs) % barrier->num_threads])
-			thread_interrupt();
+			lt_thread_interrupt();
 	}
 }
 
