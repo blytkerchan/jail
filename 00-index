@@ -7,6 +7,7 @@ project and should not be used by anyone else.
 24319101.pdf		i486 instruction reference, downloaded from 
 			http://developer.intel.com/design/pentium/manuals/24319101.pdf
 auug97.pdf		Article on (non-)recursive Makefiles
+europar-2003.pdf	CAS-Based Lock-Free Algorithm for Shared Deques
 ChangeLog		change log for this directory
 lock-free_lists.pdf	An article on lock-free lists and hashes that may be 
 			very useful - YA file that is not covered under the 
