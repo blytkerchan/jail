@@ -32,7 +32,7 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <stdio.h>
-#include "compare_and_exchange.h"
+#include "arch/compare_and_exchange.h"
 
 int main(void)
 {

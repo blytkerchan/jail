@@ -1,3 +1,7 @@
+2004-10-28	blytkerchan
+	* compare_and_exchange.c: canonicalize the arch-specific includes
+	* decrement.c: ditto
+
 2004-04-08	blytkerchan
 	* compare_and_exchange.c: apply license
 	* decrement.c: ditto
