@@ -54,6 +54,8 @@ int lt_thread_create(
 	lt_thread_func_t start_func, void * arg);
 lt_thread_t * lt_thread_self(void);
 int lt_thread_eq(lt_thread_t * thread1, lt_thread_t * thread2);
+lt_thread_t * lt_thread_self(void);
+void lt_thread_kill(int signal, lt_thread_t * thread);
 
-#define thread_interrupt() sleep(0)
+#define lt_thread_interrupt() sleep(0)
 #endif // _LIBTHREAD_THREAD_H

@@ -1,3 +1,12 @@
+2004-07-26	blytkerchan
+	* semaphore.c: fix spelling errors and type-os
+	prefix all calls to libthread functions with lt_
+	fix all compiler warnings and errors
+	* semaphore.h: include stdint.h
+	* thread.h (lt_thread_self): new function (decl only)
+	(lt_thread_kill): ditto
+	(lt_thread_interrupt): rename from thread_interrupt
+
 2004-07-23	blytkerchan
 	* semaphore.c (lt_sem_wait): change logic to FIFO
 

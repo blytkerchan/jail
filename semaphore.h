@@ -34,6 +34,7 @@
 #ifndef _LIBTHREAD_SEMAPHORE_H_
 #define _LIBTHREAD_SEMAPHORE_H_
 
+#include <stdint.h>
 #include "thread.h"
 
 typedef struct _lt_sem_t

@@ -79,22 +79,22 @@ void lt_sem_wait(lt_sem_t * sem)
 	uint32_t value;		// local copy of the sem value
 	sigset_t mask, o_mask;	// signal masks we work on (new & old)
 	
-	// set the signal mask for the calling thread. This prevents SIGCONT\
+	// set the signal mask for the calling thread. This prevents SIGCONT
 	// signals from being ignored in the waiting loop
 	sigemptyset(&mask);
 	sigaddset(&mask, SIGCONT);
-	pthtread_sigmask(SIG_BLOCK, &mask, &o_mask);
+	pthread_sigmask(SIG_BLOCK, &mask, &o_mask);
 
 	// first, put us on the queue. This ensures we don't miss any
 	// wake-up calls and nobody will miss us. It also ensures FIFO on the
 	// semaphore, making it fair.
-	lt_sem_enq(sem, thread_self());
+	lt_sem_enq(sem, lt_thread_self());
 	// this is the waiting loop. When we get out of this,
 	// the semaphore is ours
 	while (1) 
 	{
 		// now, see if we're the first on the list
-		if (thread_eq(lt_sem_first(), thread_self) == 0)
+		if (lt_thread_eq(lt_sem_first(sem), lt_thread_self()) == 0)
 		{	// once we're the first in the list, that will always be the case 
 			// until we remove ourselves. No other thread has the right to do
 			// that
@@ -102,7 +102,7 @@ void lt_sem_wait(lt_sem_t * sem)
 			value = sem->value;
 			if (value > 0) {
 				// try to get the semaphore
-				if (compare_and_exchange(&value, &(sem->value), value - 1) != 0)
+				if (compare_and_exchange(&value, &(sem->value), (void*)(value - 1)) != 0)
 				{
 					continue;	// try again
 				} else break;	// OK
@@ -111,7 +111,7 @@ void lt_sem_wait(lt_sem_t * sem)
 		else 
 		{	// semaphore is locked and/or we're not the first waiting
 			// wait for it to be unlocked
-			sigsuspend(mask);
+			sigsuspend(&mask);
 		}
 	}
 	
@@ -121,11 +121,10 @@ void lt_sem_wait(lt_sem_t * sem)
 
 void lt_sem_release(lt_sem_t * sem)
 {
-	uint32_t value;
 	lt_thread_t * first;
 
 	// check whether we were ever queued - if so, we're the first in the queue
-	if (thread_eq(lt_sem_first(sem), thread_self()) == 0)
+	if (lt_thread_eq(lt_sem_first(sem), lt_thread_self()) == 0)
 		lt_sem_deq(sem);
 	// release the semaphore
 	atomic_increment(&(sem->value));
@@ -133,7 +132,7 @@ void lt_sem_release(lt_sem_t * sem)
 	do
 	{
 		if ((first = lt_sem_first(sem)) != NULL)
-			thread_kill(SIGCONT, first);
+			lt_thread_kill(SIGCONT, first);
 	} while (first == lt_sem_first(sem));
 	// done
 }
@@ -148,7 +147,7 @@ static void lt_sem_enq(lt_sem_t * sem, lt_thread_t * thread)
 		do
 		{
 			old_tail = sem->tail;
-			hptr_register(0, old_tail)
+			hptr_register(0, old_tail);
 		} while (old_tail != sem->tail);
 		old_next = old_tail->next;
 		if (old_tail != sem->tail)
@@ -172,10 +171,10 @@ static void lt_sem_deq(lt_sem_t * sem)
 	lt_thread_t * first;
 	lt_thread_t * next;
 	
-	first = sem->first;
+	first = sem->queue;
 	next = first->next;
-	atomic_set(&(sem->first), next);
-	if (sem->first == NULL)
+	atomic_set(&(sem->queue), next);
+	if (sem->queue == NULL)
 		atomic_set(&(sem->tail), NULL);
 }
 
@@ -185,9 +184,9 @@ static lt_thread_t * lt_sem_first(lt_sem_t * sem)
 	
 	do
 	{
-		first = sem->first;
+		first = sem->queue;
 		hptr_register(0, first);
-	} while (first != sem->first);
+	} while (first != sem->queue);
 
 	return first;
 }
