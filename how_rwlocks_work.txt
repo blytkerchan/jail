@@ -1,0 +1,84 @@
+How rw-locks work
+=================
+The rw-lock algorithm is based on two synchronization primitives and does not 
+use any non-POSIX threading primitives (so no atomic_* is allowed). Hence, 
+*even integers* are protected by mutexes - the other sync primitive being a
+condvar.
+
+An rw-lock provides either shared or exclusive access to a resource. We have
+the following API:
+* rwlock_t * rwlock_new(void);
+  allocate and initialize the necessary resources for an rw-lock
+  returns a pointer to an opaque structure, or NULL on error
+* void rwlock_free(rwlock_t *);
+  free the resources associated with the rw-lock. Any use of the rw-lock as
+  of the moment this function is entered will cause undefined behaviour. Usage
+  of this function while the rw-lock is in use will also cause undefined
+  behaviour.
+* void rwlock_rlock(rwlock_t *);
+  acquire shared ownership of the lock. This function will not return until 
+  any existing exclusive ownership is released.
+* int rwlock_try_rlock(rwlock_t *);
+  try to acquire shared ownership. Return 0 on success, non-zero on error.
+* void rwlock_wlock(rwlock_t *);
+  Acquire exclusive ownership of the lock. This function will not return until
+  exclusive ownership is acquired.
+* int rwlock_try_wlock(rwlock_t *);
+  Try to acquire exclusive ownership of the lock. Return 0 on success, 
+  non-zero on failure
+* void rwlock_upgrade(rwlock_t *);
+  upgrade a shared ownership to an exclusive one. This will not relinquish the 
+  shared ownership on the lock until the calling thread is the last one to have
+  shared ownership, at which time it will be promoted to exclusive ownership.
+  Thus, it takes precedence over any thread waiting for exclusive ownership and
+  will block entry to any thread requesting shared ownership subsequent to 
+  some point within this function. It is not specified whether concurrent 
+  calls to this function in any way respect the order of arrival of the calling
+  threads.
+* void rwlock_downgrade(rwlock_t *);
+  downgrade an exclusive ownership of the lock to a shared one, without 
+  releasing ownership of the lock at any time.
+rwlock_t is an opaque type.
+
+The algorithm uses three waitsets (captured in condvars) and counters for each
+of those waitsets, individually protected by mutexes. Exclusive access is 
+also protected by a mutex, though it should not be necessary.
+
+To acquire shared ownership of the lock, one must first ascertain that:
+* no-one has exclusive ownership of the lock && \
+* no-one is waiting to upgrade a shared ownership of the lock
+until the time that both of these conditions are met, wait on the condvar.
+
+To acquire exclusive ownership of the lock, one must first ascertain that:
+* no-one has any kind of ownership of the lock && \
+* no-one is waiting to upgrade a shared ownership of the lock
+until the time that both of these conditions are met, wait on the condvar.
+
+To upgrade a shared ownership of the lock, on must first ascertain that:
+* no-one has any kind of ownership of the lock
+until the time that this condition is met, wait on the condvar.
+
+When releasing exclusive ownership of the lock:
+? check whether anyone is waiting for shared ownership of the lock
++ * wake up the waiting threads
+\ * done
+? check whether anyone is waiting for exclusive ownership of the lock
++ * wake up the waiting threads
+* done
+
+When releasing shared ownership of the lock:
+? does any-one else still have shared ownership?
++ * done
+? is any-one waiting to upgrade ownership?
++ * wake up
+\ * done
+? is any-one waiting for exclusive ownership?
++ * wake up
+\ * done
+
+When downgrading exclusive ownership:
+? is any-one waiting for shared ownership?
++ * wake up
+
+Note that this algorithm was designed for portability and POSIX-compliance 
+(with as only exception that the lock type ends in _t)

@@ -4,7 +4,8 @@ libthread_SRC := 	barrier.c \
 			rw_spinlock.c \
 			rw_lock.c \
 			thread_list.c \
-			thread_queue.c
+			thread_queue.c \
+			rwlock.c
 
 ifeq ($(HAVE_PTHREAD_SIGMASK),1)
 libthread_SRC +=	semaphore.c
