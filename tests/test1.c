@@ -32,6 +32,8 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <assert.h>
+#include <libmemory/smr.h>
+#include <libmemory/hptr.h>
 #include "../libconf.h"
 
 struct test1_helper1_data
@@ -103,5 +105,13 @@ void test1(void)
 
 int main(void)
 {
+	smr_init(LIBCONTAIN_MIN_HPTRS);
+	hptr_init();
+	smr_thread_init();
+	
 	test1();
+
+	smr_thread_fini();
+	hptr_fini();
+	smr_fini();
 }

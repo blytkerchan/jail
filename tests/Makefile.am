@@ -3,4 +3,4 @@ TESTS=test1
 
 test1_SOURCES=test1.c
 test1_LDADD=../libconf.la
-test1_CFLAGS=-DSRCDIR=\"$(srcdir)\"
+test1_CFLAGS=-DSRCDIR=\"$(srcdir)\" -I$(top_srcdir)
