@@ -25,128 +25,36 @@
 <td valign="top">
 <div align="justify">
 <h1>The Jail-Ust Container Library</h1>
-<p>The goal of the Container library is to provide containers (objects that
-contain other objects) for use by Jail-ust and other projects.<br/>
-The library, though intended primarily for use in the development of Jail-ust,
-is also intended for use by the general public which means that feature 
-requests, bug reports, etc. for projects other than Jail-ust have a good 
-chance to be entertained.</p>
-<p>The Container library's primary (technical/technological) goals are:
+<p>The libcontain library provides a large and growing number of fast and thread-safe containter objects written in C and C++</p>
+<p>The 0.2 release introduces  number of important new features including a heap and a map, both based on a lock-free binomial tree. It also includes the required memory management to make the containters impervious to the ABA problem and thus truly thread-safe.</p>
+<p>The libcontain library now provides the following container types:
 <ul>
-<li>To provide containers that are easy to use<br/>
-Comprehensive interface, C bindings, etc.
-</li>
-<li>To provide thread-safe containers<br/>
-Read operations must be thread-safe; write operations should also be 
-thread-safe but may require some memory management. The goal is to make each
-container thread-safe at least for all read operations, to clearly document
-what operations are, and what operations are not, thread-safe.</li>
-<li>To be "blindingly" fast<br/>
-Speed, next to ease of use and thread-safety, is of primary concern 
-</li>
+<li>a series of hash tables</br>
+libcontain includes the hash table implementation from GNU glib and a hash implementation in C++ it inherited from the libhash library it originates from. This latter has been rendered thread-safe in the 0.2 release and implements a linear hashing algorithm. A single hash table implementation that will replace them both is on the drawing boards and is intended to be thread-safe and non-blocking.</li>
+<li>an array (vector) implementation<br>
+libcontain currently includes a non-blocking array implementation. However, this implementation presents a race-condition in concurrent calls to any of its writing functions if the array is in the process of being resized. There is currently no known non-blocking way to solve this race condition. Help is welcome in this area.</li>
+<li>a binomial tree<br>
+The binomial tree provided by libcontain does not provide any algorithmic logic in its implementation: it is a generic container that can be used as the basis for other container implementations, such as a heap or a map (as a matter of fact, the heap and the map are both based on this binomial tree)</li>
+<li>a heap<br>
+libcontain provides an automatically sorting heap implementation that (obviously) uses a heap sort to sort the elements it contains. Unfortunately, the heap implementation is not non-blocking (although bases on a non-blocking binomial tree implementation). It contains four levels of locks: a reader count and a write lock at the level of the nodes, and a reader count and a write lock at the level of the container. The locks are posed on the container for as short a time as possible so at to prevent the progress of the algorithm to block too long. If anyone knows of a non-blocking heap algorithm, input is more than welcome.</li>
+<li>a list<br>
+libcontain provides a non-blocking list implementation based on an algorithm by M.M. Micheal (also the inventor of Safe Memory Reclamation on which libmemory is based).</li>
+<li>a map<br>
+The map implementation included in libcontain is based on the binomial tree implementation. Unlike some implementations based on binary trees, this implementation stores values in each node of the tree (not just the leaf nodes) and therefore allows a more memory-efficient way to store information than hashes and other map implementations. Also, the map implementation does not use a "less" function but uses a three-way comparison to compare keys (much like the helper function used by qsort). The implementation is almost (but not quite) non-blocking: for most intents and purposes, there are no real locks: read and write operations may be re-directed along a branch of the binomial tree if a node that they traverse is being deleted, but will not block for that. However, a remove operation will wait for another remove operation to finish if it traverses a node being removed.</li>
+<li>a queue<br>
+a non-blocking queue implementation is provided</li>
+<li>a stack<br>
+a non-blocking stack implementation is also provided</li>
 </ul>
 </p>
-<h2>Version 0.1-alpha2</h2>
-<p>This is the current alpha release of the Container library. It fixes a few 
-bugs found in the 0.1-alpha1 version. It contains implementations for 
-the following objects:
-<ul>
-<li><b>A queue</b><br/>
-The provided queue is aimed at being fast and uses a non-blocking algorithm
-described by Micheal and Scott in 1996 [<a href="#ref1">1</a>].<br/>
-Enqueueing is thread-safe; dequeueing isn't yet: memory management has not
-been implemented yet, which means a freed node can't be safely de-allocated
-yet, which in turn means that a de-queued node can't be safely freed yet.<br/>
-This basically means you can compile a <code>deq</code> with any number of 
-<code>enq</code> actions, but you can only have one deq at the same time.
-</li>
-<li><b>A stack</b><br/>
-The provides stack is aimed at being fast and uses a non-blocking algorithm.
-<br/>
-Due to the lack of memory management, the stack is currently not thread-safe
-for popping, but both reading the top element and pushing are thread-safe.<br/>
-This basically means you shouldn't <code>pop</code> from two threads at the 
-same time, but you can combine a single <code>pop</code> action with any number
-of <code>top</code> and <code>push</code> actions.</li>
-<li><b>A hash</b><br/>
-Since version 0.1-alpha1, two separate hash implementations are included in this
-library: one from the &quot;Real Life Systems Hash library (libhash)&quot; and
-one from glib.<br/>
-The hash taken from the Real Life Systems hash library, which is the immediate 
-precursor to the Container library, was not originally designed to be 
-thread-safe and is written in C++. The C interface functions were added for 
-the Container library.<br/>
-Currently, the Hash class and its derivatives are not thread-safe yet. There
-should be no problem with concurrent reads, but write actions should not be
-combined with any other actions (including read actions).<br/>
-Making the hash thread-safe for concurrent write operations requires serious
-re-factoring of the underlying implementation. This re-factoring is planned for
-a future version, using a list-based hash in lieu of a linear hash.<br/>
-Basically, this means you should see the current hash implementation as a 
-dictionary: write it once and read it often. As this is the most "usual" use
-of a hash anyway, that should not pose much of a problem.<br/>
-The second implementation of the hash is taken from glib and is therefore 
-licensed under GNU LGPL. The algorithm implemented is a lot like the one 
-implemented in the C++ implementation, except that the authors wrote it 
-completely in C and the implementation owns the values stored in it to a 
-certain extent.<br/>
-This implementation was added to the library for the sake of having a pure C
-implementation in the library, which is a requirement for adoption by the cgdb
-project. Their adoption of this library is as yet unclear but, in any case, the
-glib implementation of the hash will be removed when a list-based 
-implementation is ready to take its place. (At that time, it will first be
-deprecated, as will the C interface to the C++ implementation).<br/>
-</li>
-<li><b>A list</b><br/>
-Based on M.M. Micheal's lock-free list algorithm [<a href="#ref2">2</a>], the
-list will enable the creation of a list-based hash to replace the current
-implementations. The list algorithm as implemented is thread-safe, but memory
-management has not been implemented yet, which makes the implementation subject
-to the ABA problem (see [<a href="#ref2">2</a>]). Memory management will be
-implemented in a future version, shortly (i.e. at the time of this writing, the
-necessary library functions have already been written in the libmemory module 
-of the Jail-ust project, but the implementation has not passed QA yet.).
-</li>
-</li>
-</ul>
-</p>
-<p>Some containers are still in the design phase and are therefore not included
-in the library at this time. These include:
-<ul>
-<li><b>A map</b><br/>
-Because it is difficult to write good hashing functions for use with a hash,
-a map, though slower, will allow the same type of fast, key-based access to 
-stored elements.</li>
-<li><b>A heap</b><br/>
-Under active development. A heap provides access to its largest element and is
-automatically sorted.
-</li>
-</ul>
-As it is looking now, the heap and the map might share a significant part of 
-their code (i.e. both may be implemented as binomial trees) but there are 
-certain trade-offs to be considered.<br/>
-The currently committed heap implementation is a linearized binomial tree which
-may be too limited for a non-blocking thread-safe implementation, but which is
-probably extremely fast and without a doubt the most memory-efficient solution.
-To take a look at the ongoing development, please check out CVS or try the 
-latest snapshot. Your comments would be very welcome.
-</p>
-<h2>References</h2>
-<a name="references"/>
-<p>
-<ol>
-<li><a name="ref1"/>"Simple, Fast, and Practical Non-Blocking and Blocking
-Concurrent Queue Algorithms"; M. M. Micheal &amp; M. L. Scott; PODC 96</li>
-<li><a name="ref2"/>"High Performance Dynamic Lock-Free Hash Tables and 
-List-Based Sets"; M. M. Micheal; PODC 2002</li>
-</ol>
-</p>
+<p>In future versions, the hash implementation will be replaced by a non-blocking one and the remaining problems with the existing containers will (hopefully) be solved. Help is also needed to write the architecture-dependant code for non-IA32 platforms such as Sparc.</p>
 </div>
 </td>
 <td style="width: 20%;" valign="top">
 <!--  RIGHT-HAND SIDE TEXT HERE -->
 <p>
 <h2>Download</h2>
+<a href="http://prdownloads.sourceforge.net/jail-ust/libcontain-0.2-alpha1.tar.gz?download">Version 0.2-alpha1</a><br/>
 <a href="http://prdownloads.sourceforge.net/jail-ust/libcontain-0.1-alpha2.tar.gz?download">Version 0.1-alpha2</a><br/>
 <a href="http://prdownloads.sourceforge.net/jail-ust/libcontain-0.1-alpha1.tar.gz?download">Version 0.1-alpha1</a><br/>
 <a href="http://prdownloads.sourceforge.net/jail-ust/libcontain-0.0-alpha2.tar.gz?download">Version 0.0-alpha2</a><br/>
@@ -167,7 +75,7 @@ width="210" height="62" border="0" align="right" alt=
 "SourceForge.net Logo"></a>
 </td><td style="vertical-align: bottom; text-align: right; font-size: smaller;">
 <a href="#top">back to top</a><br/>
-This page was last updated: $Date: 2004/04/23 14:15:36 $
+This page was last updated: $Date: 2004/05/10 16:06:29 $
 </td></tr></tbody></table>
 </body>
 </html>

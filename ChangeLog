@@ -1,3 +1,8 @@
+2004-05-10	blytkerchan
+	* libmemory_down.html: new file
+	* libcontain_down.html: update for 0.2-alpha1 release
+	* table_down.html: add link to libmemory_down.html
+
 2004-05-04	blytkerchan
 	* development.html: update the current status of development
 
