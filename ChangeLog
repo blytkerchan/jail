@@ -1,3 +1,6 @@
+2004-10-19	blytkerchan
+	* preproc.c: don't include libgen.h
+
 2004-10-18	blytkerchan
 	* module.mk: new file
 
