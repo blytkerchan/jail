@@ -33,14 +33,10 @@
  */
 #include <stdint.h>
 
-int atomic_increment(uint32_t * target)
+void atomic_increment(uint32_t * target)
 {
-	int rv;
-
 	asm("lock incl %1" 
 	: "=m" (*target)
 	: "0" (*target));	
-
-	return rv;
 }
 

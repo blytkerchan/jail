@@ -37,7 +37,7 @@
 #include <stdint.h>
 
 /* atomically increment *TARGET */
-int atomic_increment(uint32_t * target);
+void atomic_increment(uint32_t * target);
 
 #endif // _ARCH_INCREMENT_H
 

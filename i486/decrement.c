@@ -33,14 +33,10 @@
  */
 #include <stdint.h>
 
-int atomic_decrement(uint32_t * target)
+void atomic_decrement(uint32_t * target)
 {
-	int rv;
-
 	asm("lock decl %1" 
 	: "=m" (*target)
 	: "0" (*target));	
-
-	return rv;
 }
 

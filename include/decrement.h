@@ -37,6 +37,6 @@
 #include <stdint.h>
 
 /* Atomically decrement *TARGET */
-int atomic_decrement(uint32_t * target);
+void atomic_decrement(uint32_t * target);
 
 #endif // _ARCH_DECREMENT_H
