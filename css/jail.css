@@ -75,3 +75,12 @@ a.toc:active {
 a.toc:visited {
 	color: #0000FF;
 }
+
+.inputbox {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+	font-size: 10px;
+	color: #000000;
+	background-color: #FFFF80;
+	border: 1px solid #FF0000;
+}
+	  
