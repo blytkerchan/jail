@@ -1,3 +1,6 @@
+2004-10-14	blytkerchan
+	* version: new file
+
 2004-09-13	blytkerchan
 	* hptr.c (smr_hptr_free_list_enq): use compare_and_exchange_ptr in
 	stead of compare_and_exchange
