@@ -1,4 +1,6 @@
 2004-07-15	blytkerchan
+	* modules: fix type-o in release-libcontain module
+
 	* modules: re-organize the modules so they will all share a single
 	configury, which will live in the config module.
 
