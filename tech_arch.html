@@ -1,8 +1,6 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 <head>
-<meta name="generator" content=
-"HTML Tidy for Linux/x86 (vers 1st June 2003), see www.w3.org">
 <title>JAIL: Just Another Interpreted Language</title>
 <meta http-equiv="content-type" content=
 "text/html; charset=us-ascii">
@@ -32,63 +30,101 @@ jail-ust-lang-subscribe@lists.sourceforge.net or by clicking
 <a href="mailto:jail-ust-lang-subscribe@lists.sourceforge.net">here</a>.
 </p>
 <hr>
-<p>There are a few things to take into account, and a few questions
-that need to be answered in the architecture of the interpreter,
-and in the way a program should be compiled. (This is where it gets
-really sketchy). At the moment (2003-05-03), the ideas are a bit as
-follows:</p>
-<h4>Items are not confined to the context they are defined in.</h4>
-<p>In C, C++ and other languages, variables may be global to the
-entire program, defined in one source file and used in another.
-This is basically because the steps from source code to executable
-consists of compiling the source code into object code, and linking
-the object code into a single object. This is possible because
-there may be a difference between the <i>definition</i> and the
-<i>declaration</i> of a variable. In Jail, that is not the
-case.</p>
-<p>An item is automatically declared when it is first used. If that
-use is a read operation, the item does not have any contents (it is
-empty) and the interpreter should say something like: "Warning:
-read operation on uninitialized item", with the line of code.</p>
-<p>When an item is declared, it is added to the symbol table of the
-context the compiler is currently in. Whenever a new context is
-created, it is assigned a number, the number of its parent context
-(which might be useful later) and a fresh new symbol table
-containing the symbols in the symbol table of its parent
-context.</p>
-<p>Within a given context, it is possible to export an item to the
-parent context, or somewhere up the context tree. Because the
-symbol table is copied at the time the context is created, import
-is done automatically - but any item not used at the time the new
-context is declared is not imported into the new context, but can
-be done so explicitly.</p>
-<p>This basically means that you can override the confinment of an
-item from the context it is defined in to any other context up or
-down the current branch of the context tree, but within this model,
-it is not possible to export an item to, or import an item from,
-any context that is not on the same branch of the context tree.
-That is possible if the item is exported to a node in the context
-tree that is shared with a context on another branch. If that other
-context imports the item, the two contexts on different branches
-can share the same item, even if the item is declared on the tip of
-a branch.</p>
-<h4>Code and data - what's the difference?</h4>
-<p>The compiler translates the source code into byte code and
-associates it with an item. That item can subsequently be used as a
-function or as any kind of other item can be used. This inherently
-means you can also use any variable as a function - which is true.
-Whether or not a variable will actually do anything as a function
-depends on whether the variable contains valid bytecode or not.</p>
-<p>Whether or not bytecode is valid will be determined at runtime.
-For the time being, the Jail Bytecode Specification is no more than
-a bit of scribbling on a piece of paper. The only thing I know for
-sure is that there will be no on-the-fly compiling of inserted
-code: compiling is done only once, the necessary information is put
-in the bytecode and the interpretation is launched. It may be
-possible to have the interpreter launch the compiler to compile a
-bit of code (via a built-in function) which would amount to
-on-the-fly compiling, but it's not on the drawing boards for the
-time being.</p>
+<p>The folowing texts should be seen as drafts pertaining the technical
+architecture of the language and the different components of the interpreter.
+They should <i>not</i> be seen as "canonical" texts - at least as long as
+they haven't been discussed and "canonicalized" yet.</p>
+<p>As far as the language itself is concerned, the jail-ust-lang list is the
+only place where anything can be decided. (See the <a href="progress.html">
+"progress" page</a> for details.</p>
+<p>As far as the architecture of the interpreter and its components are 
+concerned, nothing has been decided yet. There will be a list for discussion
+on that topic when the jail-ust-lang list has made enough progress to warrant
+such efforts.</p>
+<h4>The toolset: the parts of the interpreter</h4>
+<p>The interpreter consists of a number of programs, the interface to which is
+the program `jail': the compiler-driver.<br>
+The entire toolset will consist of:
+<ul>
+<li> the preprocessor
+<ul>
+<li> gets all the used definitions from the headers
+<li> removes all comments
+<li> stores filenames and line numbers for reference in its output files (the
+only comments that can still exist after preprocessing)
+<li> resolves all macros
+</ul>
+<li> the compiler
+<ul>
+<li> translates all code to VM instructions (still human-readable)
+<li> mangles symbol names
+<li> performs all optimization
+</ul>
+<li> the assembler
+<ul>
+<li> translates the VM instructions into byte code (not human-readable)
+</ul>
+<li> the linker
+<ul>
+<li> resolves all resolvable symbols
+<li> creates a single, loadable image
+</ul>
+<li> the interpreter (VM)
+<ul>
+<li> loads the linker-created image
+<li> dynamically links the image with libraries it uses
+<li> checks the integrity of the bytecode
+<li> checks and sets security flags as needed
+<li> executes the byte code
+</ul>
+</ul>
+The platform will be named "Justice" (for Jail Uses Silly Terms In Common 
+Expressions)</p>
+<p>The different components will read and write different files:
+<ul>
+<li> the preprocessor
+<ul>
+<li> produces .ji files from .jail files. .jail files are human-written Jail
+source files
+<li> produces .js files from .jS files. .jS files are human-written JailVM 
+assembly source files
+</ul>
+<li> the compiler
+<ul>
+<li> produces .js files from .ji files. .ji files are preprocessor-written Jail
+source files
+</ul>
+<li> the assembler
+<ul>
+<li> produces .jo files from .js files. .js files are either created by the
+compiler or by the preprocessor and contain JailVM assembly source code.
+</ul>
+<li> the linker
+<ul>
+<li> produces .ja files from one or more .jo files. .jo files are created by the
+assembler.
+</ul>
+<li> the interpreter (VM)
+<ul>
+<li> read .ja files and interprete them.
+</ul>
+</ul>
+Hence, the files are:
+<table border="1" width="100%">
+<tbody>
+<tr><td align="center">file extention</td><td align="center">description</td></tr>
+<tr><td>.jail</td><td>Jail source file</td></tr>
+<tr><td>.ji</td><td>preprocessed Jail source file</td></tr>
+<tr><td>.jS</td><td>JailVM assembler source file that needs preprocessing</td></tr>
+<tr><td>.js</td><td>JailVM assembler source file</td></tr>
+<tr><td>.jo</td><td>Justice object file</td></tr>
+<tr><td>.ja</td><td>Justice archive file</td></tr>
+</tbody>
+</table>
+</p>
+<p>There are still some ideas I'm playing WRT the formats of these files. In any
+case, the .jail, .ji, .jS and .js files will be human-readable. The .jo and .ja
+files will not be human-readable</p>
 </div>
 </td>
 <td width="210" valign="top">
@@ -101,6 +137,6 @@ width="210" height="62" border="0" align="right" alt=
 </tr>
 </tbody>
 </table>
-<div align="right">This page was last updated: $Date: 2003/09/17 14:22:46 $</div>
+<div align="right">This page was last updated: $Date: 2003/09/21 16:29:39 $</div>
 </body>
 </html>
