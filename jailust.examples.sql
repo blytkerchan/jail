@@ -10,8 +10,8 @@
 
 DROP TABLE IF EXISTS examples;
 CREATE TABLE examples (
-  uid int(16) NOT NULL default '0',
-  question_id int(16) NOT NULL,
+  uid integer NOT NULL default '0',
+  question_id integer NOT NULL,
   example TEXT default NULL,
   PRIMARY KEY  (uid)
 ) TYPE=MyISAM;

@@ -2,12 +2,13 @@
 use Data::Dumper;
 use DBI();
 
+#$/="\r\n";
 $print_header = 1;
 $db_database  = 'jail';
 $db_host      = 'localhost';
 $db_username  = 'ronald';
 $db_password  = '770217104';
-$PROGID       = '$Id: poll_response.pl,v 1.3 2004/01/08 14:25:46 blytkerchan Exp $';
+$PROGID       = '$Id: poll_response.pl,v 1.4 2004/01/10 15:48:33 blytkerchan Exp $';
 
 sub connect_database()
 {
@@ -31,16 +32,49 @@ sub output_footer()
 	print "</html>\n";
 }
 
-sub put_response($)
+sub put_response(%)
 {
 	my $sth;
+	my $answerref;
+	my $arrayref;
+	my $hashref;
+	my @answer_array;
+	my @answerid_array;
 	my $template;
-	
-	$sth = $db{dbh}->prepare("CREATE TABLE IF NOT EXISTS responses (uid INT(16) NOT NULL DEFAULT '0' AUTO_INCREMENT PRIMARY KEY, question_id INT(16) NOT NULL DEFAULT '0', response TEXT NOT NULL);");
+	my $responseref = $_[0];
+	my $create_request =<<EOE
+CREATE TABLE IF NOT EXISTS responses (
+	uid int(11) NOT NULL auto_increment,
+	question_id int(11) NOT NULL default '0',
+	comment text,
+	answers varchar(160) default NULL,
+	remote_ip varchar(16) default NULL,
+	log_time timestamp,
+	PRIMARY KEY  (uid)
+) TYPE=MyISAM;
+EOE
+;	
+	$sth = $db{dbh}->prepare($create_request);
 	$sth->execute();
 
-	$template = "INSERT INTO responses (question_id, response) VALUES (\'1\',\'%s\')";
-	$sth = $db{dbh}->prepare(sprintf($template, $_[0]));
+	$template = "SELECT * FROM answers WHERE question_id=\'%d\' AND answer like \'%s\';";
+	$arrayref = $$responseref{answer};
+	if ($arrayref)
+	{
+		@answer_array = @$arrayref;
+		foreach(@answer_array)
+		{
+			chomp $_;
+			chop $_;
+			$sth = $db{dbh}->prepare(sprintf($template, $$responseref{question_id}, $_));
+			$sth->execute();
+			$hashref = $sth->fetchrow_hashref();
+			push @answerid_array, $$hashref{uid};
+		}
+	}
+	
+	$template = "INSERT INTO responses (question_id, comment, answers, remote_ip) VALUES (\'%d\',\'%s\',\'%s\',\'%s\')";
+	$sth = $db{dbh}->prepare(sprintf($template, $$responseref{question_id}, "$$responseref{comment}", "@answerid_array", $ENV{REMOTE_ADDR}));
 	$sth->execute();
 }
 
@@ -48,9 +82,46 @@ sub output_body()
 {
 }
 
+sub add_to_hash(%$$)
+{
+	my @array;
+	my $hashref = $_[0];
+	my $key = $_[1];
+	my $value = $_[2];
+
+	if (exists $$hashref{$key})
+	{
+		$arrayref = $$hashref{$key}; 
+		@array = @$arrayref;
+	}
+	push @array, "$value\n";
+	$$hashref{$key} = \@array;
+}
+
+#open LOGFILE, ">logfile";
+while (<>)
+{
+	if ($last_key ne 'comment')
+	{
+		if (/\s*([^\s=]*)\s*?=(.*)/)
+		{
+			$last_key = $1;
+			SWITCH1: {
+				if ($last_key eq 'question_id') { $response{question_id} = $2; 	last SWITCH1;	}
+				if ($last_key eq 'comment') 	{ $response{comment} .= $2; 	last SWITCH1;	}
+				add_to_hash(\%response, $1, $2);
+			}
+		}
+	}
+	else
+	{
+		$response{comment} .= $_;
+	}
+}
+
 connect_database();
-@response = <>;
-put_response("@response");
+put_response(\%response);
 output_header();
 output_body();
 output_footer();
+

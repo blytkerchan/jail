@@ -2,7 +2,7 @@
 use Data::Dumper;
 use DBI();
 
-$PROGID = '$Id: poll.pl,v 1.10 2004/01/08 17:39:12 blytkerchan Exp $';
+$PROGID = '$Id: poll.pl,v 1.11 2004/01/10 15:48:33 blytkerchan Exp $';
 
 $print_header = 1;
 $response_url = '/cgi-bin/poll_response.pl';
@@ -74,6 +74,7 @@ sub fetch_question()
 		}
 		$retval{answers} = \@answers;
 	}
+	$retval{uid} = $$question{uid};
 
 	return %retval;
 }
@@ -88,6 +89,7 @@ sub output_body()
 	%question = fetch_question();
 
 	print "<form action=\"$response_url\" method=\"post\" enctype=\"text/plain\" accept-charset=\"utf8\" style=\"width: 200;\">\n";
+	print "<input type=\"hidden\" name=\"question_id\" value=\"".$question{uid}."\"/>\n";
 	print "<div id=\"question\">".$question{question}."</div>\n";
 
 	$arrayref = $question{examples};

@@ -1,3 +1,10 @@
+2003-01-10	blytkerchan
+	* jailust.answers.sql: normalize
+	* jailust.examples.sql: ditto
+	* jailust.questions.sql: ditto
+	* poll.pl: put the question_id in the form
+	* poll_response.pl: save the response to the database
+
 2003-01-08	blytkerchan
 	* poll.pl: re-introduce PROGID
 

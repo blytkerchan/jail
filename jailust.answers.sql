@@ -10,10 +10,10 @@
 
 DROP TABLE IF EXISTS answers;
 CREATE TABLE answers (
-  uid int(16) NOT NULL default '0',
-  question_id int(16) NOT NULL,
+  uid integer NOT NULL default '0',
+  question_id integer NOT NULL,
   answer VARCHAR (160) default NULL,
-  must_be_unique int(1) NOT NULL default '0',
+  must_be_unique integer NOT NULL default '0',
   PRIMARY KEY  (uid)
 ) TYPE=MyISAM;
 
