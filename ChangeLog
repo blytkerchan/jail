@@ -1,4 +1,15 @@
-2003-02-09	blytkerchan
+2004-04-08	blytkerchan
+	* ChangeLog: rectify date of previous change
+	* *.pl: move to ../cgi-bin
+	* images: new directory
+	* css: ditto
+	* sql: ditto
+	* *.png: move to new images directory
+	* *.xcf: ditto
+	* *.css: move to new css directory
+	* *.sql: move to new sql directory
+
+2004-02-09	blytkerchan
 	* index.html: add (funny) publicity banner
 	* menu.html: add download section
 
