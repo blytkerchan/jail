@@ -1,3 +1,9 @@
+2004-03-30	blytkerchan
+	* catstr.c: new file
+	* catstr.h: ditto
+	* Makefile.am [libreplace_la_SOURCES]: add catstr.c and memdup.c
+	[noinst_HEADERS]: new variable
+
 2004-03-25	blytkerchan
 	* memdup.c: new file
 	* memdup.h: ditto
