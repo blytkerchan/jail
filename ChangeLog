@@ -1,3 +1,15 @@
+2004-10-19	blytkerchan	fix the vector implementation
+	* vector.c (internal_resize): fix type-o in name
+	use compare_and_exchange_ptr or compare_and_exchange_int in stead of
+	compare_and_exchange
+	(vector_put): ditto (second)
+	(vector_copy): use vector_new in stead of new_vector
+	(vector_merge1): ditto
+	(vector_deep_copy): ditto
+	(vector_merge): lock the proper vectors, properly
+	(vector_set_default_increase): use atomic_set_int in stead of
+	atomic_set
+
 2004-10-18	blytkerchan
 	* vector.h [vector_t]: fix rw-spinlock type
 	* module.mk [libcontain_SRC]: add vector.c

@@ -43,7 +43,7 @@
 #include "binary.h"
 #include "thread.h"
 
-static void interal_resize(vector_t * vector, size_t n_size);
+static void internal_resize(vector_t * vector, size_t n_size);
 static void internal_condense(vector_t * vector);
 
 /* This may seem obvious, and it is! Allocate a new vector of SIZE entries */
@@ -131,7 +131,7 @@ void vector_put(vector_t * vector, size_t i, void * val)
 			}
 		} while (nodes != vector->nodes);
 		rv = NULL;
-		while (compare_and_exchange(&rv, &(nodes[i].val), val) != 0);
+		while (compare_and_exchange_ptr(&rv, &(nodes[i].val), val) != 0);
 	} while (nodes != vector->nodes);
 	hptr_free(0);
 	if (rv == NULL)
@@ -182,7 +182,7 @@ void vector_push_back(vector_t * vector, void * val)
 			}
 		} while (nodes != vector->nodes);
 		exp = NULL;
-		if (compare_and_exchange(&exp, &(nodes[num_entries].val), val) != 0)
+		if (compare_and_exchange_ptr(&exp, &(nodes[num_entries].val), val) != 0)
 			continue;
 	} while (nodes != vector->nodes);
 	hptr_free(0);
@@ -218,7 +218,7 @@ size_t vector_get_numentries(vector_t * vector)
 	return retval;
 }
 
-static void interal_resize(vector_t * vector, size_t n_size)
+static void internal_resize(vector_t * vector, size_t n_size)
 {
 	vector_node_t * new_nodes = calloc(n_size, sizeof(vector_node_t));
 	vector_node_t * o_nodes;
@@ -248,19 +248,19 @@ static void interal_resize(vector_t * vector, size_t n_size)
 			(size < n_size ? size : n_size) * sizeof(vector_node_t));
 		o_nodes = nodes;
 		
-		if (compare_and_exchange(&size, &(vector->size), 0) != 0)
+		if (compare_and_exchange_int(&size, &(vector->size), 0) != 0)
 		{
 			free(new_nodes);
 			continue;
 		}
-		if (compare_and_exchange(&o_nodes, &(vector->nodes), new_nodes) != 0)
+		if (compare_and_exchange_ptr(&o_nodes, &(vector->nodes), new_nodes) != 0)
 		{
 			free(new_nodes);
 			continue;
 		}
 		rw_spinlock_downgrade(vector->lock);
 		size = 0;
-		compare_and_exchange(&size, &(vector->size), (void*)n_size);
+		compare_and_exchange_int(&size, &(vector->size), n_size);
 		free(o_nodes);
 	} while (n_size < vector->size);
 	hptr_free(0);
@@ -276,7 +276,7 @@ void vector_resize(vector_t * vector, size_t n_size)
 vector_t * vector_copy(vector_t * vector)
 {
 	size_t size = vector->size;
-	vector_t * retval = new_vector(size);
+	vector_t * retval = vector_new(size);
 	size_t i;
 
 	rw_spinlock_read_lock(vector->lock);
@@ -406,7 +406,7 @@ static size_t vector_merge2(
  */
 static vector_t * vector_merge1(vector_node_t * vector_nodes1, vector_node_t * vector_nodes2, size_t n, size_t m, libcontain_cmp_func_t cmp_func)
 {
-	vector_t * retval = new_vector(n + m);
+	vector_t * retval = vector_new(n + m);
 	size_t next = n + m;
 
 	while (n > 0 && m > 0)
@@ -431,7 +431,7 @@ vector_t * vector_merge(vector_t * vector1, vector_t * vector2, libcontain_cmp_f
 	vector_t * retval;
 	size_t size1, size2;
 
-	rw_spinlock_read_lock(vector->lock);
+	rw_spinlock_read_lock(vector1->lock);
 	do
 	{
 		do
@@ -443,6 +443,7 @@ vector_t * vector_merge(vector_t * vector1, vector_t * vector2, libcontain_cmp_f
 		if (!size1)
 			continue;
 	} while (nodes1 != vector1->nodes);
+	rw_spinlock_read_lock(vector2->lock);
 	do
 	{
 		do
@@ -458,7 +459,8 @@ vector_t * vector_merge(vector_t * vector1, vector_t * vector2, libcontain_cmp_f
 	retval = vector_merge1(nodes1, nodes2, size1, size2, cmp_func);
 	hptr_free(0);
 	hptr_free(1);
-	rw_spinlock_read_unlock(vector->lock);
+	rw_spinlock_read_unlock(vector2->lock);
+	rw_spinlock_read_unlock(vector1->lock);
 
 	return retval;
 }
@@ -597,7 +599,7 @@ void * vector_search(vector_t * vector, void * val, libcontain_cmp_func_t cmp_fu
 
 void vector_set_default_increase(vector_t * vector, size_t increase)
 {
-	atomic_set((void**)(&(vector->increase)), (void*)increase);
+	atomic_set_int((&(vector->increase)), increase);
 }
 
 vector_t * vector_deep_copy(vector_t * vector, libcontain_copy_func_t vector_valcopy_func)
@@ -612,7 +614,7 @@ vector_t * vector_deep_copy(vector_t * vector, libcontain_copy_func_t vector_val
 	{
 		size = vector->size;
 	} while (!size);
-	retval = new_vector(size);
+	retval = vector_new(size);
 	for (i = 0; i < size; i++)
 	{
 		val = vector_get(vector, i);
