@@ -1,4 +1,4 @@
-/* $Id: Hash.cc,v 1.2 2003/10/07 21:23:11 blytkerchan Exp $ */
+/* $Id: Hash.cc,v 1.3 2004/04/01 13:35:10 blytkerchan Exp $ */
 /* Jail: Just Another Interpreted Language
  * Copyright (c) 2003, Ronald Landheer-Cieslak
  * All rights reserved
@@ -424,6 +424,19 @@ char *Hash::get_filename(void) {
 void Hash::set_filename(char *filename) {
 	strcpy(this->filename, filename);
 } // get_filename()
+
+// rlc	2004-03-31
+// added to implement hash_search
+void Hash::for_each(foreach_func_t func, void * user_data)
+{
+	ulong i;
+	
+	for (i = 0; i < Count; i++)
+	{
+		if (mappings[i].key)
+			func(mappings[i].key, mappings[i].val, user_data);
+	}
+}
 
 /* FOOTNOTES
 // 1. Constructors do not return any value, so we should get back to the good old RunControl variable..

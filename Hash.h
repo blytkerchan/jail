@@ -1,4 +1,4 @@
-/* $Id: Hash.h,v 1.2 2003/10/07 21:23:11 blytkerchan Exp $ */
+/* $Id: Hash.h,v 1.3 2004/04/01 13:35:10 blytkerchan Exp $ */
 /* Jail: Just Another Interpreted Language
  * Copyright (c) 2003, Ronald Landheer-Cieslak
  * All rights reserved
@@ -62,6 +62,7 @@ typedef struct Hash Hash;
 // Class definition */
 class Hash {
 public:
+	typedef void (*foreach_func_t)(void*key,void*val,void*data);
 	Hash();
 	Hash(ulong);
 	virtual ~Hash();
@@ -81,6 +82,7 @@ public:
 	void * get_write_helper_function(void); // cast to int (*)(void*)
 	char *get_filename(void);
 	void set_filename(char *filename);
+	virtual void for_each(foreach_func_t func, void * user_data);
 	
 protected:
 	virtual int cmp_keys(const void *key1, const void *key2);

@@ -1,3 +1,13 @@
+2004-03-31	blytkerchan
+	* Hash.cc (Hash::for_each): new function
+	* Hash.h (Hash::foreach_func_t): new type
+	(Hash::for_each): new function
+	* hash.c (struct hash_search_t): new type
+	(hash_search_helper): new function
+	(hash_search): ditto
+	* hash.h (hash_val_cmp_func_t): new type
+	(hash_search): new function
+
 2004-03-29	blytkerchan
 	* array.c (array_linear_search): don't compare if the value in the array is NULL (i.e. node is empty)
 	(array_condense_helper): sort empty nodes to the end of the array

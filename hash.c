@@ -160,5 +160,43 @@ void ** hash_keys(hash_t * hash)
 	return NULL;
 }
 
+struct hash_search_t
+{
+	hash_val_cmp_func_t compare;
+	void * searchfor;
+	void * retval;
+};
 
+static void hash_search_helper(void * key, void * val, void * data)
+{
+	struct hash_search_t * s_data = (struct hash_search_t*)data;
+	if (s_data->compare(val, s_data->searchfor) == 0)
+	{
+		s_data->retval = val;
+	}
+}
+
+void * hash_search(hash_t * hash, void * searchfor, hash_val_cmp_func_t compare)
+{
+	
+	struct hash_search_t hash_search_data;
+	hash_search_data.retval = NULL;
+	hash_search_data.searchfor = searchfor;
+	hash_search_data.compare = compare;
+#if ! DONT_USE_GLIB
+	if (hash->glib_hash)
+	{
+		g_hash_table_foreach(hash->glib_hash, hash_search_helper, &hash_search_data);
+		return hash_search_data.retval;
+	}
+#endif
+#if ! DONT_USE_CXX
+	if (hash->cxx_hash)
+	{
+		hash->cxx_hash->for_each(hash_search_helper, &hash_search_data);
+		return hash_search_data.retval;
+	}
+#endif
+	return NULL;
+}
 

@@ -53,6 +53,7 @@ typedef enum {
 
 typedef int (*hash_key_cmp_func_t)(const void * k1, const void * k2);
 typedef unsigned int (*hash_key_hash_func_t)(const void * key);
+typedef int (*hash_val_cmp_func_t)(const void * v1, const void * v2);
 
 hash_t * new_hash(libhash_hashtype hash_type, 
 						hash_key_hash_func_t hash_func,
@@ -62,6 +63,9 @@ void *hash_get(hash_t * hash, const void *key);
 int hash_put(hash_t * hash, const void *key, const void *value);
 int hash_remove(hash_t * hash, const void *key);
 void ** hash_keys(hash_t * hash);
+
+/* search the hash by value */
+void * hash_search(hash_t * hash, void * searchfor, hash_val_cmp_func_t compare);
 
 #ifdef __cplusplus
 }
