@@ -1,4 +1,11 @@
 2004-10-26	blytkerchan
+	* modules (release-libcontain): add libarch
+	make arch directory contain only headers
+	(release-libmemory): ditto
+	(release-preprocessor): ditto
+	(release-libconf): ditto
+	(release-libthread): ditto
+
 	* modules (i486-libarch): add libarch-libreplace
 
 2004-10-25	blytkerchan

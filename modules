@@ -25,42 +25,47 @@
 # can be useful for creating a module that consists of many directories
 # spread out over the entire source repository.
 libcontain-config -d libcontain config
-libcontain-arch -d libcontain/arch arch
+libcontain-arch -d libcontain/arch arch/include
+libcontain-libarch -d libcontain/libarch arch/i486
 libcontain-libreplace -d libcontain/libreplace libreplace
 libcontain-libmemory -d libcontain/libmemory libmemory
 libcontain-libcontain -d libcontain/libcontain libcontain
 libcontain-libthread -d libcontain/libthread libthread
-release-libcontain -a libcontain-config libcontain-libcontain libcontain-arch libcontain-libreplace libcontain-libmemory libcontain-libthread
+release-libcontain -a libcontain-config libcontain-libcontain libcontain-arch libcontain-libarch libcontain-libreplace libcontain-libmemory libcontain-libthread
 
-libmemory-arch -d libmemory/arch arch
+libmemory-arch -d libmemory/arch arch/include
+libmemory-libarch -d libmemory/libarch arch/i486
 libmemory-libmemory -d libmemory/libmemory libmemory
 libmemory-config -d libmemory config
-release-libmemory -a libmemory-config libmemory-libmemory libmemory-arch
+release-libmemory -a libmemory-config libmemory-libmemory libmemory-arch libmemory-libarch
 
 preprocessor-preprocessor -d preprocessor/preprocessor preprocessor
 preprocessor-config -d preprocessor config
-preprocessor-arch -d preprocessor/arch arch
+preprocessor-arch -d preprocessor/arch arch/include
+preprocessor-libarch -d preprocessor/libarch arch/i486
 preprocessor-libcontain -d preprocessor/libcontain libcontain
 preprocessor-libreplace -d preprocessor/libreplace libreplace
 preprocessor-libconf -d preprocessor/libconf libconf
 preprocessor-libmemory -d preprocessor/libmemory libmemory
 preprocessor-libthread -d preprocessor/libthread libthread
-release-preprocessor -a preprocessor-config preprocessor-preprocessor preprocessor-arch preprocessor-libcontain preprocessor-libreplace preprocessor-libconf preprocessor-libmemory preprocessor-libthread
+release-preprocessor -a preprocessor-config preprocessor-preprocessor preprocessor-arch preprocessor-libcontain preprocessor-libreplace preprocessor-libconf preprocessor-libmemory preprocessor-libthread preprocessor-libarch
 
 libconf-config -d libconf config
-libconf-arch -d libconf/arch arch
+libconf-arch -d libconf/arch arch/include
+libconf-libarch -d libconf/libarch arch/i486
 libconf-libconf -d libconf/libconf libconf
 libconf-libmemory -d libconf/libmemory libmemory
 libconf-libcontain -d libconf/libcontain libcontain
 libconf-libreplace -d libconf/libreplace libreplace
-release-libconf -a libconf-config libconf-libconf libconf-libreplace libconf-libcontain libconf-arch libconf-libmemory
+release-libconf -a libconf-config libconf-libconf libconf-libreplace libconf-libcontain libconf-arch libconf-libmemory libconf-libarch
 
 libthread-config -d libthread config
 libthread-libthread -d libthread/libthread libthread
-libthread-arch -d libthread/arch arch
+libthread-arch -d libthread/arch arch/include
+libthread-libarch -d libthread/libarch arch/i486
 libthread-libreplace -d libthread/libreplace libreplace
 libthread-libmemory -d libthread/libmemory libmemory
-release-libthread -a libthread-config libthread-libthread libthread-arch libthread-libmemory libthread-libreplace
+release-libthread -a libthread-config libthread-libthread libthread-arch libthread-libmemory libthread-libreplace libthread-libarch
 
 libarch-config -d libarch config 
 libarch-arch-i486 -d libarch/libarch arch/i486
