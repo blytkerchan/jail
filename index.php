@@ -101,8 +101,16 @@
 	}
 	else
 	{
-		if (strcmp($_GET['comment'], "create") == 0)
+		if (strcmp($_GET['login'], "edit") == 0)
+			edit_login($user, $section, $page);
+		else if (strcmp($_GET['login'], "save") == 0)
+			save_login($user, $_POST['name'], $_POST['email'], $_POST['passwd_o'], $_POST['passwd_n1'], $_POST['passwd_n2']);
+		else if (strcmp($_GET['comment'], "create") == 0)
 			create_comment($user, $section, $page);
+		else if (strcmp($_GET['comment'], "edit1") == 0)
+			edit_comment1($user, $_GET['id'], $section, $page);
+		else if (strcmp($_GET['comment'], "edit2") == 0)
+			edit_comment($user, $_POST['id'], $_POST['title'], $_POST['comment']);
 		else if ((strcmp($_GET['comment'], "display") == 0) && $_GET['id'])
 		{
 			$date = get_comment_date($_GET['id']);

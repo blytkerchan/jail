@@ -69,6 +69,7 @@ function do_session()
 		$forget = time() + 60 * 60 * 24 * 30;
 		setcookie("session", $session, $forget);
 		setcookie("remembered", $forget, $forget);
+		update_session_expire($session, $forget);
 	}
 	$user = check_session($session);
 	
@@ -113,6 +114,7 @@ function do_session()
 	{
 		close_session($session);
 	}
+	
 }
 
 ?>

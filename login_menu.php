@@ -31,6 +31,14 @@
 		<table>
 		<tbody>
 		<tr><td>
+		<form method="post" action="index.php?login=edit&section=<?php echo($section); ?>&page=<?echo($page); ?>">
+			<input type="submit" value="Edit Credentials" class="inputbox"/>
+		</form>
+		</td>
+		<?php if (!$remembered) { ?>
+		</tr><tr>
+		<?php } ?>
+		<td>
 		<form method="post" 
 				action="index.php?logout=1&section=<?php 
 					echo($section); 

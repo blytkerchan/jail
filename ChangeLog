@@ -1,3 +1,14 @@
+2004-07-20	blytkerchan
+	* comments.php (edit_comment): new function
+	(edit_comment1): ditto
+	* index.php: reflect above
+
+	* login_functions.php (edit_login): new function
+	(save_login): ditto
+	* login_menu.php: reflect above
+
+	* session.php (do_session): systematically update session expiration
+
 2004-05-28	blytkerchan
 	* bookmarks.php: %s/mysql_real_escape_string/mysql_escape_string/g
 	* comments.php: ditto
