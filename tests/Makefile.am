@@ -8,6 +8,7 @@ TESTS=	hash_test1 \
 	list_test \
 	queue_test \
 	array_test \
+	heap_test \
 	map_test
 noinst_PROGRAMS=$(TESTS)
 noinst_HEADERS=test.h
@@ -27,5 +28,6 @@ list_test_LDADD=../libcontain.la -lstdc++
 queue_test_LDADD=../libcontain.la -lstdc++
 array_test_LDADD=../libcontain.la
 map_test_LDADD=../libcontain.la
+heap_test_LDADD=../libcontain.la
 AM_CFLAGS=-g -I$(top_srcdir)
 

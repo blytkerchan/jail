@@ -1,3 +1,8 @@
+2004-05-05	blytkerchan	debug session
+	* heap_test.c: new file
+	* Makefile.am [TESTS]: add heap_test
+	[heap_test_LDADD]: new variable
+
 2004-05-04	blytkerchan	debug session
 	* map_test.c (main): initialize and finilize libmemory
 
