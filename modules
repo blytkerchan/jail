@@ -38,6 +38,7 @@ preprocessor-libreplace -d preprocessor/libreplace libreplace
 preprocessor-libcontain-libreplace -d preprocessor/libcontain/libreplace libreplace
 preprocessor-libcontain-arch -d preprocessor/libcontain/arch arch
 preprocessor-libmemory-arch -d preprocessor/libmemory/arch arch
-release-preprocessor -a preprocessor preprocessor-arch preprocessor-libcontain preprocessor-libmemory preprocessor-libreplace preprocessor-libcontain-libreplace preprocessor-libcontain-arch preprocessor-libmemory-arch
+preprocessor-libconf -d preprocessor/libconf libconf
+release-preprocessor -a preprocessor preprocessor-arch preprocessor-libcontain preprocessor-libmemory preprocessor-libreplace preprocessor-libcontain-libreplace preprocessor-libcontain-arch preprocessor-libmemory-arch preprocessor-libconf
 
 

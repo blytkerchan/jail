@@ -1,3 +1,6 @@
+2004-03-29	blytkerchan
+	* modules: add preprocessor-libconf to release-preprocessor
+
 2004-03-22	blytkerchan
 	* modules: define new release-preprocessor mode and modules that go with it.
 
