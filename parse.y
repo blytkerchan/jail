@@ -4,7 +4,24 @@
 // defines go here
 %}
 
-%token FUNCTION_TK END_BLOCK_TK INT_LITERAL_TK TYPE_TK FP_LITERAL_TK ACCESS_TK ALIAS_TK BOOL_LITERAL_TK CLASS_TK CHAR_LITERAL_TK STRING_LITERAL_TK BEGIN_BLOCK_TK SCOPE_TK EOS_TK NAMESPACE_TK
+%token FUNCTION_TK 		/* "function" */
+%token END_BLOCK_TK 		/* '}' */
+%token INT_LITERAL_TK 		/* [1-9][0-9]+ */
+%token TYPE_TK 			/* "type" */
+%token FP_LITERAL_TK 		/* ([0-9]\.|[1-9.]){1}[0-9]+ */
+%token ACCESS_TK 		/* "access" */
+%token ALIAS_TK 		/* "alias" */
+%token BOOL_LITERAL_TK 		/* "true"|"false" */
+%token CLASS_TK 		/* "class" */
+%token CHAR_LITERAL_TK 		/* . */
+%token STRING_LITERAL_TK 	/* \"[^\"]*\" */
+%token BEGIN_BLOCK_TK 		/* '{' */
+%token SCOPE_TK 		/* "scope" */
+%token EOS_TK 			/* ';' */
+%token NAMESPACE_TK 		/* "namespace" */
+%token CONSTRUCTOR_TK		/* "constructor" */
+%token DESTRUCTOR_TK 		/* "destructor" */
+%token VAR_TK			/* "var" */
 
 %%
 
@@ -163,5 +180,20 @@ function_attrs_freeform :
 	| SCOPE_TK scope_identifier function_attrs_freeform
 	| ACCESS_TK access_control_list function_attrs_freeform
 	;
+
+/* A constructor is the 'constructor' keyword followed by its parameters
+ * and its body. The parameters and body take the same form as those of
+ * a normal function. */
+constructor_definition : 
+	CONSTRUCTOR_TK function_parms function_body
+	;
+
+/* A destructor is the 'destructor' keyword followed by its body.
+ * Destructors have no parameters. The body takes the same form as that
+ * of a normal function */
+destructor_definition :
+	DESTRUCTOR_TK function_body
+	;
+
 %%
 

@@ -1,3 +1,9 @@
+2004-08-13	blytkerchan
+	* parse.y: for every token, document what it looks like (we don't have
+	a lexical scanner yet)
+	(constructor_definition): new production
+	(destructor_definition): ditto
+
 2004-08-12	blytkerchan
 	* parse.y: make a %token definition for each missing lexical token
 	(declaration): include function_declaration
