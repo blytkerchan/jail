@@ -1,0 +1,81 @@
+Introduction
+============
+This is an implementation of the algorithm described by M.M. Micheal in his 
+article "Safe memory Reclamation for Dynamic Lock-Free Objects Using Atomic
+Reads and Writes".
+
+Some notes should be made about the algorithm and its implementation, which may
+be important when using the library.
+
+Global Constants
+================
+The algorithm describes two global constants, P and K, on which most of the
+sizes of internal arrays etc. depend. P is the number of participating threads,
+K is the number of hazard pointers per thread.
+
+This assumes that you know the number of participating threads before your 
+program starts - i.e. at compile time. I have found it quite impossible to 
+predict the number of participating threads on a varierty of occasions, so 
+I wouldn't want to impose any constant of my divising. Therefore, I have made 
+the P constant a global variable which can be initialized, once, when the 
+library is initialized. In future versions, the variable will really become
+variable in that you can change its value during run-time, after the library
+has been initiated.
+
+It is also assumed that the number of hazard pointers per thread is known in
+advance. This can only be known in the cases where your algorithm was designed
+to use hazard pointers from the beginning (as is the case with M.M. Micheal's
+own container algorithms) but, again, there is no way for me to predict the
+number of hazard pointers you will need.
+
+The batch size (number of pointers queued for deletion by a thread before 
+the thread actually starts scanning) is also a global constant and is more
+or less a function of P and K. This has also become a global variable - under
+the same conditions as P and K (i.e. initialized once for the time being).
+
+Shortcomings in the Design
+==========================
+While studying the algorithm, I have found a potentially serious shortcoming
+that may cause programs using *any* implementation of the algorithm (including
+this one) to crash or behave unpredictably.
+
+In fact, the function Scan (implemented as smr_scan() in this implementation) 
+is called when the batch is full and will attempt to free the pointers queued 
+for deletion in the thread-local dlist. The shortcoming is this: if the pointers
+in the dlist are all dereferenced, the dlist will still be full when Scan() is
+done. The next call to DeleteNode (implemented as smr_free() in this 
+implementation) will add a new pointer to the thread-local dlist, which will
+be placed at dlist[dcount] - one index to the right of the end of the dlist.
+A buffer overrun will follow.
+
+The "Optimized" Version
+=======================
+The algorithm described by M.M. Micheal includes an optimized version which
+has not been implemented here, as I can't make any assumptions on the 
+structure of anything you might be using, nor its size.
+
+Note, though, that due to the following function description, the problem
+stated above will not result in a crash, but will result in no memory ever
+being freed:
+
+DeleteNode(node : *NodeType) {
+  node^.smrp <- dlist; dlist <- node; dcount++;
+  if dcount == R Scan() // <<< HERE!
+}
+
+The line marked with <<< HERE! should be:
+  if dcount >= R Scan()
+in which case the optimized version would not have the problem.
+
+Again, because the optimized versions makes some assumptions about the "nodes"
+stored at the pointers - assumptions that I cannot make - I have not 
+implemented it.
+
+Required System Features
+========================
+You need POSIX threads, because the algorithm uses thread-local data and I've
+used the pthread API for that. Other than that, nothing special is required.
+
+Note, though, that setting and unsetting hazard pointers is up to you and 
+should be atomic operations.
+

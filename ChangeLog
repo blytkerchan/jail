@@ -1,0 +1,45 @@
+2004-02-25	blytkerchan
+	* *: import into Jail repository and apply Jail license
+
+	* libmemory.sgml: finalize
+	* Makefile: split up the doc target
+	* smr.c (smr_scan_worker): handle NULL pointers in the dlist correctly
+
+2004-02-24	blytkerchan
+	* libmemory.sgml: new file
+	* Makefile <doc>: new target
+	* smr.c (smr_thread_cleanup): take no parameters
+	(smr_thread_init): do nothing
+	(smr_thread_fini): new function - call smr_thread_cleanup
+	* smr.h: reflect above
+
+	* ChangeLog: fixed the previous entry.
+	* smr.c (smr_thread_cleanup): new function
+	(smr_thread_init): ditto
+	* smr.h: reflect above
+	
+	* NOTES: moved log tag to the end of file as it tends to get verbose
+	update the text to reflect results with test2
+	* smr.c (smr_free): half fixed the algorithm's design flaw - scan is now called if dcount >= R
+	* test2.c: implement a useful test :)
+
+	* NOTES: new file
+	* test2.c: ditto - copy of test1.c for now
+
+	* Makefile: centralize gcc parameters
+	[test2]: new target
+	* smr.c (smr_scan_worker): new function
+	(smr_cleanup_private_data): ditto
+	(smr_init): call smr_cleanup_private_data on key destruction
+	(smr_scan): call smr_scan_worker with private data
+
+2004-02-23	blytkerchan
+	* smr.c: new file
+	* smr.h: ditto
+	* README: ditto
+	* ChangeLog: ditto
+	* hptr.c: ditto
+	* hptr.h: ditto
+	* Makefile: ditto
+
+
