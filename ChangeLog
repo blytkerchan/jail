@@ -1,4 +1,8 @@
-2003-02-03	blytkerchan
+2004-02-24	blytkerchan
+	* modules: define new module release-libmemory
+	* ChangeLog: repair date of previous entry
+
+2004-02-03	blytkerchan
 	* modules: prepare for a release of libcontains
 
 2003-10-07	blytkerchan
