@@ -25,6 +25,6 @@
 # can be useful for creating a module that consists of many directories
 # spread out over the entire source repository.
 libcontain-arch -d libcontain/arch arch
-libcontain-libreplace -d libcontain/libreplace
+libcontain-libreplace -d libcontain/libreplace libreplace
 release-libcontain -a libcontain libcontain-arch libcontain-libreplace
 
