@@ -1,4 +1,9 @@
 2004-07-20	blytkerchan
+	* vector.h: s/array/vector/g
+	s/ARRAY/VECTOR/g
+	s/Array/Vector/g
+	* vector.c: ditto
+
 	* module.mk: use support for conditionally compiled files - don't try
 	using the automake method
 

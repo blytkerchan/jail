@@ -39,51 +39,51 @@
 #include "arch/include/compare_and_exchange.h"
 #include "arch/include/increment.h"
 #include "arch/include/decrement.h"
-#include "array.h"
+#include "vector.h"
 #include "binary.h"
 #include "thread.h"
 
-/* This may seem obvious, and it is! Allocate a new array of SIZE entries */
-array_t * array_new(size_t size)
+/* This may seem obvious, and it is! Allocate a new vector of SIZE entries */
+vector_t * vector_new(size_t size)
 {
-	array_t * retval;
+	vector_t * retval;
 	
 	if (size == 0)
-		size = ARRAY_DEFAULT_SIZE;
-	retval = (array_t*)malloc(sizeof(array_t));
-	retval->nodes = calloc(size, sizeof(array_node_t)); /* note: calloc zeroes out. */
+		size = VECTOR_DEFAULT_SIZE;
+	retval = (vector_t*)malloc(sizeof(vector_t));
+	retval->nodes = calloc(size, sizeof(vector_node_t)); /* note: calloc zeroes out. */
 	retval->size = size;
 	retval->num_entries = 0;
-	retval->increase = ARRAY_DEFAULT_INCREASE;
+	retval->increase = VECTOR_DEFAULT_INCREASE;
 	retval->sorted = 0;
 	retval->condensed = 1;
 	
 	return retval;
 }
 
-void array_free(array_t * array)
+void vector_free(vector_t * vector)
 {
-	free(array->nodes);
-	free(array);
+	free(vector->nodes);
+	free(vector);
 }
 
-void * array_get(array_t * array, size_t i)
+void * vector_get(vector_t * vector, size_t i)
 {
 	void * retval = NULL;
-	array_node_t * nodes;
+	vector_node_t * nodes;
 	size_t size;
 
 	do
 	{
 		do
 		{
-			nodes = array->nodes;
+			nodes = vector->nodes;
 			hptr_register(0, nodes);
-		} while (nodes != array->nodes);
-		size = array->size;
+		} while (nodes != vector->nodes);
+		size = vector->size;
 		if (!size)
 			continue;
-	} while (nodes != array->nodes);
+	} while (nodes != vector->nodes);
 	
 	if (i < size)
 		retval = nodes[i].val;
@@ -92,11 +92,11 @@ void * array_get(array_t * array, size_t i)
 	return retval;
 }
 
-void array_put(array_t * array, size_t i, void * val)
+void vector_put(vector_t * vector, size_t i, void * val)
 {
 	void * rv;
 	size_t increase;
-	array_node_t * nodes;
+	vector_node_t * nodes;
 	size_t size;
 
 	do
@@ -107,101 +107,101 @@ void array_put(array_t * array, size_t i, void * val)
 			{
 				do
 				{
-					nodes = array->nodes;
+					nodes = vector->nodes;
 					hptr_register(0, nodes);
-				} while (nodes != array->nodes);
-				size = array->size;
+				} while (nodes != vector->nodes);
+				size = vector->size;
 				if (!size)
 					continue;
-			} while (nodes != array->nodes);
+			} while (nodes != vector->nodes);
 			if (i >= size)
 			{
-				increase = array->increase;
+				increase = vector->increase;
 				increase = (((i - size) / increase) + 1) * increase;
-				array_resize(array, size + increase);
+				vector_resize(vector, size + increase);
 			}
-		} while (nodes != array->nodes);
+		} while (nodes != vector->nodes);
 		rv = NULL;
 		while (compare_and_exchange(&rv, &(nodes[i].val), val) != 0);
-	} while (nodes != array->nodes);
+	} while (nodes != vector->nodes);
 	hptr_free(0);
 	if (rv == NULL)
 	{
-		atomic_increment(&(array->num_entries));
+		atomic_increment(&(vector->num_entries));
 		if (val != NULL);
-			array->condensed = 0;
+			vector->condensed = 0;
 	}
 	if (val == NULL)
 	{
-		atomic_decrement(&(array->num_entries));
+		atomic_decrement(&(vector->num_entries));
 		if (rv != NULL)
-			array->condensed = 0;
+			vector->condensed = 0;
 	}
-	array->sorted = 0;
+	vector->sorted = 0;
 }
 
-void array_push_back(array_t * array, void * val)
+void vector_push_back(vector_t * vector, void * val)
 {
-	array_node_t * nodes;
+	vector_node_t * nodes;
 	size_t num_entries, size;
 	void * exp;
 	
 	do
 	{
-		if (array->condensed == 0)
-			array_condense(array);
+		if (vector->condensed == 0)
+			vector_condense(vector);
 		do
 		{
-			num_entries = array->num_entries;
+			num_entries = vector->num_entries;
 			do
 			{
 				do
 				{
-					nodes = array->nodes;
+					nodes = vector->nodes;
 					hptr_register(0, nodes);
-				} while (nodes != array->nodes);
-				size = array->size;
+				} while (nodes != vector->nodes);
+				size = vector->size;
 				if (!size)
 					continue;
-			} while (nodes != array->nodes);
+			} while (nodes != vector->nodes);
 			if (num_entries >= size)
 			{
-				array_resize(array, size + array->increase);
+				vector_resize(vector, size + vector->increase);
 				continue;
 			}
-		} while (nodes != array->nodes);
+		} while (nodes != vector->nodes);
 		exp = NULL;
 		if (compare_and_exchange(&exp, &(nodes[num_entries].val), val) != 0)
 			continue;
-	} while (nodes != array->nodes);
+	} while (nodes != vector->nodes);
 	hptr_free(0);
 	if (val != NULL)
-		atomic_increment(&(array->num_entries));
-	array->sorted = 0;
+		atomic_increment(&(vector->num_entries));
+	vector->sorted = 0;
 }
 
-size_t array_get_size(array_t * array)
+size_t vector_get_size(vector_t * vector)
 {
 	size_t retval;
 
 	do
 	{
-		retval = array->size;
+		retval = vector->size;
 	} while (!retval);
 	
 	return retval;
 }
 
-size_t array_get_numentries(array_t * array)
+size_t vector_get_numentries(vector_t * vector)
 {
-	return array->num_entries;
+	return vector->num_entries;
 }
 
-void array_resize(array_t * array, size_t n_size)
+void vector_resize(vector_t * vector, size_t n_size)
 {
-	array_node_t * new_nodes = calloc(n_size, sizeof(array_node_t));
-	array_node_t * o_nodes;
-	array_node_t * nodes;
+	vector_node_t * new_nodes = calloc(n_size, sizeof(vector_node_t));
+	vector_node_t * o_nodes;
+	vector_node_t * nodes;
 	size_t size;
 	
 	do
@@ -210,13 +210,13 @@ void array_resize(array_t * array, size_t n_size)
 		{
 			do
 			{
-				nodes = array->nodes;
+				nodes = vector->nodes;
 				hptr_register(0, nodes);
-			} while (nodes != array->nodes);
-			size = array->size;
+			} while (nodes != vector->nodes);
+			size = vector->size;
 			if (!size) 
 				continue;
-		} while (nodes != array->nodes);
+		} while (nodes != vector->nodes);
 		if (size == n_size)
 		{
 			hptr_free(0);
@@ -224,49 +224,49 @@ void array_resize(array_t * array, size_t n_size)
 		}
 		/* FIXME: race condition starts here */
 		memcpy(new_nodes, nodes, 
-			(size < n_size ? size : n_size) * sizeof(array_node_t));
+			(size < n_size ? size : n_size) * sizeof(vector_node_t));
 		o_nodes = nodes;
 		
-		if (compare_and_exchange(&size, &(array->size), 0) != 0)
+		if (compare_and_exchange(&size, &(vector->size), 0) != 0)
 		{
 			free(new_nodes);
 			continue;
 		}
 		/* FIXME: race condition ends after the following line */
-		if (compare_and_exchange(&o_nodes, &(array->nodes), new_nodes) != 0)
+		if (compare_and_exchange(&o_nodes, &(vector->nodes), new_nodes) != 0)
 		{
 			free(new_nodes);
 			continue;
 		}
 		size = 0;
-		compare_and_exchange(&size, &(array->size), (void*)n_size);
+		compare_and_exchange(&size, &(vector->size), (void*)n_size);
 		free(o_nodes);
-	} while (n_size < array->size);
+	} while (n_size < vector->size);
 	hptr_free(0);
 }
 
-array_t * array_copy(array_t * array)
+vector_t * vector_copy(vector_t * vector)
 {
-	size_t size = array->size;
-	array_t * retval = new_array(size);
+	size_t size = vector->size;
+	vector_t * retval = new_vector(size);
 	size_t i;
 
 	for (i = 0; i < size; i++)
-		array_put(retval, i, array_get(array, i));
+		vector_put(retval, i, vector_get(vector, i));
 
 	return retval;
 }
 
 /* An implementation of a binary search algorithm
- * array is a sorted array. The search is done between lower and upper, which
- * must be within the bounds of the array, which is not checked.
+ * vector is a sorted vector. The search is done between lower and upper, which
+ * must be within the bounds of the vector, which is not checked.
  *
- * The return value is the index in the array where the searched-for item was
- * found, or the first item in the array greater than the searched-for item
+ * The return value is the index in the vector where the searched-for item was
+ * found, or the first item in the vector greater than the searched-for item
  * otherwise. If all items are smaller than the searched-for item, ~0 is
  * returned.
  */
-static size_t array_binary_search(array_node_t * array_nodes, size_t lower, size_t upper, void * val, libcontain_cmp_func_t cmp_func)
+static size_t vector_binary_search(vector_node_t * vector_nodes, size_t lower, size_t upper, void * val, libcontain_cmp_func_t cmp_func)
 {
 	size_t low = lower;
 	size_t high = upper;
@@ -275,7 +275,7 @@ static size_t array_binary_search(array_node_t * array_nodes, size_t lower, size
 	while (high >= low)
 	{
 		size_t mid = (low + high) / 2;
-		int rc = cmp_func(array_nodes[mid].val, val);
+		int rc = cmp_func(vector_nodes[mid].val, val);
 
 		if (rc < 0)
 		{
@@ -298,25 +298,25 @@ static size_t array_binary_search(array_node_t * array_nodes, size_t lower, size
 		rv = upper;
 	if (rv < lower);
 		rv = lower;
-	while ((cmp_func(array_nodes[rv].val, val) > 0) && (rv >= lower + 1))
+	while ((cmp_func(vector_nodes[rv].val, val) > 0) && (rv >= lower + 1))
 		rv--;
-	while ((cmp_func(array_nodes[rv].val, val) < 0) && (rv < upper))
+	while ((cmp_func(vector_nodes[rv].val, val) < 0) && (rv < upper))
 		rv++;
-	if ((cmp_func(array_nodes[rv].val, val) < 0) && (rv == upper))
+	if ((cmp_func(vector_nodes[rv].val, val) < 0) && (rv == upper))
 		return ~0;
 	return rv;
 }
 
 /* An implementation of a linear search 
  */
-static size_t array_linear_search(array_node_t * array_nodes, size_t lower, size_t upper, void * val, libcontain_cmp_func_t cmp_func)
+static size_t vector_linear_search(vector_node_t * vector_nodes, size_t lower, size_t upper, void * val, libcontain_cmp_func_t cmp_func)
 {
 	size_t curr;
 	
 	for (curr = lower; curr <= upper; curr++)
 	{
-		if (array_nodes[curr].val != NULL)
-			if (cmp_func(array_nodes[curr].val, val) == 0)
+		if (vector_nodes[curr].val != NULL)
+			if (cmp_func(vector_nodes[curr].val, val) == 0)
 				return curr;
 	}
 
@@ -324,39 +324,39 @@ static size_t array_linear_search(array_node_t * array_nodes, size_t lower, size
 }
 
 /* An implementation of a binary merge algorithm
- * array1 and array2 are both sorted arrays;
- * *n is the size of array1 and *m is the size of array2;
+ * vector1 and vector2 are both sorted vectors;
+ * *n is the size of vector1 and *m is the size of vector2;
  * *n >= *m
  *
- * The return value is the next empty cell in array3 that is empty + 1
+ * The return value is the next empty cell in vector3 that is empty + 1
  */
-static size_t array_merge2(
-	array_node_t * array_nodes1, 
-	array_node_t * array_nodes2, 
+static size_t vector_merge2(
+	vector_node_t * vector_nodes1, 
+	vector_node_t * vector_nodes2, 
 	size_t * n, 
 	size_t * m, 
-	array_node_t * array_nodes3, 
+	vector_node_t * vector_nodes3, 
 	size_t next, 
 	libcontain_cmp_func_t cmp_func)
 {
 	size_t k = pow2(lg(*n / *m)) - 1;
 
-	if (cmp_func(array_nodes1[*n - k - 1].val, array_nodes2[*m - 1].val) >= 0)
+	if (cmp_func(vector_nodes1[*n - k - 1].val, vector_nodes2[*m - 1].val) >= 0)
 	{
-		memcpy(array_nodes3 + (next - k) - 1, array_nodes1 + (*n - k) - 1, (k + 1) * sizeof(array_node_t));
+		memcpy(vector_nodes3 + (next - k) - 1, vector_nodes1 + (*n - k) - 1, (k + 1) * sizeof(vector_node_t));
 		*n -= k + 1;
 		next -= k + 1;
 	}
 	else
 	{
-		size_t l = array_binary_search(array_nodes1, *n - k - 1, *n - 1, array_nodes2[*m - 1].val, cmp_func);
+		size_t l = vector_binary_search(vector_nodes1, *n - k - 1, *n - 1, vector_nodes2[*m - 1].val, cmp_func);
 		if (l != ~0)
 		{
-			memcpy(array_nodes3 + (next - (*n - l)), array_nodes1 + l, (*n - l) * sizeof(array_node_t));
+			memcpy(vector_nodes3 + (next - (*n - l)), vector_nodes1 + l, (*n - l) * sizeof(vector_node_t));
 			next -= *n - l;
 			*n = l;
 		}
-		memcpy(&(array_nodes3[next - 1]), &(array_nodes2[*m - 1]), sizeof(array_node_t));
+		memcpy(&(vector_nodes3[next - 1]), &(vector_nodes2[*m - 1]), sizeof(vector_node_t));
 		(*m)--;
 		next--;
 	}
@@ -365,76 +365,76 @@ static size_t array_merge2(
 }
 
 /* An implementation of a merge algorithm using a binary merge 
- * array1 and array2 are both sorted arrays; 
- * n is the size of array1 and m is the size of array2
+ * vector1 and vector2 are both sorted vectors; 
+ * n is the size of vector1 and m is the size of vector2
  * 
  * If we want, we can only merge the first n elements from 
- * array1 with the first m elements of array2, so we do 
+ * vector1 with the first m elements of vector2, so we do 
  * systematically use n and m in stead of the respective actual sizes.
  * 
- * The return value is a new, merged array
+ * The return value is a new, merged vector
  */
-static array_t * array_merge1(array_node_t * array_nodes1, array_node_t * array_nodes2, size_t n, size_t m, libcontain_cmp_func_t cmp_func)
+static vector_t * vector_merge1(vector_node_t * vector_nodes1, vector_node_t * vector_nodes2, size_t n, size_t m, libcontain_cmp_func_t cmp_func)
 {
-	array_t * retval = new_array(n + m);
+	vector_t * retval = new_vector(n + m);
 	size_t next = n + m;
 
 	while (n > 0 && m > 0)
 	{
 		if (n > m)
-			next = array_merge2(array_nodes1, array_nodes2, &n, &m, retval->nodes, next, cmp_func);
+			next = vector_merge2(vector_nodes1, vector_nodes2, &n, &m, retval->nodes, next, cmp_func);
 		else
-			next = array_merge2(array_nodes2, array_nodes1, &m, &n, retval->nodes, next, cmp_func);
+			next = vector_merge2(vector_nodes2, vector_nodes1, &m, &n, retval->nodes, next, cmp_func);
 	}
 	if (n == 0 && m != 0)
-		memcpy(retval->nodes, array_nodes2, m * sizeof(array_node_t));
+		memcpy(retval->nodes, vector_nodes2, m * sizeof(vector_node_t));
 	else
-		memcpy(retval->nodes + m, array_nodes1, n * sizeof(array_node_t));
+		memcpy(retval->nodes + m, vector_nodes1, n * sizeof(vector_node_t));
 
 	return retval;
 }
 
-array_t * array_merge(array_t * array1, array_t * array2, libcontain_cmp_func_t cmp_func)
+vector_t * vector_merge(vector_t * vector1, vector_t * vector2, libcontain_cmp_func_t cmp_func)
 {
-	array_node_t * nodes1;
-	array_node_t * nodes2;
-	array_t * retval;
+	vector_node_t * nodes1;
+	vector_node_t * nodes2;
+	vector_t * retval;
 	size_t size1, size2;
 
 	do
 	{
 		do
 		{
-			nodes1 = array1->nodes;
+			nodes1 = vector1->nodes;
 			hptr_register(0, nodes1);
-		} while (nodes1 != array1->nodes);
-		size1 = array1->num_entries;
+		} while (nodes1 != vector1->nodes);
+		size1 = vector1->num_entries;
 		if (!size1)
 			continue;
-	} while (nodes1 != array1->nodes);
+	} while (nodes1 != vector1->nodes);
 	do
 	{
 		do
 		{
-			nodes2 = array2->nodes;
+			nodes2 = vector2->nodes;
 			hptr_register(1, nodes2);
-		} while (nodes2 != array2->nodes);
-		size2 = array2->num_entries;
+		} while (nodes2 != vector2->nodes);
+		size2 = vector2->num_entries;
 		if (!size2)
 			continue;
-	} while (nodes2 != array2->nodes);
+	} while (nodes2 != vector2->nodes);
 	
-	retval = array_merge1(nodes1, nodes2, size1, size2, cmp_func);
+	retval = vector_merge1(nodes1, nodes2, size1, size2, cmp_func);
 	hptr_free(0);
 	hptr_free(1);
 
 	return retval;
 }
 
-static int array_condense_helper(const void * ptr1, const void * ptr2)
+static int vector_condense_helper(const void * ptr1, const void * ptr2)
 {
-	array_node_t * node1 = (array_node_t*)ptr1;
-	array_node_t * node2 = (array_node_t*)ptr2;
+	vector_node_t * node1 = (vector_node_t*)ptr1;
+	vector_node_t * node2 = (vector_node_t*)ptr2;
 
 	if (node1->val == NULL)
 	{
@@ -452,9 +452,9 @@ static int array_condense_helper(const void * ptr1, const void * ptr2)
 	}
 }
 
-void array_condense(array_t * array)
+void vector_condense(vector_t * vector)
 {
-	array_node_t * nodes;
+	vector_node_t * nodes;
 	size_t size;
 
 	do
@@ -463,66 +463,66 @@ void array_condense(array_t * array)
 		{
 			do
 			{
-				nodes = array->nodes;
+				nodes = vector->nodes;
 				hptr_register(0, nodes);
-			} while (nodes != array->nodes);
-			size = array->size;
+			} while (nodes != vector->nodes);
+			size = vector->size;
 			if (!size)
 				continue;
-		} while (nodes != array->nodes);
-		qsort(array->nodes, size, sizeof(array_node_t), array_condense_helper);
-		array->condensed = 1;
-	} while (nodes != array->nodes);
+		} while (nodes != vector->nodes);
+		qsort(vector->nodes, size, sizeof(vector_node_t), vector_condense_helper);
+		vector->condensed = 1;
+	} while (nodes != vector->nodes);
 	hptr_free(0);
 }
 
 /* This is an implementation of a binary merge sort
- * array_nodes is an array of array_node_t's
- * n is the number of nodes in array_nodes
+ * vector_nodes is an vector of vector_node_t's
+ * n is the number of nodes in vector_nodes
  */
-static void array_sort_worker(array_node_t * array_nodes, size_t n, libcontain_cmp_func_t cmp_func)
+static void vector_sort_worker(vector_node_t * vector_nodes, size_t n, libcontain_cmp_func_t cmp_func)
 {
 	if (n > 2)
 	{
 		size_t m = n / 2;
-		array_sort_worker(array_nodes, m + n % 2, cmp_func);
-		array_sort_worker(array_nodes + m + n % 2, m, cmp_func);
-		array_t * t_array = array_merge1(array_nodes, array_nodes + m + n % 2, m + n % 2, m, cmp_func);
-		memcpy(array_nodes, t_array->nodes, n * sizeof(array_node_t));
-		free_array(t_array);
+		vector_sort_worker(vector_nodes, m + n % 2, cmp_func);
+		vector_sort_worker(vector_nodes + m + n % 2, m, cmp_func);
+		vector_t * t_vector = vector_merge1(vector_nodes, vector_nodes + m + n % 2, m + n % 2, m, cmp_func);
+		memcpy(vector_nodes, t_vector->nodes, n * sizeof(vector_node_t));
+		free_vector(t_vector);
 	}
 	else if (n == 2)
 	{
-		if (cmp_func(array_nodes[0].val, array_nodes[1].val) > 0)
+		if (cmp_func(vector_nodes[0].val, vector_nodes[1].val) > 0)
 		{
-			array_node_t t_array_node;
+			vector_node_t t_vector_node;
 
-			memcpy(&t_array_node, &(array_nodes[0]), sizeof(array_node_t));
-			memcpy(&(array_nodes[0]), &(array_nodes[1]), sizeof(array_node_t));
-			memcpy(&(array_nodes[1]), &t_array_node, sizeof(array_node_t));
+			memcpy(&t_vector_node, &(vector_nodes[0]), sizeof(vector_node_t));
+			memcpy(&(vector_nodes[0]), &(vector_nodes[1]), sizeof(vector_node_t));
+			memcpy(&(vector_nodes[1]), &t_vector_node, sizeof(vector_node_t));
 		}
 	}
 }
 
-void array_sort(array_t * array, libcontain_cmp_func_t cmp_func)
+void vector_sort(vector_t * vector, libcontain_cmp_func_t cmp_func)
 {
-	array_node_t * nodes;
+	vector_node_t * nodes;
 	
-	if (array->condensed == 0)
-		array_condense(array);
+	if (vector->condensed == 0)
+		vector_condense(vector);
 	do
 	{
-		nodes = array->nodes;
+		nodes = vector->nodes;
 		hptr_register(0, nodes);
-	} while (nodes != array->nodes);
-	array_sort_worker(nodes, array->num_entries, cmp_func);
+	} while (nodes != vector->nodes);
+	vector_sort_worker(nodes, vector->num_entries, cmp_func);
 	hptr_free(0);
 }
 
-void * array_search(array_t * array, void * val, libcontain_cmp_func_t cmp_func)
+void * vector_search(vector_t * vector, void * val, libcontain_cmp_func_t cmp_func)
 {
 	size_t rc;
-	array_node_t * nodes;
+	vector_node_t * nodes;
 	void * retval = NULL;
 	size_t size;
 
@@ -530,18 +530,18 @@ void * array_search(array_t * array, void * val, libcontain_cmp_func_t cmp_func)
 	{
 		do
 		{
-			nodes = array->nodes;
+			nodes = vector->nodes;
 			hptr_register(0, nodes);
-		} while (nodes != array->nodes);
-		size = array->size;
+		} while (nodes != vector->nodes);
+		size = vector->size;
 		if (!size)
 			continue;
-	} while (nodes != array->nodes);
+	} while (nodes != vector->nodes);
 	
-	if (array->sorted)
-		rc = array_binary_search(nodes, 0, array->num_entries - 1, val, cmp_func);
+	if (vector->sorted)
+		rc = vector_binary_search(nodes, 0, vector->num_entries - 1, val, cmp_func);
 	else
-		rc = array_linear_search(nodes, 0, size - 1, val, cmp_func);
+		rc = vector_linear_search(nodes, 0, size - 1, val, cmp_func);
 
 	if (rc != ~0)
 		retval = nodes[rc].val;
@@ -550,34 +550,34 @@ void * array_search(array_t * array, void * val, libcontain_cmp_func_t cmp_func)
 	return retval;
 }
 
-void array_set_default_increase(array_t * array, size_t increase)
+void vector_set_default_increase(vector_t * vector, size_t increase)
 {
-	atomic_set((void**)(&(array->increase)), (void*)increase);
+	atomic_set((void**)(&(vector->increase)), (void*)increase);
 }
 
-array_t * array_deep_copy(array_t * array, libcontain_copy_func_t array_valcopy_func)
+vector_t * vector_deep_copy(vector_t * vector, libcontain_copy_func_t vector_valcopy_func)
 {
 	size_t i;
 	size_t size;
-	array_t * retval;
+	vector_t * retval;
 	void * val;
 
 	do
 	{
-		size = array->size;
+		size = vector->size;
 	} while (!size);
-	retval = new_array(size);
+	retval = new_vector(size);
 	for (i = 0; i < size; i++)
 	{
-		val = array_get(array, i);
+		val = vector_get(vector, i);
 		if (val != NULL)
-			array_put(retval, i, array_valcopy_func(array->nodes[i].val));
+			vector_put(retval, i, vector_valcopy_func(vector->nodes[i].val));
 	}
 
 	return retval;
 }
 
-void array_foreach(array_t * array, libcontain_foreach_func_t array_foreach_func, void * data)
+void vector_foreach(vector_t * vector, libcontain_foreach_func_t vector_foreach_func, void * data)
 {
 	int i;
 	size_t size;
@@ -585,13 +585,13 @@ void array_foreach(array_t * array, libcontain_foreach_func_t array_foreach_func
 
 	do
 	{
-		size = array->size;
+		size = vector->size;
 	} while (!size);
 
 	for (i = 0; i < size; i++)
 	{
-		val = array_get(array, i);
+		val = vector_get(vector, i);
 		if (val != NULL)
-			array_foreach_func(val, data);
+			vector_foreach_func(val, data);
 	}
 }

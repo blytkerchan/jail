@@ -31,12 +31,12 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#ifndef _LIBCONTAIN_ARRAY_H
-#define _LIBCONTAIN_ARRAY_H
-/* Arrays are containers that can be indexed by integers, that are easy to 
+#ifndef _LIBCONTAIN_VECTOR_H
+#define _LIBCONTAIN_VECTOR_H
+/* Vectors are containers that can be indexed by integers, that are easy to 
  * search and iterate, and that rarely change size. 
- * Arrays can easily be sorted, but are not sorted by default.
- * Sorted arrays can easily be searched. In the case of unsorted arrays, that 
+ * Vectors can easily be sorted, but are not sorted by default.
+ * Sorted vectors can easily be searched. In the case of unsorted vectors, that 
  * is somewhat more difficult..
  */
 #include "libcontain_config.h"
@@ -44,42 +44,42 @@
 #include <sys/types.h>
 #include "types.h"
 
-#define ARRAY_DEFAULT_SIZE 100
-#define ARRAY_DEFAULT_INCREASE 100
+#define VECTOR_DEFAULT_SIZE 100
+#define VECTOR_DEFAULT_INCREASE 100
 
-typedef struct _array_node_t
+typedef struct _vector_node_t
 {
 	void * val;
-} array_node_t;
+} vector_node_t;
 
-typedef struct _array_t
+typedef struct _vector_t
 {
 	size_t size;
 	size_t num_entries;
 	size_t increase;
-	array_node_t * nodes;
+	vector_node_t * nodes;
 	int sorted;
 	int condensed;
 	int flag;
-} array_t;
+} vector_t;
 
-/* Create a new, empty array of size SIZE */
-array_t * array_new(size_t size);
-void free_array(array_t * array);
+/* Create a new, empty vector of size SIZE */
+vector_t * vector_new(size_t size);
+void free_vector(vector_t * vector);
 
-void * array_get(array_t * array, size_t i);
-void array_put(array_t * array, size_t i, void * val);
-void array_push_back(array_t * array, void * val);
-size_t array_get_size(array_t * array);
-size_t array_get_numentries(array_t * array);
-void array_resize(array_t * array, size_t size);
-array_t * array_copy(array_t * array);
-array_t * array_merge(array_t * array1, array_t * array2, libcontain_cmp_func_t cmp_func);
-array_t * array_deep_copy(array_t * array, libcontain_copy_func_t array_valcopy_func);
-void array_condense(array_t * array);
-void array_sort(array_t * array, libcontain_cmp_func_t cmp_func);
-void * array_search(array_t * array, void * val, libcontain_cmp_func_t cmp_func);
-void array_set_default_increase(array_t * array, size_t increase);
-void array_foreach(array_t * array, libcontain_foreach_func_t array_foreach_func, void * data);
+void * vector_get(vector_t * vector, size_t i);
+void vector_put(vector_t * vector, size_t i, void * val);
+void vector_push_back(vector_t * vector, void * val);
+size_t vector_get_size(vector_t * vector);
+size_t vector_get_numentries(vector_t * vector);
+void vector_resize(vector_t * vector, size_t size);
+vector_t * vector_copy(vector_t * vector);
+vector_t * vector_merge(vector_t * vector1, vector_t * vector2, libcontain_cmp_func_t cmp_func);
+vector_t * vector_deep_copy(vector_t * vector, libcontain_copy_func_t vector_valcopy_func);
+void vector_condense(vector_t * vector);
+void vector_sort(vector_t * vector, libcontain_cmp_func_t cmp_func);
+void * vector_search(vector_t * vector, void * val, libcontain_cmp_func_t cmp_func);
+void vector_set_default_increase(vector_t * vector, size_t increase);
+void vector_foreach(vector_t * vector, libcontain_foreach_func_t vector_foreach_func, void * data);
 
-#endif // _LIBCONTAIN_ARRAY_H
+#endif // _LIBCONTAIN_VECTOR_H
