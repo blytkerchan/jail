@@ -5,8 +5,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <libcontain/hash.h>
-#include <libcontain/stack.h>
+#include "libcontain/hash.h"
+#include "libcontain/hash_helpers.h"
+#include "libcontain/stack.h"
 #include "preprocessor/preproc.h"
 
 /* defines go here */
@@ -83,7 +84,7 @@ macro_def : T_DEFINE {
 		{
 			if (!token_hash)
 			{
-				token_hash = hash_new(STRING_HASH, 0, NULL, NULL);
+				token_hash = hash_new(0, hash_hlp_string_hash, hash_hlp_string_cmp);
 			}
 			curr = hash_get(token_hash, yylval.str);
 			if (curr != NULL)

@@ -1,3 +1,8 @@
+2004-10-20	blytkerchan
+	* preprocp.y: include hash_helpers.h
+	prefer local includes to installed ones for libcontain'
+	(macro_def): update calls to hash_new
+
 2004-10-19	blytkerchan
 	* preproc.c: include stdlib.h
 	include string.h
