@@ -253,12 +253,12 @@ static void interal_resize(vector_t * vector, size_t n_size)
 			free(new_nodes);
 			continue;
 		}
-		rw_spinlock_downgrade(vector->lock);
 		if (compare_and_exchange(&o_nodes, &(vector->nodes), new_nodes) != 0)
 		{
 			free(new_nodes);
 			continue;
 		}
+		rw_spinlock_downgrade(vector->lock);
 		size = 0;
 		compare_and_exchange(&size, &(vector->size), (void*)n_size);
 		free(o_nodes);

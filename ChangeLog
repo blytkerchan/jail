@@ -1,3 +1,7 @@
+2004-08-22	blytkerchan
+	* vector.c (interal_resize): move rw_spinlock_downgrade call down to
+	protect node pointer replacement
+
 2004-08-11	blytkerchan
 	* array.c (array_put): use compare_and_exchange_ptr in stead of
 	obsolete compare_and_exchange
