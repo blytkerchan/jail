@@ -1,3 +1,7 @@
+2004-09-13	blytkerchan
+	* semaphore.c (lt_sem_init): use atomic_set_int in stead of atomic_set
+	(lt_sem_deq): use atomic_set_ptr in stead of atomic_set
+
 2004-09-01	blytkerchan
 	* rw_lock.c: include arch/include/swap.h
 	remove static declarations of functions we don't define

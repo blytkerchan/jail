@@ -52,7 +52,7 @@ static void lt_sem_deq(lt_sem_t * sem);
  * obscenity) */
 void lt_sem_init(lt_sem_t * semaphore, uint32_t val)
 {
-	atomic_set(&(semaphore->value), (void*)val);
+	atomic_set_int(&(semaphore->value), val);
 }
 
 /* Create a new semaphore with the given value */
@@ -174,9 +174,9 @@ static void lt_sem_deq(lt_sem_t * sem)
 	
 	first = sem->queue;
 	next = first->next;
-	atomic_set(&(sem->queue), next);
+	atomic_set_ptr(&(sem->queue), next);
 	if (sem->queue == NULL)
-		atomic_set(&(sem->tail), NULL);
+		atomic_set_ptr(&(sem->tail), NULL);
 }
 
 static lt_thread_t * lt_sem_first(lt_sem_t * sem)
