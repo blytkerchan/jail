@@ -2,6 +2,8 @@
 use Data::Dumper;
 use DBI();
 
+$PROGID = '$Id: poll.pl,v 1.10 2004/01/08 17:39:12 blytkerchan Exp $';
+
 $print_header = 1;
 $response_url = '/cgi-bin/poll_response.pl';
 $db_database  = 'jail';
