@@ -1,4 +1,4 @@
-/* $Id: NocaseStringHash.cc,v 1.2 2003/10/07 21:23:11 blytkerchan Exp $ */
+/* $Id: NocaseStringHash.cc,v 1.3 2004/02/03 13:53:32 blytkerchan Exp $ */
 /* Jail: Just Another Interpreted Language
  * Copyright (c) 2003, Ronald Landheer-Cieslak
  * All rights reserved
@@ -57,8 +57,8 @@
 #include "StringHash.h"
 #include "NocaseStringHash.h"
 #if !HAVE_STRLWR
-	#include <libswing/strlwr.h>
-#endif // !HAVE_STRLWR
+#include "libreplace/strlwr.h"
+#endif
 
 /*** 
 // Constructors */

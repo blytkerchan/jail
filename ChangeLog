@@ -1,3 +1,10 @@
+2004-02-03	blytkerchan
+	* Makefile.am: update
+	* configure.in: ditto
+	* NocaseStringHash.cc: use libreplace in stead of swing for strlwr replacement
+	* config.h.in: remove (generated)
+	* config-libcontain.in: rename from config-libhash.in
+
 2004-02-02	blytkerchan
 	* TODO: update
 
