@@ -52,25 +52,4 @@ $section_pages = array(
 			"name" => "libmemory: the memory management library",
 			"filename" => "libmemory")));
 
-function get_name($section, $page)
-{
-	global $section_pages;
-
-	return $section_pages[$section][$page]["name"];
-}
-
-function get_filename($section, $page)
-{
-	global $section_pages;
-
-	return $section_pages[$section][$page]["filename"];
-}
-
-function get_num_pages($section)
-{
-	global $section_pages;
-
-	return count($section_pages[$section]);
-}
-
 ?>

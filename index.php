@@ -1,4 +1,5 @@
 <?php include_once("config.php"); ?>
+<?php include_once("functions.php"); ?>
 <?php include_once("page_header.php"); ?>
 <?php include_once("section_menu.php"); ?>
 <table style="width: 100%">

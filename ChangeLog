@@ -1,3 +1,8 @@
+2004-05-20	blytkerchan
+	* functions.php: new file
+	* config.php: move functions to functions.php
+	* index.php: include functions.php, once.
+
 2004-05-19	blytkerchan
 	* design.html: move text to text/design.php
 	* empty_lang.html: remove
