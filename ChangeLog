@@ -1,4 +1,6 @@
 2004-10-14	blytkerchan
+	* BUILDING-HOWTO: update
+
 	* mksnap: fix bugs to find make
 	add features to compile other stuff than just libcontain
 
