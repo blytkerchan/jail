@@ -1,3 +1,7 @@
+2005-02-28	blytkerchan
+	* deque.c (deque_stabilize_front): implement
+	* deque.notes: new file
+
 2005-02-24	blytkerchan
 	* deque.c (deque_stabilize_back): fix (hopefully)
 

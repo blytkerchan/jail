@@ -88,7 +88,51 @@ void deque_free(deque_t * handle)
 
 void deque_stabilize_front(deque_t * handle, deque_stat_t stat)
 {
-	// HERE!!
+	int next;
+	int nextprev;
+	deque_stat_t new_stat;
+	deque_stat_t exp_stat;
+	node_t * next_node;
+	node_t * nextprev_node;
+	node_t * left_node;
+
+	// register a hazardous reference on the left-most (front) node
+	do
+	{
+		left_node = handle->nodes[stat.s.left];
+		hptr_register(0, left_node);
+	} while (left_node != handle->nodes[stat.s.left]);
+	// register a hazardous reference on the node just right of it
+	do
+	{
+		next_node = right_node->right;
+		hptr_register(1, next_node);
+	} while (next_node != right_node->right);
+	// check that the state of the deque hasn't changed
+	if (handle.stat.i != stat.i)
+		return;
+	// see whether the node on the right-hand side of the node on the left-hand
+	// side of the right-most node is the right-most node
+	// if not, the queue is not "stable"
+	do
+	{
+		nextprev_node = next_node->left;
+		hptr_register(2, nextprev_node);
+	} while (nextprev_node != next_node->left);
+	nextprev = nextprev_node->index;
+	if (nextprev != stat.s.left)
+	{	// the deque is not stable, so we need to stabilize
+		// check if the state of the queue is still the same
+		if (handle->stat.i != stat.i)
+			return;
+		if (compare_and_exchange_ptr(&(nextprev_node), &(next_node->left), left_node) != 0)
+			return;
+	}
+	// the queue is stable - tag it as such
+	new_stat.s.left = stat.s.left;
+	new_stat.s.right = stat.s.right;
+	new_stat.s.status = STABLE;
+	compare_and_exchange_int(&(stat.i), &(handle->stat.i), new_stat.i);
 }
 
 void deque_stabilize_back(deque_t * handle, deque_stat_t stat)
