@@ -127,5 +127,26 @@ function_body_contents :
 	| statement function_body_contents
 	;
 
+/* Function attributes regroup the ACL, scope and (most importantly) the 
+ * return type of the function. The order is undefined, but there are
+ * two special forms: a colon followed by a type edentifier and an
+ * optional scope identifier and a type token followed by a type
+ * identifier.
+ * If empty, the function does not return a value, has private scope and
+ * is only executable */
+function_attrs :
+	/* empty */
+	| ':' type_identifier scope_identifier 
+	| ':' type_identifier
+	| TYPE_TK type_identifier
+	| ':' function_attrs_freeform
+	;
+
+function_attrs_freeform :
+	/* emp-ty */
+	| TYPE_TK type_identifier function_attrs_freeform
+	| SCOPE_TK scope_identifier function_attrs_freeform
+	| ACCESS_TK access_control_list function_attrs_freeform
+	;
 %%
 

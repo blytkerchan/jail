@@ -1,3 +1,7 @@
+2004-08-03	blytkerchan
+	* parse.y: add function attribute definition as per
+	http://tinyurl.com/3t3sh
+
 2004-08-02	blytkerchan
 	* parse.y: add function_body and function_body_contents productions as
 	discussed in http://tinyurl.com/4m3pq
