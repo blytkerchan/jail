@@ -1,3 +1,8 @@
+2004-09-13	blytkerchan
+	* set.c (atomic_set): make static
+	(atomic_set_ptr): new function
+	(atomic_set): ditto
+
 2004-09-12	blytkerchan
 	* membar.c: new file
 

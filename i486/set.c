@@ -31,7 +31,9 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-void atomic_set(void ** target, void * value)
+#include <stdint.h>
+
+static void atomic_set(void ** target, void * value)
 {
 	asm("lock xchgl %0, %1;" 
 	: "=r" (value)
@@ -39,3 +41,12 @@ void atomic_set(void ** target, void * value)
 	);	
 }
 
+void atomic_set_ptr(void * target, void * value)
+{
+	atomic_set((void**)target, value);
+}
+
+void atomic_set_int(int32_t * target, int32_t value)
+{
+	atomic_set((void**)target, (void*)value);
+}
