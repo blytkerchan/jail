@@ -1,3 +1,7 @@
+2004-07-16	blytkerchan
+	* singleton.cc: new file
+	* singleton.h: ditto
+
 2004-05-11	blytkerchan	make libmemory optional for compilation (parent might have it)
 	* Makefile.am [HAVE_LIBMEMORY]: new conditional
 	[DIST_SUBDIRS]: conditionally add libmemory
