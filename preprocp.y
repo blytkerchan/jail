@@ -4,9 +4,10 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <libcontain/hash.h>
 #include <libcontain/stack.h>
-#include "preproc.h"
+#include "preprocessor/preproc.h"
 
 /* defines go here */
 #define YYDEBUG 1
@@ -217,5 +218,7 @@ int main(int argc, char ** argv)
 		yyin = fopen(argv[1], "r");
 	}
 	yyparse();
+
+	return 0;
 }
 

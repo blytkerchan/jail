@@ -1,4 +1,19 @@
 2004-10-19	blytkerchan
+	* preproc.c: include stdlib.h
+	include string.h
+	include libgen.h if we have it
+	(new_preproc_inputfile): return retval
+	(new_preproc_token_def): ditto
+	* preproc.h (preprocl_putc): remove
+	(preprocl_puts): new function
+	(preprocl_putf): ditto
+	(preprocl_getc): ditto
+	* preprocl.l: include preprocessor/preprocp.h in stead of preprocp.h
+	include preprocessor/preproc.h in stead of preproc.h
+	(dummy): new function
+	* preprocp.y: include stdlib.h
+	(main): return a value
+
 	* module.mk: remove unnecessary make rules
 
 	* preproc.c: don't include libgen.h

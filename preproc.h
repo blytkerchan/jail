@@ -39,7 +39,9 @@ const char * resolve_abs_filename(const char * filename);
 const char * resolve_rel_filename(const char * filename);
 
 /* found in preprocl.l */
-void preprocl_putc(char c);
+int preprocl_getc(char * buffer, size_t max_size);
+int preprocl_puts(const char * s);
+int preprocl_putf(const char * filename);
 int yylex(void);
 
 #endif // _PREPROCESSOR_PREPROC_H

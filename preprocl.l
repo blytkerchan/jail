@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <libcontain/stack.h>
-#include "preprocp.h"
-#include "preproc.h"
+#include "preprocessor/preprocp.h"
+#include "preprocessor/preproc.h"
 
 /* defines go gere */
 #define YY_INPUT(buf, result, max_size) { result = preprocl_getc(buf, max_size); }
@@ -199,3 +199,10 @@ int preprocl_putf(const char * filename)
 	return 0;
 }
 
+/* here only to prevent compiler warnings about not using certain statics that
+ * were introduced by Flex */
+void dummy(void)
+{
+	(void)yyunput;
+	(void)yy_top_state;
+}
