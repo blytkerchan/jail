@@ -1,0 +1,5 @@
+2003-10-17	blytkerchan
+	* Makefile: new file
+	* compare_and_exchange.c: ditto
+	* compare_and_exchange.h: ditto
+	* main.c: ditto
