@@ -2,6 +2,8 @@
 #include "../map.h"
 #include <assert.h>
 #include <string.h>
+#include <libmemory/smr.h>
+#include <libmemory/hptr.h>
 
 const struct {
 	const char * key;
@@ -28,8 +30,16 @@ void test1(void)
 
 int main(void)
 {
+	smr_init(LIBCONTAIN_MIN_HPTRS);
+	hptr_init();
+	smr_thread_init();
+	
 	test1();
 	
+	smr_thread_fini();
+	hptr_fini();
+	smr_fini();
+
 	return 0;
 }
 
