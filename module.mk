@@ -11,7 +11,6 @@ libcontain_SRC +=	stack.c \
 			array.c \
 			map.c \
 			binomial_tree.c \
-			binary.c \
 			heap.c \
 			prime.c \
 			list.c
