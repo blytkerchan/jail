@@ -1,3 +1,9 @@
+2004-04-20	blytkerchan
+	* map.c: new file
+	* map.h: ditto
+	* binomial_tree.h: ditto
+	* binomial_tree.sgml: ditto
+
 2004-04-16	blytkerchan
 	* heap.c: new file
 	* heap.h: ditto
