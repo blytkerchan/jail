@@ -1,3 +1,7 @@
+2004-05-27	blytkerchan
+	* tech_arch.php: fix the link to the progress page
+	make the toolset header an h2
+
 2004-05-20	blytkerchan
 	* how_you_can_help.php: add words on *how* you can help
 

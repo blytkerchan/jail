@@ -14,13 +14,12 @@ architecture of the language and the different components of the interpreter.
 They should <i>not</i> be seen as "canonical" texts - at least as long as
 they haven't been discussed and "canonicalized" yet.</p>
 <p>As far as the language itself is concerned, the jail-ust-lang list is the
-only place where anything can be decided. (See the <a href="progress.html">
-"progress" page</a> for details.</p>
+only place where anything can be decided. (See the <?php link_to_page("General", "progress", "progress page"); ?> for details.</p>
 <p>As far as the architecture of the interpreter and its components are 
 concerned, nothing has been decided yet. There will be a list for discussion
 on that topic when the jail-ust-lang list has made enough progress to warrant
 such efforts.</p>
-<h4>The toolset: the parts of the interpreter</h4>
+<h2>The toolset: the parts of the interpreter</h2>
 <p>The interpreter consists of a number of programs, the interface to which is
 the program `jail': the compiler-driver.<br>
 The entire toolset will consist of:
