@@ -33,15 +33,11 @@
  */
 /* This is basically an implementation of Micheal and Scott's lock-free queue
  * algorithm. 
- * Note that no measures were taken to get rid of the ABA problem: the measure
- * proposed in the article (Siple, Fast and Practical Non-Blocking and Blocking
- * Concurrent Queue Algorithms) was not taken into account, as no double-word
- * compare-and-exchange function is available at the moment and the 
- * in-structure alignment needed for such a function is considered not to be
- * portable.
  */
 #include <stdlib.h>
-#include <compare_and_exchange.h>
+#include <libmemory/smr.h>
+#include <libmemory/hptr.h>
+#include "arch/include/compare_and_exchange.h"
 #include "queue.h"
 
 queue_t * new_queue(void)
@@ -62,6 +58,7 @@ queue_t * new_queue(void)
 void free_queue(queue_t * queue)
 {
 	while (queue_deq(queue) != NULL);
+	free(queue->head);
 	free(queue);
 }
 
@@ -77,7 +74,11 @@ void queue_enq(queue_t * queue, void * data)
 	
 	while (1)
 	{
-		old_tail = queue->tail;
+		do
+		{
+			old_tail = queue->tail;
+			hptr_register(0, old_tail);
+		} while (old_tail != queue->tail);
 		old_next = old_tail->next;
 		if (old_tail != queue->tail) continue;
 		if (old_next != NULL)
@@ -89,6 +90,7 @@ void queue_enq(queue_t * queue, void * data)
 			break;
 	}
 	compare_and_exchange(&old_tail, &(queue->tail), n_node);
+	hptr_free(0);
 }
 
 void * queue_deq(queue_t * queue)
@@ -100,14 +102,32 @@ void * queue_deq(queue_t * queue)
 	
 	while (1)
 	{
-		old_head = queue->head;
-		old_tail = queue->tail;
-		old_next = old_head->next;
-		if (old_head != queue->head) continue;
+		do
+		{
+			old_head = queue->head;
+			hptr_register(0, old_head);
+		} while (old_head != queue->head);
+		do
+		{
+			old_tail = queue->tail;
+			hptr_register(1, old_tail);
+		} while (old_tail != queue->tail);
+		do
+		{
+			old_next = old_head->next;
+			hptr_register(2, old_next);
+		} while (old_next != old_head->next);
+		if (old_head != queue->head) 
+			continue;
 		if (old_head == old_tail)
 		{
 			if (old_next == NULL)
+			{
+				hptr_free(0);
+				hptr_free(1);
+				hptr_free(2);
 				return NULL;
+			}
 			compare_and_exchange(&old_tail, &(queue->tail), old_next);
 			continue;
 		}
@@ -116,6 +136,9 @@ void * queue_deq(queue_t * queue)
 			break;
 	}
 	free(old_head);
+	hptr_free(0);
+	hptr_free(1);
+	hptr_free(2);
 
 	return(retval);
 }

@@ -34,6 +34,8 @@
 #ifndef LIBCONTAIN_LIST_H
 #define LIBCONTAIN_LIST_H
 
+#include "libcontain_config.h"
+
 typedef int (*list_compare_fn_t)(const void * val1, const void * val2);
 
 typedef struct _list_node_t

@@ -34,6 +34,8 @@
 #ifndef _LIBCONTAIN_QUEUE_H
 #define _LIBCONTAIN_QUEUE_H
 
+#include "libcontain_config.h"
+
 typedef struct _queue_node_t 
 {
 	struct _queue_node_t * next;

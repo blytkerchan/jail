@@ -1,4 +1,30 @@
-2004-05-05	blytkerchan	debug session
+2004-05-05	blytkerchan
+integrating libmemory
+	* list.c: give full path to compare_and_exchange header
+	include libmemory header files
+	[list_state_t]: new fields next and pmark
+	(list_find): re-implement according to MM Micheal's algorithm, including the "delete node when flagged for deletion" bit (lines D6, D7, E5 and D8 of the algorithm)
+	annotate the difference between this implementation and the one described in the article
+	(list_insert_node): implement use of hazard pointers
+	(list_delete): ditto
+	(list_search): ditto
+	* list.h: include libcontain_config.h
+	* queue.c: remove mention of the ABA problem
+	include libmemory files
+	give full path to compare_and_exchange header
+	(free_queue): fix memory leak
+	(queue_enq): implement use of hazard pointers
+	(queue_deq): ditto
+	* queue.h: include libcontain_config.h
+	* stack.c: remove mention of the ABA problem
+	include libmemory headers
+	give full path to compare_and_exchange header
+	(stack_top): implement to use hazard pointers
+	(stack_pop): ditto
+	(stack_push): rewrite to not need hazard pointers
+	* stack.h: include libcontain_config.h
+
+debug session
 	* Makefile.am [libcontain_la_SOURCES]: add heap.c
 	[pkginclude_HEADERS]: add heap.h
 	* heap.c: include necessary files

@@ -32,15 +32,19 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 #include <stdlib.h>
-#include <compare_and_exchange.h>
+#include "arch/include/compare_and_exchange.h"
+#include <libmemory/smr.h>
+#include <libmemory/hptr.h>
 #include "list.h"
 
 typedef struct _list_state_t
 {
 	list_node_t * prev;
 	list_node_t * curr;
+	list_node_t * next;
 	void * cval;
 	int cmark;
+	int pmark;
 } list_state_t;
 
 
@@ -64,25 +68,57 @@ static list_node_t * list_find(list_state_t * state, list_t * list, void * val)
 	int rv;
 	
 try_again:
-	state->prev = list->head;
+	/* the hazardous reference here is a slight modification of MM Micheal's algorithm: 
+	 * in the original algorithm, no hazard pointer is used to hold prev if prev is
+	 * the head of the list. I do this mostly for consistency: hptr2 contains prev, hptr0
+	 * contains next and hptr1 contains curr */
+	do
+	{
+		state->prev = list->head;
+		hptr_register(2, state->prev);
+	} while (state->prev != list->head);
+	state->pmark = state->prev->mark;
+	state->curr = state->prev->next;
+	hptr_register(1, state->curr);
+	if ((state->pmark != 0) || (state->prev->mark != 0) || (state->curr != state->prev->next))
+		goto try_again;
 	while (1)
 	{
-		state->curr = state->prev->next;
 		if (state->curr == NULL)
 			return NULL;
-		state->cval = state->curr->val;
+		state->next = state->curr->next;
 		state->cmark = state->curr->mark;
-		if (state->curr != state->prev->next)
+		hptr_register(0, state->next);
+		if ((state->next != state->curr->next) || (state->cmark != state->curr->mark))
 			goto try_again;
-		if ((rv = list->cmp_func(state->cval, val)) >= 0)
-			return ((rv == 0 && !state->cmark) ? state->curr : NULL);
-		state->prev = state->curr;
+		state->cval = state->curr->val;
+		if ((state->prev->mark != 0) || (state->prev->next != state->curr))
+			goto try_again;
+		if (state->cmark == 0)
+		{
+			rv = list->cmp_func(state->cval, val);
+			if (rv > 0)
+				return NULL;
+			if (rv == 0)
+				return state->curr;
+			state->prev = state->curr;
+			hptr_register(2, state->prev);
+		}
+		else
+		{
+			if (compare_and_exchange(&(state->curr), &(state->prev->next), state->next) == 0)
+				free(state->curr);
+			else goto try_again;
+		}
+		state->curr = state->next;
+		hptr_register(1, state->curr);
 	}
 }
 
 static int list_insert_node(list_t * list, list_node_t * node)
 {
 	void * val;
+	int retval;
 	list_state_t * state = (list_state_t*)alloca(sizeof(list_state_t));
 	state->prev = NULL;
 	state->curr = NULL;
@@ -93,12 +129,23 @@ static int list_insert_node(list_t * list, list_node_t * node)
 	while (1)
 	{
 		if (list_find(state, list, val) != NULL)
-			return -1;
+		{
+			retval = -1;
+			break;
+		}
 		node->mark = 0;
 		node->next = state->curr;
 		if (compare_and_exchange(&(state->curr), &(state->prev->next), node) == 0)
-			return 0;
+		{
+			retval = 0;
+			break;
+		}
 	}
+	hptr_free(0);
+	hptr_free(1);
+	hptr_free(2);
+
+	return retval;
 }
 
 int list_insert(list_t * list, void * val)
@@ -116,6 +163,7 @@ int list_insert(list_t * list, void * val)
 
 int list_delete(list_t * list, void * val)
 {
+	int retval;
 	int cmark;
 	int nmark;
 	list_state_t * state = (list_state_t*)alloca(sizeof(list_state_t));
@@ -124,22 +172,30 @@ int list_delete(list_t * list, void * val)
 	state->cval = NULL;
 	state->cmark = 0;
 
-try_again:
 	while (1)
 	{
 		if (list_find(state, list, val) == NULL)
-			return -1;
+		{
+			retval = -1;
+			break;
+		}
 		cmark = 0;
 		nmark = 1;
 		if (compare_and_exchange(&cmark, &(state->curr->mark), (void*)nmark) != 0)
 			continue;
-		if (compare_and_exchange(&(state->curr), &(state->prev->next), state->curr->next) == 0)
+		if (compare_and_exchange(&(state->curr), &(state->prev->next), state->next) == 0)
+		{
 			list_free_node(state->curr);
-		else
-			goto try_again;
-
-		return 0;
+			retval = 0;
+			break;
+		}
 	}
+
+	hptr_free(0);
+	hptr_free(1);
+	hptr_free(2);
+	
+	return retval;
 }
 
 void * list_search(list_t * list, void * val)
@@ -149,10 +205,16 @@ void * list_search(list_t * list, void * val)
 	state->curr = NULL;
 	state->cval = NULL;
 	state->cmark = 0;
+	
 	list_node_t * node = list_find(state, list, val);
+
+	hptr_free(0);
+	hptr_free(1);
+	hptr_free(2);
+	
 	if (node == NULL)
 		return NULL;
-	return node->val;
+	return state->cval;
 }
 
 list_t * new_list(list_compare_fn_t cmp_func)

@@ -31,14 +31,10 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-/* Implementation notes:
- * This implementation is currently sensitive to the ABA problem. Other than 
- * that, I don't currently see any problems with it. To get rid of the ABA
- * problem, we need a memory manager and plug it in where we use malloc and
- * free */
 #include <stdlib.h>
-
-#include <compare_and_exchange.h>
+#include <libmemory/smr.h>
+#include <libmemory/hptr.h>
+#include "arch/include/compare_and_exchange.h"
 #include "stack.h"
 
 /* This one is easy: we are the only ones working on the stack because it 
@@ -80,14 +76,21 @@ void * stack_top(stack_t * stack)
 {
 	stack_node_t * curr;
 	void * retval;
+	
 	do
 	{
-		curr = stack->top;
+		do
+		{
+			curr = stack->top;
+			hptr_register(0, curr);
+		} while (curr != stack->top);
 		if (curr)
 		{
 			retval = curr->val;
 		} else retval = NULL;
 	} while (curr != stack->top);
+	
+	hptr_free(0);
 	
 	return retval;
 }
@@ -95,13 +98,22 @@ void * stack_top(stack_t * stack)
 int stack_pop(stack_t * stack)
 {
 	stack_node_t * curr;
+	stack_node_t * next;
 	int retval;
 	
 	while (1)
 	{
-		curr = stack->top;
+		do
+		{
+			curr = stack->top;
+			hptr_register(0, curr);
+		} while (curr != stack->top);
 		if (curr)
 		{
+			next = curr->next;
+			hptr_register(1, next);
+			if ((next != curr->next) || (curr != stack->top))
+				continue;
 			if (compare_and_exchange(&curr, &(stack->top), curr->next) == 0)
 			{
 				free(curr);
@@ -115,6 +127,8 @@ int stack_pop(stack_t * stack)
 			break;
 		}
 	}
+	hptr_free(0);
+	hptr_free(1);
 	
 	return retval;
 }
@@ -124,10 +138,10 @@ void stack_push(stack_t * stack, void * val)
 	stack_node_t * new_node = (stack_node_t*)malloc(sizeof(stack_node_t));
 	stack_node_t * top = NULL;
 	
-	new_node->val = val;
-	new_node->next = NULL;
-	while (compare_and_exchange(&top, &(stack->top), new_node) != 0)
+	do
 	{
+		top = stack->top;
+		new_node->val = val;
 		new_node->next = top;
-	}
+	} while (compare_and_exchange(&top, &(stack->top), new_node) != 0);
 }

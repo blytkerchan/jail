@@ -34,6 +34,8 @@
 #ifndef _LIBCONTAIN_STACK_H
 #define _LIBCONTAIN_STACK_H
 
+#include "libcontain_config.h"
+
 typedef struct stack_node_t {
 	void 	* val;
 	struct stack_node_t * next;
