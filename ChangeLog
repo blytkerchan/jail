@@ -1,5 +1,38 @@
-2004-05-10	blytkerchan
-	* libmemory_down.html: new file
+2004-05-19	blytkerchan
+	* design.html: move text to text/design.php
+	* empty_lang.html: remove
+	* language.html: move text to text/language.php
+	* table_dev.html: remove
+	* development.html: move text to text/development.php
+	* goals.html: move text to text/goals.php
+	* libcontain_down.html: move text to text/libcontain.php
+	* table_down.html: remove
+	* download.html: move text to text/download.php
+	* how_you_can_help.html: move text to text/how_you_can_help.php
+	* libmemory_down.html: move text to text/libmemory.php
+	* table.html: remove
+	* empty_dev.html: ditto
+	* index.html: move text to text/welcome.php
+	* license.html: move text to text/license.php
+	* table_lang.html: remove
+	* empty_down.html: ditto
+	* jailop.html: move text to text/jailop.php
+	* menu.html: remove
+	* tech_arch.html: move text to text/tech_arch.php
+	* empty.html: remove
+	* jailtype.html: move text to text/jailtype.php
+	* progress.html: move text to text/progress.php
+	* text: new directory
+	* config.php: new file
+	* main.php: ditto
+	* page_header.php: ditto
+	* toc_functions.php: ditto
+	* index.php: ditto
+	* page_footer.php: ditto
+	* section_menu.php: ditto
+
+2004-05-10	blyterchan
+	* libmemory_dowy.html: new file
 	* libcontain_down.html: update for 0.2-alpha1 release
 	* table_down.html: add link to libmemory_down.html
 
