@@ -1,4 +1,12 @@
 2004-04-02	blytkerchan
+	* libconf.h [libconf_param_type_t]: add PT_NUMERIC_LIST, PT_STRING_LIST and PT_FILENAME_LIST types
+	[libconf_optparam_t]: add val.array_val field
+	[libconf_t]: add t_pt field
+	* libconf.c (libconf_phase1): handle list types
+	(libconf_phase5_helper): change prototype to make void* pointers non-const
+	* libconf_optparam.c (libconf_optparam_dup): handle list types
+	(libconf_optparam_new): ditto
+
 	* libconf_opt.c: new file
 	* libconf_optparam.c: ditto
 	* libconf_config.h.in: ditto

@@ -7,9 +7,20 @@ extern "C" {
 
 #include <stdio.h>
 #include "libcontain/hash.h"
+#include "libcontain/array.h"
 
 typedef enum { TP_NO, TP_YES, TP_OPTIONAL } libconf_take_parm_t;
-typedef enum { PT_NONE, PT_YESNO, PT_TRUEFALSE, PT_NUMERIC, PT_STRING, PT_FILENAME } libconf_param_type_t;
+typedef enum { 
+	PT_NONE, 
+	PT_YESNO, 
+	PT_TRUEFALSE, 
+	PT_NUMERIC, 
+	PT_STRING, 
+	PT_FILENAME,
+	PT_NUMERIC_LIST,
+	PT_STRING_LIST,
+	PT_FILENAME_LIST
+} libconf_param_type_t;
 typedef enum { DOE_NOTHING, DOE_WARNING, DOE_ERROR } libconf_do_on_error_t;
 typedef struct _libconf_opt_t
 {
@@ -32,9 +43,10 @@ typedef struct _libconf_optparam_t
 	char * name;
 	libconf_param_type_t param_type;
 	union {
-		int 	bool_val;
-		char * 	str_val;
-		int 	num_val;
+		int 			bool_val;
+		char * 		str_val;
+		int 			num_val;
+		array_t * 	array_val;
 	} val;
 	int have_error;
 } libconf_optparam_t;
@@ -59,6 +71,7 @@ typedef struct _libconf_t
 	char * filename;
 	int yylineno;
 	void * temp;
+	libconf_param_type_t t_pt;
 } libconf_t;
 
 /* initialize the library */

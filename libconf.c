@@ -106,7 +106,18 @@ int libconf_phase1(libconf_t * handle)
 					{
 						if (argc > 1 && argv[1][0] && argv[1][0] != '-')
 						{ /* we have our option's param */
-							param = libconf_optparam_new(option->co_name, option->co_long_param_type, argv[1]);
+							switch (option->co_long_param_type)
+							{
+							case PT_NUMERIC_LIST :
+							case PT_STRING_LIST :
+							case PT_FILENAME_LIST :
+								param = hash_get(handle->tmp_hash, option->co_name);
+								if (param != NULL)
+									array_push_back(param->val.array_val, strdup(argv[1]));
+							default :
+								if (param == NULL)
+									param = libconf_optparam_new(option->co_name, option->co_long_param_type, argv[1]);
+							}
 							if (param == NULL)
 								have_error = ET_PARAM_MALFORMED;
 							else if (param->have_error)
@@ -118,7 +129,7 @@ int libconf_phase1(libconf_t * handle)
 							have_error = ET_EXPECTED_PARAM_TP_NOT_FOUND;
 						}
 					}
-					hash_put(handle->tmp_hash, argv[0], param);
+					hash_put(handle->tmp_hash, option->co_name, param);
 				}
 				else
 				{
@@ -149,7 +160,18 @@ int libconf_phase1(libconf_t * handle)
 					{
 						if (argv[0][2])
 						{ /* we have a parameter directly following */
-							param = libconf_optparam_new(option->co_name, option->co_short_param_type, argv[0] + 2);
+							switch (option->co_short_param_type)
+							{
+							case PT_NUMERIC_LIST :
+							case PT_STRING_LIST :
+							case PT_FILENAME_LIST :
+								param = hash_get(handle->tmp_hash, option->co_name);
+								if (param != NULL)
+									array_push_back(param->val.array_val, strdup(argv[0] + 2));
+							default :
+								if (param == NULL)
+									param = libconf_optparam_new(option->co_name, option->co_short_param_type, argv[0] + 2);
+							}
 							if (param == NULL)
 								have_error = ET_PARAM_MALFORMED;
 							else if (param->have_error)
@@ -158,7 +180,18 @@ int libconf_phase1(libconf_t * handle)
 						}
 						else if (argc > 1 && argv[1][0] && argv[1][0] != '-' )
 						{	/* we have a parameter */
-							param = libconf_optparam_new(option->co_name, option->co_short_param_type, argv[1]);
+							switch (option->co_short_param_type)
+							{
+							case PT_NUMERIC_LIST :
+							case PT_STRING_LIST :
+							case PT_FILENAME_LIST :
+								param = hash_get(handle->tmp_hash, option->co_name);
+								if (param != NULL)
+									array_push_back(param->val.array_val, strdup(argv[1]));
+							default :
+								if (param == NULL)
+									param = libconf_optparam_new(option->co_name, option->co_short_param_type, argv[1]);
+							}
 							if (param == NULL)
 								have_error = ET_PARAM_MALFORMED;
 							else if (param->have_error)
@@ -170,7 +203,7 @@ int libconf_phase1(libconf_t * handle)
 							have_error = ET_EXPECTED_PARAM_TP_NOT_FOUND;
 						}
 					}
-					hash_put(handle->tmp_hash, argv[0], param);
+					hash_put(handle->tmp_hash, option->co_name, param);
 				}
 				else
 				{
@@ -248,7 +281,7 @@ int libconf_phase4(libconf_t * handle)
 	return libconf_readconf_local(handle);
 }
 
-static void libconf_phase5_helper(const void * key, const void * val, void * data)
+static void libconf_phase5_helper(void * key, void * val, void * data)
 {
 	libconf_t * handle = (libconf_t *)data;
 	hash_put(handle->option_hash, key, val);
@@ -256,6 +289,8 @@ static void libconf_phase5_helper(const void * key, const void * val, void * dat
 int libconf_phase5(libconf_t * handle) 
 {
 	hash_foreach(handle->tmp_hash, libconf_phase5_helper, handle);
+
+	return 0;
 }
 
 int libconf_getopt(libconf_t * handle, const char * optname, ...){ return -1; }

@@ -21,6 +21,11 @@ libconf_optparam_t * libconf_optparam_dup(libconf_optparam_t * param)
 	case PT_TRUEFALSE :
 		retval->val.bool_val = param->val.bool_val;
 		break;
+	case PT_NUMERIC_LIST :
+	case PT_STRING_LIST :
+	case PT_FILENAME_LIST :
+		retval->val.array_val = array_copy(param->val.array_val);
+		break;
 	default :
 		retval->val.num_val = param->val.num_val;
 	}
@@ -84,6 +89,15 @@ libconf_optparam_t * libconf_optparam_new(
 	case PT_STRING :
 	case PT_FILENAME :
 		retval->val.str_val = strdup(str);
+		break;
+	case PT_NUMERIC_LIST :
+		retval->val.array_val = new_array(0);
+		array_push_back(retval->val.array_val, (void*)atoi(str));
+		break;
+	case PT_STRING_LIST :
+	case PT_FILENAME_LIST :
+		retval->val.array_val = new_array(0);
+		array_push_back(retval->val.array_val, strdup(str));
 		break;
 	default :
 		free(retval);
