@@ -1,4 +1,6 @@
 2005-02-24	blytkerchan
+	* deque.c (deque_stabilize_back): fix (hopefully)
+
 	* deque.c (deque_node_alloc): rename from node_alloc
 	(deque_node_free): rename from node_free
 	(deque_stabilize_front): new function

@@ -17,7 +17,9 @@ typedef union deque_stat_type
 } deque_stat_t;
 
 typedef struct node_type {
-	deque_stat_t stat;
+	int index;
+	struct node_type * left;
+	struct node_type * right;
 	void * data;
 } node_t;
 
@@ -33,7 +35,7 @@ static int deque_node_alloc(deque_t * handle)
 {
 	node_t * exp;
 	node_t * new_node;
-	size_t s;
+	int s;
 
 	new_node = smr_malloc(sizeof(node_t));
 	assert(new_node != NULL);
@@ -45,7 +47,10 @@ static int deque_node_alloc(deque_t * handle)
 	{
 		exp = NULL;
 		if (compare_and_exchange_ptr(&exp, &(handle->nodes[s]), new_node) == 0)
+		{
+			new_node->index = s;
 			return s;
+		}
 	}
 	free(new_node);
 
@@ -92,8 +97,9 @@ void deque_stabilize_back(deque_t * handle, deque_stat_t stat)
 	int prevnext;
 	deque_stat_t new_stat;
 	deque_stat_t exp_stat;
+	node_t * prev_node;
 	node_t * prevnext_node;
-	node_t right_node;
+	node_t * right_node;
 
 	// register a hazardous reference on the right-most (back) node
 	do
@@ -102,33 +108,29 @@ void deque_stabilize_back(deque_t * handle, deque_stat_t stat)
 		hptr_register(0, right_node);
 	} while (right_node != handle->nodes[stat.s.right]);
 	// register a hazardous reference on the node just left of it
-	prev = right_node->stat.s.left;
 	do
 	{
-		prevnode = handle->nodes[prev];
-		hptr_register(1, prevnode);
-	} while (prevnode != handle->nodes[prev]);
+		prev_node = right_node->left;
+		hptr_register(1, prev_node);
+	} while (prev_node != right_node->left);
 	// check that the state of the deque hasn't changed
 	if (handle.stat.i != stat.i)
 		return;
 	// see whether the node on the right-hand side of the node on the left-hand
 	// side of the right-most node is the right-most node
 	// if not, the queue is not "stable"
-	prevnext = prevnode->stat.s.right;
+	do
+	{
+		prevnext_node = prev_node->right;
+		hptr_register(2, prevnext_node);
+	} while (prevnext_node != prev_node->right);
+	prevnext = prevnext_node->index;
 	if (prevnext != stat.s.right)
 	{	// the deque is not stable, so we need to stabilize
 		// check if the state of the queue is still the same
 		if (handle->stat.i != stat.i)
 			return;
-		
-		int prevprev = prevnode->stat.s.left;
-		new_stat.s.left = prevprev;
-		new_stat.s.right = stat.s.right;
-		new_stat.s.status = stat.s.status;
-		exp_stat.s.left = prevprev;
-		exp_stat.s.right = prevnext;
-		exp_stat.s.status = prevnode->stat.s.status;
-		if (compare_and_exchange_int(&(exp_stat.i), &(prevnode->stat.i), newstat.i) != 0)
+		if (compare_and_exchange_ptr(&(prevnext_node), &(prev_node->right), right_node) != 0)
 			return;
 	}
 	// the queue is stable - tag it as such
