@@ -26,7 +26,9 @@
 # spread out over the entire source repository.
 libcontain-arch -d libcontain/arch arch
 libcontain-libreplace -d libcontain/libreplace libreplace
-release-libcontain -a libcontain libcontain-arch libcontain-libreplace
+libcontain-libmemory-arch -d libcontain/libmemory/arch arch
+libcontain-libmemory -d libcontain/libmemory libmemory
+release-libcontain -a libcontain libcontain-arch libcontain-libreplace libcontain-libmemory libcontain-libmemory-arch
 
 libmemory-arch -d libmemory/arch arch
 release-libmemory -a libmemory libmemory-arch

@@ -1,3 +1,6 @@
+2004-04-27	blytkerchan
+	* modules: add libcontain-libmemory and libcontain-libmemory-arch to release-libcontain
+
 2004-04-05	blytkerchan
 	* modules: add release-libconf and dependencies
 
