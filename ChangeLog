@@ -1,4 +1,6 @@
 2004-07-23	blytkerchan
+	* semaphore.c (lt_sem_wait): change logic to FIFO
+
 	* module.mk: don't compile semaphores if we don't have pthread_sigmask
 	* barrier.c (barrier_wait): cast atomic_increment parameter to uint32_t*
 	* semaphore.c: include necessary headers

@@ -85,21 +85,32 @@ void lt_sem_wait(lt_sem_t * sem)
 	sigaddset(&mask, SIGCONT);
 	pthtread_sigmask(SIG_BLOCK, &mask, &o_mask);
 
+	// first, put us on the queue. This ensures we don't miss any
+	// wake-up calls and nobody will miss us. It also ensures FIFO on the
+	// semaphore, making it fair.
+	lt_sem_enq(sem, thread_self());
 	// this is the waiting loop. When we get out of this,
 	// the semaphore is ours
 	while (1) 
 	{
-		// get the current value of the semaphore
-		value = sem->value;
-		if (value > 0) {
-			// try to get the semaphore
-			if (compare_and_exchange(&value, &(sem->value), value - 1) != 0)
-			{
-				continue;	// try again
-			} else break;	// OK
-		} else {	// semaphore is locked
+		// now, see if we're the first on the list
+		if (thread_eq(lt_sem_first(), thread_self) == 0)
+		{	// once we're the first in the list, that will always be the case 
+			// until we remove ourselves. No other thread has the right to do
+			// that
+			// get the current value of the semaphore
+			value = sem->value;
+			if (value > 0) {
+				// try to get the semaphore
+				if (compare_and_exchange(&value, &(sem->value), value - 1) != 0)
+				{
+					continue;	// try again
+				} else break;	// OK
+			}
+		} 
+		else 
+		{	// semaphore is locked and/or we're not the first waiting
 			// wait for it to be unlocked
-			lt_sem_enq(sem, thread_self());
 			sigsuspend(mask);
 		}
 	}
