@@ -1,3 +1,8 @@
+2004-04-02	blytkerchan
+	* hash.h (hash_foreach): new function
+	* hash.c (hash_search): call hash_foreach
+	(hash_foreach): new function
+
 2004-03-31	blytkerchan
 	* Hash.cc (Hash::for_each): new function
 	* Hash.h (Hash::foreach_func_t): new type

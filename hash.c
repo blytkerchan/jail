@@ -183,20 +183,25 @@ void * hash_search(hash_t * hash, void * searchfor, hash_val_cmp_func_t compare)
 	hash_search_data.retval = NULL;
 	hash_search_data.searchfor = searchfor;
 	hash_search_data.compare = compare;
+	hash_foreach(hash, hash_search_helper, &hash_search_data);
+	
+	return hash_search_data.retval;
+}
+
+void hash_foreach(hash_t * hash, hash_foreach_helper_func_t func, void * data)
+{
 #if ! DONT_USE_GLIB
 	if (hash->glib_hash)
 	{
-		g_hash_table_foreach(hash->glib_hash, hash_search_helper, &hash_search_data);
-		return hash_search_data.retval;
+		g_hash_table_foreach(hash->glib_hash, func, data);
+		return;
 	}
 #endif
 #if ! DONT_USE_CXX
 	if (hash->cxx_hash)
 	{
-		hash->cxx_hash->for_each(hash_search_helper, &hash_search_data);
-		return hash_search_data.retval;
+		hash->cxx_hash->for_each(func, data);
+		return;
 	}
 #endif
-	return NULL;
 }
-
