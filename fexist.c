@@ -1,5 +1,5 @@
 /* Jail: Just Another Interpreted Language
- * Copyright (c) 2003-2004, Ronald Landheer-Cieslak
+ * Copyright (c) 2004, Ronald Landheer-Cieslak
  * All rights reserved
  * 
  * This is free software. You may distribute it and/or modify it and
@@ -31,21 +31,17 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <stdlib.h>
-#include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include "fexist.h"
 
-char * catstr(char * str1, char * str2)
+int fexist(const char * filename)
 {
-	char * retval;
+	struct stat stat_info;
 
-	if (str1 != NULL)
-	{
-		retval = (char*)realloc(str1, strlen(str1) + strlen(str2) + 1);
-		strcat(retval, str2);
-	}
-	else
-		retval = strdup(str2);
-	
-	return retval;
+	if (stat(filename, &stat_info) != 0)
+		return -1;
+	if (S_ISREG(stat_info.st_mode))
+		return 0;
+	return -1;
 }
-

@@ -1,5 +1,5 @@
 /* Jail: Just Another Interpreted Language
- * Copyright (c) 2003-2004, Ronald Landheer-Cieslak
+ * Copyright (c) 2004, Ronald Landheer-Cieslak
  * All rights reserved
  * 
  * This is free software. You may distribute it and/or modify it and
@@ -31,21 +31,17 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include <stdlib.h>
-#include <string.h>
+#ifndef _LIBREPLACE_FEXIST_H
+#define _LIBREPLACE_FEXIST_H
 
-char * catstr(char * str1, char * str2)
-{
-	char * retval;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-	if (str1 != NULL)
-	{
-		retval = (char*)realloc(str1, strlen(str1) + strlen(str2) + 1);
-		strcat(retval, str2);
-	}
-	else
-		retval = strdup(str2);
-	
-	return retval;
+int fexist(const char * filename);
+
+#ifdef __cplusplus
 }
+#endif 
 
+#endif // _LIBREPLACE_FEXIST_H

@@ -1,3 +1,10 @@
+2004-04-12	blytkerchan
+	* catstr.c: include string.h
+	* Makefile.am: add fexist.c to sources
+	add fexist.h to headers
+	* fexist.c: new file
+	* fexist.h: ditto
+
 2004-04-08	blytkerchan
 	* catstr.c: apply license
 	* catstr.h: ditto
