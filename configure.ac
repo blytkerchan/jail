@@ -17,6 +17,8 @@ mingw32)
 esac
 AC_SUBST(POSIX_OR_WOE32, $posix_or_woe32)
 
+AM_CONDITIONAL(MT_SAFE, true)
+
 # Checks for programs.
 AC_PROG_YACC
 AC_PROG_CXX

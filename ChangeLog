@@ -1,3 +1,11 @@
+2004-04-12	blytkerchan
+	* configure.ac: define Automake conditional MT_SAFE (always true for the time being)
+	* libconf.c (libconf_init): zero out handle's argv field on allocation
+	(libconf_phase1): test that aregc is > 0 (i.e. make argc == -1 break the loop)
+	prevent in-param parameters from being counted 
+	fix indentation error
+	(libconf_phase2): don't do anything if there are no defaults
+
 2004-04-08	blytkerchan	license application & killing memory bugs
 	* libconf.c: apply license
 	(libconf_init): handle the possibility that the passed-in filenames are NULL

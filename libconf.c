@@ -81,7 +81,7 @@ libconf_t * libconf_init(
 	retval->option_hash = new_hash(STRING_HASH, NULL, NULL);
 	retval->tmp_hash = new_hash(STRING_HASH, NULL, NULL);
 	retval->argc = argc;
-	retval->argv = (char**)malloc((argc + 1) * sizeof(char*));
+	retval->argv = (char**)calloc(argc + 1, sizeof(char*));
 	for (i = 0; i < argc; i++)
 		retval->argv[i] = strdup(argv[i]);
 	if (defaults)
@@ -146,7 +146,7 @@ int libconf_phase1(libconf_t * handle)
 
 	handle->argv0 = *argv;
 	argv++; argc--;
-	while (argc)
+	while (argc > 0)
 	{
 		have_error = PT_NONE;
 		param = NULL;
@@ -238,7 +238,7 @@ int libconf_phase1(libconf_t * handle)
 								have_error = ET_PARAM_MALFORMED;
 							else if (param->have_error)
 								have_error = ET_PARAM_MALFORMED;
-							have_param = 1;
+							// have_param = 1; we don't count these
 						}
 						else if (argc > 1 && argv[1][0] && argv[1][0] != '-' )
 						{	/* we have a parameter */
@@ -314,7 +314,9 @@ int libconf_phase1(libconf_t * handle)
 		}
 		
 		if (have_param)
+		{
 			argv++; argc--;
+		}
 		argv++; argc--;
 	}
 
@@ -325,7 +327,9 @@ int libconf_phase1(libconf_t * handle)
 int libconf_phase2(libconf_t * handle)
 {
 	int i;
-	
+
+	if (handle->defaults == NULL)
+		return 0;
 	for (i = 0; handle->defaults[i]; i++)
 		hash_put(handle->option_hash, strdup(handle->defaults[i]->name), handle->defaults[i]);
 	
