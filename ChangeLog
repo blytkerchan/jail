@@ -1,3 +1,7 @@
+2004-02-10	blytkerchan
+	* list.c: new file
+	* list.h: ditto
+
 2004-02-04	blytkerchan
 	* config-libhash: remove
 
