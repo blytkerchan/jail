@@ -1,0 +1,4 @@
+2004-04-08	blytkerchan
+	* test1.c: apply license
+	(test1): copy defaults to a temp variable
+
