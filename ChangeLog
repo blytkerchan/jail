@@ -1,4 +1,6 @@
 2004-08-03	blytkerchan
+	* module.mk: add rw_spinlock.c to sources
+
 	* rw_spinlock.c: new file
 	* rw_spinlock.h: ditto
 
