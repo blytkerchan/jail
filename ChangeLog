@@ -1,3 +1,7 @@
+2004-07-20	blytkerchan
+	* module.ml: new file
+	* configure.ac: remove
+
 2004-07-18	blytkerchan
 	* configure.ac: new file
 	* Makefile.in: ditto
