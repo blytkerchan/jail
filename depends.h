@@ -29,11 +29,11 @@ int dep_select(depends_t * handle, const void * key);
 /* set a dependency. N_KEYS is the number of keys in KEYS; KEYS are the keys 
  * the currently selected key will depend on and VECTOR is the function to 
  * call to satisfy the dependency. */
-int dep_depends(depends_t * handle, uint32_t n_keys, const void ** keys, dep_vector_func vector);
+int dep_depends(depends_t * handle, uint32_t n_keys, const void ** keys, dep_vector_func vector, void * data);
 /* set an inverse dependency: the currently selected key blocks the specified 
  * keys. To satisfy the dependency, VECTOR will be called with the currently 
  * selected key. */
-int dep_blocks(depends_t * handle, uint32_t n_keys, const void ** keys, dep_vector_func vector);
+int dep_blocks(depends_t * handle, uint32_t n_keys, const void ** keys, dep_vector_func vector, void * data);
 /* Note that both in the case of dep_depends and dep_blocks, the KEYS and 
  * VECTOR parameters may be NULL. If the VECTOR parameter is NULL, the 
  * dependency for the current key will be satisfied when the dependencies 

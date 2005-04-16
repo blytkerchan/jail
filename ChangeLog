@@ -1,2 +1,6 @@
 2005-04-16	blytkerchan
+	* depends.c: new file
+	* depends.h (dep_depends): add data parameter
+	(dep_blocks): ditto
+
 	* depends.h: new file
