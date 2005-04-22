@@ -1,3 +1,7 @@
+2005-04-21	blytkerchan
+	* Makefile: new file
+	* depends.c: continue implementation
+	
 2005-04-16	blytkerchan
 	* depends.c: new file
 	* depends.h (dep_depends): add data parameter

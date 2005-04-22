@@ -1,6 +1,7 @@
 #include "depends.h"
 #include <stdlib.h>
 #include <libcontain/list.h>
+#include <libcontain/vector.h>
 
 /* HOW THIS WORKS
  * The dependency tracker creates an in-memory directed acyclic graph in 
@@ -10,12 +11,13 @@
  * The edges of the graph represent the dependencies and, as such, have 
  * information associated with them as well: most notably information about 
  * the action to satisfy the dependencies.
- * To help determine the order of the dependencies, each node in the graph 
- * has a score and an array of pointers to scores. The node with the highest
- * score in the graph has the most other nodes that depend on them.
  * Nodes with no more dependencies to satisfy (except for dependencies that
  * block other nodes, ofcourse) are /leaf nodes/. Actions associated with
  * these nodes are presumably parallelizable. */
+
+#define DEPENDS_NODE_FLAG_VISITED	0x00000001
+
+#define DEPENDS_VECTOR_INVALID		0x00000001
 
 struct depends_node_type;
 typedef struct depends_node_type depends_node_t;
@@ -26,22 +28,69 @@ struct depends_vector_type;
 typedef struct depends_vector_type depends_vector_t;
 static int depends_vector_cmp(const void * k1, const void * k2);
 
+typedef void (*depends_node_visitor_func)(depends_node_t *);
+
 struct depends_node_type
 {
-	/* score of this node */
-	uint32_t score;
-	/* amount of pointers allocated in scores - not all of them need to be used.. */
-	uint32_t n_scores;
-	/* pointers to scores of nodes we depend on */
-	uint32_t ** scores;
 	/* the key this node represents */
 	const void * key;
 	/* the function used to compare keys */
 	dep_key_cmp_func dep_key_cmp;
 	/* edges that connect to this node. edges[0] are the outbound edges; edges[1] the inbound */
 	list_t * edges[2];
+	int flags;
 };
 
+struct depends_edge_type
+{
+	/* the nodes this edge connects. nodes[0] is the node the edge source; nodes[1] the node it target. */
+	depends_node_t * nodes[2];
+	list_t * vectors;
+	int invalid;
+};
+
+struct depends_vector_type
+{
+	/* the function to be run */
+	dep_vector_func dep_vector;
+	/* user data */
+	void * data;
+	/* number of keys to pass to the function */
+	uint32_t n_keys;
+	/* the keys to pass to the function */
+	const void ** keys;
+	int flag;
+};
+
+struct depends_type
+{
+	dep_key_cmp_func dep_key_cmp;
+	list_t * nodes;
+	depends_node_t * curr;
+};
+
+struct depends_node_visitor_helper_data_type
+{
+	int fail;
+};
+typedef struct depends_node_visitor_helper_data_type depends_node_visitor_helper_data_t;
+
+static void depends_node_visit_helper(const void * edge, void * data);
+static int depends_node_visit(depends_node_t * node, depends_node_visitor_func visitor)
+{
+	depends_node_visitor_helper_data_t data;
+	data.fail = 0;
+	
+	if (node->flags & DEPENDS_NODE_FLAG_VISITED)
+		return -1;
+	if (visitor)
+		visitor(node);
+	node->flags |= DEPENDS_NODE_FLAG_VISITED;
+	list_foreach(node->edges[0], depends_node_visit_helper, &data);
+	node->flags ^= DEPENDS_NODE_FLAG_VISITED;
+
+	return data.fail ? -1 : 0;
+}
 
 static depends_node_t * depends_node_new(depends_t * handle, const void * key)
 {
@@ -49,9 +98,6 @@ static depends_node_t * depends_node_new(depends_t * handle, const void * key)
 	if (!node)
 		return NULL;
 	node->key = key;
-	node->score = 1;
-	node->n_scores = 0;
-	node->scores = NULL;
 	node->dep_key_cmp = handle->dep_key_cmp;
 	node->edges[0] = list_new(depends_edge_cmp);
 	if (!node->edges[0])
@@ -59,6 +105,7 @@ static depends_node_t * depends_node_new(depends_t * handle, const void * key)
 	node->edges[1] = list_new(depends_edge_cmp);
 	if (node->edges[1])
 		goto abort_node_new2;
+	node->flags = 0;
 	
 	return node;
 	
@@ -73,7 +120,6 @@ static void depends_node_free(depends_node_t * node)
 {
 	list_free(node->edges[0]);
 	list_free(node->edges[1]);
-	free(node->scores);
 	free(node);
 }
 
@@ -90,16 +136,17 @@ static depends_node_t * depends_node_find(depends_t * handle, const void * key)
 	depends_node_t t_node;
 	t_node.dep_key_cmp = handle->dep_key_cmp;
 	t_node.key = key;
-	return list_find(handle->nodes, t_node);
+	return list_search(handle->nodes, &t_node);
 }
 
-struct depends_edge_type
+static void depends_node_visit_helper(const void * edge, void * data)
 {
-	/* the nodes this edge connects. nodes[0] is the node the edge source; nodes[1] the node it target. */
-	depends_node_t * nodes[2];
-	list_t * vectors;
-};
-typedef struct depends_edge_type depends_edge_t;
+	if (((depends_node_visitor_helper_data_t*)data)->fail == 0 && ((depends_edge_t*)edge)->nodes[1])
+	{
+		if (depends_node_visit(((depends_edge_t*)edge)->nodes[1], NULL) != 0)
+			((depends_node_visitor_helper_data_t*)data)->fail = 0;
+	}
+}
 
 static depends_edge_t * depends_edge_new(depends_node_t * from, depends_node_t * to)
 {
@@ -110,6 +157,7 @@ static depends_edge_t * depends_edge_new(depends_node_t * from, depends_node_t *
 	edge->nodes[0] = from;
 	edge->nodes[1] = to;
 	edge->vectors = list_new(depends_vector_cmp);
+	edge->invalid = 0;
 	if (!edge->vectors)
 	{
 		free(edge);
@@ -141,23 +189,32 @@ static depends_edge_t * depends_edge_find(depends_t * handle, depends_node_t * s
 {
 	depends_edge_t t_edge;
 	t_edge.nodes[0] = source;
-	t_edge.nodes[1] - target;
+	t_edge.nodes[1] = target;
 	
-	return list_find(source->edges[0], &t_edge);
+	return list_search(source->edges[0], &t_edge);
 	
 }
 
-struct depends_vector_type
+static int depends_edge_insert(depends_t * handle, depends_edge_t * edge)
 {
-	/* the function to be run */
-	dep_vector_func dep_vector;
-	/* user data */
-	void * data;
-	/* number of keys to pass to the function */
-	uint32_t n_keys;
-	/* the keys to pass to the function */
-	const void ** keys;
-};
+	/* to be able to insert an edge in the graph, there must be no path
+	 * from the target to the source node so we recursively traverse 
+	 * the graph to see if we find any circular depedencies. */
+	// * tag the source node as visited
+	edge->nodes[0]->flags |= DEPENDS_NODE_FLAG_VISITED;
+	// * visit the target node
+	int rv = depends_node_visit(edge->nodes[1], NULL);
+	// * untag the source node
+	edge->nodes[0]->flags ^= DEPENDS_NODE_FLAG_VISITED;
+
+	return rv;
+}
+
+static void depends_edge_invalidate(const void * ptr, void * p2)
+{
+	depends_edge_t * edge = (depends_edge_t*)ptr;
+	edge->invalid = 1;
+}
 
 static depends_vector_t * depends_vector_new(dep_vector_func dep_vector, uint32_t n_keys, const void ** keys, void * data)
 {
@@ -178,12 +235,23 @@ static void depends_vector_free(depends_vector_t * vector)
 	free(vector);
 }
 
-struct depends_type
+static int depends_vector_cmp(const void * k1, const void * k2)
 {
-	dep_key_cmp_func dep_key_cmp;
-	list_t * nodes;
-	depends_node_t * curr;
-};
+	int rv;
+
+	rv = ((depends_vector_t*)k2)->dep_vector - ((depends_vector_t*)k1)->dep_vector;
+	if (rv)
+		return rv;
+	rv = ((depends_vector_t*)k2)->n_keys - ((depends_vector_t*)k1)->n_keys;
+	if (rv)
+		return rv;
+	rv = ((depends_vector_t*)k2)->keys - ((depends_vector_t*)k1)->keys;
+	if (rv)
+		return rv;
+	rv = ((depends_vector_t*)k2)->data - ((depends_vector_t*)k1)->data;
+
+	return rv;
+}
 
 /* allocate a dependency tracker and its associated resources */
 depends_t * dep_new(dep_key_cmp_func dep_key_cmp)
@@ -200,8 +268,6 @@ depends_t * dep_new(dep_key_cmp_func dep_key_cmp)
 	
 	return handle;
 	
-abort_dep_new2:	
-	list_free(handle->nodes);
 abort_dep_new1:
 	free(handle);
 	return NULL;
@@ -244,57 +310,140 @@ int dep_select(depends_t * handle, const void * key)
  * call to satisfy the dependency. */
 int dep_depends(depends_t * handle, uint32_t n_keys, const void ** keys, dep_vector_func vector, void * data)
 {
+	/* Note that this vector will only contain the newly created edges:
+	 * the edges we already had are valid so we don't have to invalidate
+	 * them */
+	vector_t * edges = vector_new(n_keys);
+	
 	// create a vector for this dependency
-	depends_vector_t * dep_vect = depends_vector_new(handle, n_keys, keys, vector, data);
+	depends_vector_t * dep_vect = depends_vector_new(vector, n_keys, keys, data);
 	if (!dep_vect)
 		return -1;
 	
 	// for each key in KEYS
-	int i;
-	for (i = 0; i < n_keys; i++)
+	if (n_keys)
 	{
-		depends_node_t * node = depends_node_find(keys[i]);
-		if (!node)
-			goto abort_depends;
-		// find the corresponding edge in the current key
-		depends_edge_t * edge = depends_edge_find(handle->curr, node);
-		// does it already exist?
+		int i;
+		for (i = 0; i < n_keys; i++)
+		{
+			depends_node_t * node = depends_node_find(handle, keys[i]);
+			if (!node)
+				goto abort_depends;
+			// find the corresponding edge in the current key
+			depends_edge_t * edge = depends_edge_find(handle, handle->curr, node);
+			// does it already exist?
+			if (!edge)
+			{
+				// create a new edge and add it to the list
+				edge = depends_edge_new(handle->curr, node);
+				if (!edge)
+					goto abort_depends;
+				vector_push_back(edges, edge);
+				depends_edge_insert(handle, edge);
+			}
+			if (edge->invalid)
+				goto abort_depends;
+	
+			// * add the new vector to the edge
+			list_insert(edge->vectors, dep_vect);
+		}
+	}
+	else
+	{
+		depends_edge_t * edge = depends_edge_find(handle, handle->curr, NULL);
 		if (!edge)
 		{
-			// create a new edge and add it to the list
-			edge = depends_edge_new(handle, handle->curr, keys[i]);
+			edge = depends_edge_new(handle->curr, NULL);
 			if (!edge)
 				goto abort_depends;
+			vector_push_back(edges, edge);
+			depends_edge_insert(handle, edge);
 		}
-		// * add the new vector to the edge
+		if (edge->invalid)
+			goto abort_depends;
+
 		list_insert(edge->vectors, dep_vect);
 	}
-	// * update the scores of all nodes, checking for circular dependencies
-	// | * for each key in KEYS
-	// | | * get the corresponding node
-	// | | ? see if a pointer to its score is already in the SCORES member 
-	// | | - ? do we have space?
-	// | | | - allocate it
-	// | | * add the pointer to the SCORES member
-	// | * propagate the score
 	
+	vector_free(edges);
+	return 0;
 abort_depends:
 	// * tag the vector as invalid
 	dep_vect->flag = DEPENDS_VECTOR_INVALID;
+	vector_foreach(edges, depends_edge_invalidate, NULL);
+	vector_free(edges);
 	return -1;
 }
 
 /* set an inverse dependency: the currently selected key blocks the specified 
  * keys. To satisfy the dependency, VECTOR will be called with the currently 
  * selected key. */
-int dep_blocks(depends_t * handle, uint32_t n_keys, const void ** keys, dep_vector_func vector, void * data);
-/* Note that both in the case of dep_depends and dep_blocks, the KEYS and 
- * VECTOR parameters may be NULL. If the VECTOR parameter is NULL, the 
- * dependency for the current key will be satisfied when the dependencies 
- * for all passed-in keys are satisfied. If the KEYS parameter is NULL, 
- * the dependency for the current key is satisfied upon successful 
- * completion of the VECTOR function. If both are NULL, the dependency is
- * automatically satisfied. */
+int dep_blocks(depends_t * handle, uint32_t n_keys, const void ** keys, dep_vector_func vector, void * data)
+{
+	/* Note that this vector will only contain the newly created edges:
+	 * the edges we already had are valid so we don't have to invalidate
+	 * them */
+	vector_t * edges = vector_new(n_keys);
+	
+	// create a vector for this dependency
+	depends_vector_t * dep_vect = depends_vector_new(vector, n_keys, keys, data);
+	if (!dep_vect)
+		return -1;
+	
+	// for each key in KEYS
+	if (n_keys)
+	{
+		int i;
+		for (i = 0; i < n_keys; i++)
+		{
+			depends_node_t * node = depends_node_find(handle, keys[i]);
+			if (!node)
+				goto abort_depends;
+			// find the corresponding edge in the current key
+			depends_edge_t * edge = depends_edge_find(handle, node, handle->curr);
+			// does it already exist?
+			if (!edge)
+			{
+				// create a new edge and add it to the list
+				edge = depends_edge_new(node, handle->curr);
+				if (!edge)
+					goto abort_depends;
+				vector_push_back(edges, edge);
+				depends_edge_insert(handle, edge);
+			}
+			if (edge->invalid)
+				goto abort_depends;
+	
+			// * add the new vector to the edge
+			list_insert(edge->vectors, dep_vect);
+		}
+	}
+	else
+	{
+		depends_edge_t * edge = depends_edge_find(handle, NULL, handle->curr);
+		if (!edge)
+		{
+			edge = depends_edge_new(NULL, handle->curr);
+			if (!edge)
+				goto abort_depends;
+			vector_push_back(edges, edge);
+			depends_edge_insert(handle, edge);
+		}
+		if (edge->invalid)
+			goto abort_depends;
+
+		list_insert(edge->vectors, dep_vect);
+	}
+	
+	vector_free(edges);
+	return 0;
+abort_depends:
+	// * tag the vector as invalid
+	dep_vect->flag = DEPENDS_VECTOR_INVALID;
+	vector_foreach(edges, depends_edge_invalidate, NULL);
+	vector_free(edges);
+	return -1;
+}
 
 /* get a NULL-terminated list of keys the current key depends on. Only 
  * unsatisfied dependencies will be listed and, for those, only the
@@ -313,4 +462,3 @@ const void ** dep_blocking(depends_t * handle, const void * key);
  * for the dependency tracker). */
 int dep_resolve(depends_t * handle, uint32_t options);
 
-#endif

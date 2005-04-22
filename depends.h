@@ -1,6 +1,8 @@
 #ifndef _libdepends_depends_h
 #define _libdepends_depends_h
 
+#include <stdint.h>
+
 /* A simple but efficient dependency tracker.
  * This dependency tracker allows you to define dependencies between 
  * different keys, which must be comparable amongst eachother in a 
