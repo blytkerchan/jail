@@ -88,6 +88,11 @@ int list_delete(list_t * list, void * val)
 	return retval;
 }
 
+int list_empty(list_t * list)
+{
+	return list->head->next == NULL;
+}
+
 void * list_search(list_t * list, void * val)
 {
 	list_node_t * node;

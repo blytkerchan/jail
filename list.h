@@ -48,6 +48,7 @@ list_t * list_new(libcontain_cmp_func_t cmp_func);
 void list_free(list_t * list);
 int list_insert(list_t * list, void * val);
 int list_delete(list_t * list, void * val);
+int list_empty(list_t * list);
 
 /* Search a node in the list and return it.
  * This may seem a bit weird, as you hand the node you're looking for as a 

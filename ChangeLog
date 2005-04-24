@@ -1,4 +1,7 @@
 2004-03-23	blytkerchan
+	* list.c (list_empty): new function
+	* list.h: reflect above
+
 	* module.mk: add support for INSTALL_HEADERS
 
 2005-02-28	blytkerchan
