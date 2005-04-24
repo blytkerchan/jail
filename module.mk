@@ -11,7 +11,7 @@ libcontain_SRC +=	stack.c \
 			list_node.c \
 			vector.c \
 			hash_helpers.c
-libcontain_INSTALL_HEADERS += $(patsubst %.c,%.h,$(libcontain_SRC))
+libcontain_INSTALL_HEADERS += $(patsubst %.c,%.h,$(libcontain_SRC)) libcontain_config.h types.h
 SRC += $(patsubst %,libcontain/%,$(libcontain_SRC))
 INSTALL_HEADERS += $(patsubst %,libcontain/%,$(libcontain_INSTALL_HEADERS))
 

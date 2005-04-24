@@ -67,14 +67,14 @@ typedef struct _vector_t
 
 /* Create a new, empty vector of size SIZE */
 vector_t * vector_new(size_t size);
-void free_vector(vector_t * vector);
+void vector_free(vector_t * vector);
 
 void * vector_get(vector_t * vector, size_t i);
-void vector_put(vector_t * vector, size_t i, void * val);
-void vector_push_back(vector_t * vector, void * val);
+int vector_put(vector_t * vector, size_t i, void * val);
+int vector_push_back(vector_t * vector, void * val);
 size_t vector_get_size(vector_t * vector);
 size_t vector_get_numentries(vector_t * vector);
-void vector_resize(vector_t * vector, size_t size);
+int vector_resize(vector_t * vector, size_t size);
 vector_t * vector_copy(vector_t * vector);
 vector_t * vector_merge(vector_t * vector1, vector_t * vector2, libcontain_cmp_func_t cmp_func);
 vector_t * vector_deep_copy(vector_t * vector, libcontain_copy_func_t vector_valcopy_func);

@@ -1,4 +1,14 @@
 2004-03-23	blytkerchan
+	* module.mk: install types.h and libcontain_config.h
+	* vector.c (internal_resize): return int in stead of void so as not 
+	to give the nofail guarantee
+	(vector_put): ditto
+	(vector_push_back): ditto
+	(vector_resize): ditto
+	(vector_copy): check for errors better
+	(vector_deep_copy): ditto
+	* vector.h: reflect above
+
 	* list.c (list_empty): new function
 	* list.h: reflect above
 

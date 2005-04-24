@@ -43,7 +43,7 @@
 #include "binary.h"
 #include "thread.h"
 
-static void internal_resize(vector_t * vector, uint32_t n_size);
+static int internal_resize(vector_t * vector, uint32_t n_size);
 static void internal_condense(vector_t * vector);
 
 /* This may seem obvious, and it is! Allocate a new vector of SIZE entries */
@@ -100,7 +100,7 @@ void * vector_get(vector_t * vector, size_t i)
 	return retval;
 }
 
-void vector_put(vector_t * vector, size_t i, void * val)
+int vector_put(vector_t * vector, size_t i, void * val)
 {
 	void * rv;
 	size_t increase;
@@ -127,7 +127,8 @@ void vector_put(vector_t * vector, size_t i, void * val)
 			{
 				increase = vector->increase;
 				increase = (((i - size) / increase) + 1) * increase;
-				internal_resize(vector, size + increase);
+				if (internal_resize(vector, size + increase) != 0)
+					goto abort_vector_put;
 			}
 		} while (nodes != vector->nodes);
 		rv = NULL;
@@ -148,9 +149,16 @@ void vector_put(vector_t * vector, size_t i, void * val)
 	}
 	vector->sorted = 0;
 	rw_spinlock_read_unlock(vector->lock);
+	
+	return 0;
+	
+abort_vector_put:
+	rw_spinlock_read_unlock(vector->lock);
+	
+	return -1;
 }
 
-void vector_push_back(vector_t * vector, void * val)
+int vector_push_back(vector_t * vector, void * val)
 {
 	vector_node_t * nodes;
 	size_t num_entries, size;
@@ -177,7 +185,8 @@ void vector_push_back(vector_t * vector, void * val)
 			} while (nodes != vector->nodes);
 			if (num_entries >= size)
 			{
-				internal_resize(vector, size + vector->increase);
+				if (internal_resize(vector, size + vector->increase) != 0)
+					goto abort_vector_push_back;
 				continue;
 			}
 		} while (nodes != vector->nodes);
@@ -191,6 +200,13 @@ void vector_push_back(vector_t * vector, void * val)
 	vector->sorted = 0;
 
 	rw_spinlock_read_unlock(vector->lock);
+	
+	return 0;
+	
+abort_vector_push_back:
+	rw_spinlock_read_unlock(vector->lock);
+	
+	return -1;
 }
 
 size_t vector_get_size(vector_t * vector)
@@ -218,9 +234,11 @@ size_t vector_get_numentries(vector_t * vector)
 	return retval;
 }
 
-static void internal_resize(vector_t * vector, uint32_t n_size)
+static int internal_resize(vector_t * vector, uint32_t n_size)
 {
 	vector_node_t * new_nodes = calloc(n_size, sizeof(vector_node_t));
+	if (!new_nodes)
+		return -1;
 	vector_node_t * o_nodes;
 	vector_node_t * nodes;
 	uint32_t size;
@@ -241,7 +259,7 @@ static void internal_resize(vector_t * vector, uint32_t n_size)
 		if (size == n_size)
 		{
 			hptr_free(0);
-			return;
+			return 0;
 		}
 		rw_spinlock_upgrade(vector->lock);
 		memcpy(new_nodes, nodes, 
@@ -264,27 +282,40 @@ static void internal_resize(vector_t * vector, uint32_t n_size)
 		free(o_nodes);
 	} while (n_size < vector->size);
 	hptr_free(0);
+	
+	return 0;
 }
 
-void vector_resize(vector_t * vector, size_t n_size)
+int vector_resize(vector_t * vector, size_t n_size)
 {
-		  rw_spinlock_read_lock(vector->lock);
-		  internal_resize(vector, n_size);
-		  rw_spinlock_read_unlock(vector->lock);
+	int rv;
+	
+	rw_spinlock_read_lock(vector->lock);
+	rv = internal_resize(vector, n_size);
+	rw_spinlock_read_unlock(vector->lock);
+	
+	return rv;
 }
 
 vector_t * vector_copy(vector_t * vector)
 {
 	size_t size = vector->size;
 	vector_t * retval = vector_new(size);
+	if (!retval)
+		return NULL;
 	size_t i;
 
 	rw_spinlock_read_lock(vector->lock);
 	for (i = 0; i < size; i++)
-		vector_put(retval, i, vector_get(vector, i));
+		if (vector_put(retval, i, vector_get(vector, i)) != 0)
+			goto abort_vector_copy;
 	rw_spinlock_read_unlock(vector->lock);
 
 	return retval;
+	
+abort_vector_copy:
+	vector_free(retval);
+	return NULL;
 }
 
 /* An implementation of a binary search algorithm
@@ -532,7 +563,7 @@ static void vector_sort_worker(vector_node_t * vector_nodes, size_t n, libcontai
 		vector_sort_worker(vector_nodes + m + n % 2, m, cmp_func);
 		vector_t * t_vector = vector_merge1(vector_nodes, vector_nodes + m + n % 2, m + n % 2, m, cmp_func);
 		memcpy(vector_nodes, t_vector->nodes, n * sizeof(vector_node_t));
-		free_vector(t_vector);
+		vector_free(t_vector);
 	}
 	else if (n == 2)
 	{
@@ -615,15 +646,24 @@ vector_t * vector_deep_copy(vector_t * vector, libcontain_copy_func_t vector_val
 		size = vector->size;
 	} while (!size);
 	retval = vector_new(size);
+	if (!retval)
+		goto abort_vector_deep_copy1;
 	for (i = 0; i < size; i++)
 	{
 		val = vector_get(vector, i);
 		if (val != NULL)
-			vector_put(retval, i, vector_valcopy_func(vector->nodes[i].val));
+			if (vector_put(retval, i, vector_valcopy_func(vector->nodes[i].val)) != 0)
+				goto abort_vector_deep_copy2;
 	}
 	rw_spinlock_read_unlock(vector->lock);
 
 	return retval;
+
+abort_vector_deep_copy2:
+	vector_free(retval);
+abort_vector_deep_copy1:
+	rw_spinlock_read_unlock(vector->lock);
+	return NULL;
 }
 
 void vector_foreach(vector_t * vector, libcontain_foreach_func_t vector_foreach_func, void * data)
