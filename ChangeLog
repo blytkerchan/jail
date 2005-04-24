@@ -1,4 +1,6 @@
 2005-04-23	blytkerchan
+	* module.mk: don't install these headers by default
+
 	* module.mk: add support for INSTALL_HEADERS
 
 2004-10-22	blytkerchan
