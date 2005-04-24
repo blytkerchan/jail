@@ -1,3 +1,30 @@
+2005-04-23	blytkerchan
+	* depends.c: include assert.h
+	[DEPENDS_VECTOR_FLAG_INVALID]: rename from DEPENDS_VECTOR_INVALID
+	[DEPENDS_VECTOR_FLAG_DONE]: new macro
+	[struct depends_vector_type]: rename flags member from flag
+	[struct depends_type]: new members edges and vectors
+	(dep_new): reflect above
+	[depends_node_visitor_func]: change prototype to take user data
+	(depends_node_visit): reflect above
+	(depends_node_visit_helper): ditto
+	(depends_edge_insert): ditto
+	(depends_edge_new): take the handle to the tracker as param
+	add the new edge to the edges member of the tracker
+	(dep_depends): reflect above signature change
+	reflect change to member name in struct depends_vector_type
+	(dep_blocks): ditto (all)
+	(depends_edge_free): free the list of vectors
+	[struct dep_depends_on_helper_data_type]: new type
+	(dep_depends_on_helper_helper): new function
+	(dep_depends_on_helper): ditto
+	(dep_depends_on): implement
+	(dep_blocking_on_helper): new function
+	(dep_blocking): implement
+	[struct dep_resolve_edge_visitor_data_type]: new type
+	(dep_resolve_retrieve_satisfiable_edge_helper): new function
+	(dep_resolve): start implementation
+	
 2005-04-21	blytkerchan
 	* Makefile: new file
 	* depends.c: continue implementation
