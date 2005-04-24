@@ -1,3 +1,6 @@
+2005-04-23	blytkerchan
+	* module.mk: add support for INSTALL_HEADERS
+
 2005-03-01	blytkerchan
 	* hptr.c (smr_hptr_free_list_enq): explicitly set exp to NULL before
 	each CAS where the value is expected to be NULL
