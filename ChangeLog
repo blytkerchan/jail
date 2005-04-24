@@ -1,3 +1,6 @@
+2005-04-23	blytkerchan
+	* module.mk: add support for INSTALL_HEADERS
+
 2004-12-23	blytkerchan	add POSIX-compliant rwlock implementation
 	* how_rwlocks_work.txt: new file
 	* rwlock.c: ditto

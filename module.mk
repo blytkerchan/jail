@@ -11,4 +11,6 @@ ifeq ($(HAVE_PTHREAD_SIGMASK),1)
 libthread_SRC +=	semaphore.c
 endif
 SRC += $(patsubst %,libthread/%,$(libthread_SRC))
+libthread_INSTALL_HEADERS += $(patsubst %.c,%.h,$(libthread_SRC))
+INSTALL_HEADERS += $(patsubst %,libthread/%,$(libthread_INSTALL_HEADERS))
 
