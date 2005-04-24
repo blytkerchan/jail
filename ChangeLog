@@ -1,3 +1,6 @@
+2005-04-23	blytkerchan
+	* module.ml: add support for INSTALL_HEADERS
+
 2004-10-20	blytkerchan
 	* libconf.c: include libcontain/hash_helpers.h
 	(libconf_init): update calls to hash_new
