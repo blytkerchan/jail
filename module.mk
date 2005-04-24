@@ -7,4 +7,6 @@ libreplace_SRC += 	memdup.c \
 
 SRC += $(patsubst %,libreplace/%,$(LTLIBOBJS:.lo=.c))
 SRC += $(patsubst %,libreplace/%,$(libreplace_SRC))
+libreplace_INSTALL_HEADERS += $(patsubst %.c,%.h,$(libreplace_SRC))
+INSTALL_HEADERS += $(patsubst %,libconf/%,$(libreplace_INSTALL_HEADERS))
 
