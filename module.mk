@@ -6,5 +6,5 @@ libconf_SRC += 	libconf.c \
 
 SRC += $(patsubst %,libconf/%,$(libconf_SRC))
 libconf_INSTALL_HEADERS += $(patsubst %.c,%.h,$(libconf_SRC))
-INSTALL_HEADERS += $(patsubst %,libcontain/%,$(libconf_INSTALL_HEADERS))
+INSTALL_HEADERS += $(patsubst %,libconf/%,$(libconf_INSTALL_HEADERS))
 

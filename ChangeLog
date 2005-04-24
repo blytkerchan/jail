@@ -1,4 +1,6 @@
 2005-04-23	blytkerchan
+	* module.mk [INSTALL_HEADERS]: bugfix
+
 	* module.ml: add support for INSTALL_HEADERS
 
 2004-10-20	blytkerchan
