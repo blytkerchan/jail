@@ -390,8 +390,8 @@ projects. Based on the MOZILLA PUBLIC LICENSE, Version 1.1
      Your choice of this License or the alternative licenses, if any,
      specified by the Initial Developer in the file described in Exhibit A.
 
-     Additionally, all code of the aforementioned projects Jail (Jail-ust)
-     and Halos may be considered "Multiple-Licensed"/
+     Additionally, all code of the aforementioned projects Jail (Jail-ust),
+     Halos and Harboured may be considered "Multiple-Licensed"
 
 EXHIBIT A.
 
