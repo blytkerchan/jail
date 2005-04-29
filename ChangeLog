@@ -1,3 +1,6 @@
+2004-04-28	blytkerchan
+	* list.c: remove duplicate definition of list_empty
+
 2004-03-23	blytkerchan
 	* module.mk: install types.h and libcontain_config.h
 	* vector.c (internal_resize): return int in stead of void so as not 
