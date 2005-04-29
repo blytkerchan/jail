@@ -1,4 +1,11 @@
 2005-04-28	blytkerchan
+	* depends.c: unfinished debug session
+	* edge.h: ditto
+	* node.c: ditto
+	* node.h: ditto
+	* vector.c: ditto
+	* vector.h: ditto
+
 	* depends.c: split up into many files
 	prepare to change the logic of associating vectors with the DAG:
 	associate them with nodes in stead of edges (to prevent unresolvable

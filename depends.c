@@ -1,4 +1,7 @@
 #include "depends.h"
+#include "edge.h"
+#include "node.h"
+#include "vector.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <libcontain/list.h>
@@ -15,11 +18,6 @@
  * Nodes with no more dependencies to satisfy (except for dependencies that
  * block other nodes, ofcourse) are /leaf nodes/. Actions associated with
  * these nodes are presumably parallelizable. */
-
-#define DEPENDS_NODE_FLAG_VISITED	0x00000001
-
-#define DEPENDS_VECTOR_FLAG_INVALID	0x00000001
-#define DEPENDS_VECTOR_FLAG_DONE	0x00000002
 
 struct depends_type
 {
@@ -100,6 +98,7 @@ int dep_select(depends_t * handle, const void * key)
  * call to satisfy the dependency. */
 int dep_depends(depends_t * handle, uint32_t n_keys, const void ** keys)
 {
+	return -1;
 }
 
 /* set an inverse dependency: the currently selected key blocks the specified 
@@ -107,6 +106,7 @@ int dep_depends(depends_t * handle, uint32_t n_keys, const void ** keys)
  * selected key. */
 int dep_blocks(depends_t * handle, uint32_t n_keys, const void ** keys)
 {
+	return -1;
 }
 
 struct dep_depends_on_helper_data_type
@@ -213,7 +213,7 @@ static void dep_resolve_retrieve_satisfiable_edge_helper(const void * e, void * 
 	if (edge->nodes[1])
 	{
 		// has the target node been satisfied
-		if (edge->nodes[1]->satisified)
+		if (edge->nodes[1]->flags & DEPENDS_NODE_SATISFIED)
 		{
 			// edge is not satisfiable
 			return;
@@ -223,7 +223,7 @@ static void dep_resolve_retrieve_satisfiable_edge_helper(const void * e, void * 
 	if (edge->nodes[0])
 	{
 		// has the source node been satisfied?
-		if (!edge->nodes[0]->satisfied)
+		if (!edge->nodes[0]->flags & DEPENDS_NODE_SATISFIED)
 		{
 			// does it have any incoming edges?
 			if (!list_empty(edge->nodes[0]->edges[1]))

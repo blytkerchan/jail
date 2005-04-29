@@ -5,9 +5,6 @@
 #include <libcontain/list.h>
 #include <libcontain/vector.h>
 
-#define DEPENDS_VECTOR_FLAG_INVALID	0x00000001
-#define DEPENDS_VECTOR_FLAG_DONE	0x00000002
-
 struct depends_vector_type
 {
 	/* the function to be run */

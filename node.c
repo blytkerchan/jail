@@ -5,8 +5,6 @@
 #include <libcontain/list.h>
 #include <libcontain/vector.h>
 
-#define DEPENDS_NODE_FLAG_VISITED	0x00000001
-
 typedef void (*depends_node_visitor_func)(depends_node_t *, void * data);
 
 struct depends_node_type

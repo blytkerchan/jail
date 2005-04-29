@@ -1,6 +1,9 @@
 #ifndef _libdepends_edge_h
 #define _libdepends_edge_h
 
+#include <libcontain/list.h>
+#include "node.h"
+
 struct depends_edge_type
 {
 	/* the nodes this edge connects. nodes[0] is the node the edge source; nodes[1] the node it target. */
