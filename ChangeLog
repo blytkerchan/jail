@@ -1,3 +1,16 @@
+2005-04-28	blytkerchan
+	* depends.c: split up into many files
+	prepare to change the logic of associating vectors with the DAG:
+	associate them with nodes in stead of edges (to prevent unresolvable
+	dependencies)
+	* depends.h: reflect above
+	* vector.c: new file
+	* vector.h: ditto
+	* node.c: ditto
+	* node.h: ditto
+	* edge.c: ditto
+	* edge.h: ditto
+
 2005-04-23	blytkerchan
 	* depends.c: include assert.h
 	[DEPENDS_VECTOR_FLAG_INVALID]: rename from DEPENDS_VECTOR_INVALID
