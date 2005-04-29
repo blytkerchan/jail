@@ -60,5 +60,6 @@ int list_empty(list_t * list);
  * will be the value you're ultimately interested in. */
 void * list_search(list_t * list, void * val);
 void list_foreach(list_t * list, libcontain_foreach_func_t helper, void * data);
+int list_empty(list_t * list);
 
 #endif // LIBCONTAIN_LIST_H

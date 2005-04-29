@@ -142,3 +142,7 @@ void list_foreach(list_t * list, libcontain_foreach_func_t helper, void * data)
 	list_node_foreach(list->head, helper, data);
 }
 
+int list_empty(list_t * list)
+{
+	return list->head->next == NULL;
+}
