@@ -1,3 +1,9 @@
+2005-05-31	blytkerchan
+	* dag.c (dag_node_new): initialize flags field
+	(dag_node_free): unlink from neighbours before destroying the node
+	(dag_node_unlink): implement
+	(dag_node_visit): ditto
+
 2005-05-23	blytkerchan	re-starting implementation
 	* dag.c: new file
 	* dag.h: ditto

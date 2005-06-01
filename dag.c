@@ -57,12 +57,24 @@ dag_node_t * dag_node_new(void)
 	
 	retval->edges[0] = NULL;
 	retval->edges[1] = NULL;
+	retval->flags = 0;
 	
 	return retval;
 }
 
 void dag_node_free(dag_node_t * node)
 {
+	if (node->edges[0])
+	{
+		while (node->edges[0][0])
+			dag_node_unlink(node->edges[0][0]->nodes[0], node->edges[0][0]->nodes[1]);
+	}
+	if (node->edges[1])
+	{
+		while (node->edges[1][0])
+			dag_node_unlink(node->edges[1][0]->nodes[0], node->edges[1][0]->nodes[1]);
+	}
+
 	free(node->edges[0]);
 	free(node->edges[1]);
 	free(node);
@@ -134,8 +146,84 @@ int dag_node_link(dag_node_t * source, dag_node_t * target)
 	return 0;
 }
 
-int dag_node_unlink(dag_node_t * source, dag_node_t * target);
+int dag_node_unlink(dag_node_t * source, dag_node_t * target)
+{
+	int i, s_edge_index, t_edge_index;
+	int n_s_edges = 0; n_t_edges = 0;
+	dag_edge_t * edge;
 
-int dag_node_visit(dag_node_t * node, dag_node_visitor_func visitor, void * data);
+	assert(source && target);
+	if (source->edges[1] == NULL || target->edges[0] == NULL)
+		return -1;
 
+	// find the edge in the source node that has the target node as target
+	s_edge_index = -1;
+	for (i = 0; source->edges[1][i] != NULL; ++i)
+	{
+		assert(source->edges[1][i]->nodes[0] == source);
+		if (source->edges[1][i]->nodes[1] == target)
+			s_edge_index = i;
+		n_s_edges++;
+	}
+	if (s_edge_index == -1)
+		return -1;
+	// find the edge in the target node that has the source node as source - should be the same edge
+	t_edge_index = -1;
+	for (i = 0; target->edges[0][i] != NULL; ++i)
+	{
+		assert(target->edges[0][i]->nodes[1] == target);
+		if (target->edges[0][i]->nodes[0] == source)
+			t_edge_index = i;
+		n_t_edges++;
+	}
+	if (t_edge_index == -1)
+		return -1;
+	assert(source->edges[1][s_edge_index] == target->edges[0][t_edge_index]);
+	
+	edge = source->edges[1][s_edge_index];
+	// remove the edge from the source node
+	source->edges[1][s_edge_index] = source->edges[1][n_s_edges - 1];
+	source->edges[1][n_s_edges - 1] = NULL;
+	// remove the edge from the target node
+	target->edges[0][t_edge_index] = target->edges[0][n_t_edges - 1];
+	target->edges[0][n_t_edges - 1] = NULL;
+
+	// free the edge
+	dag_edge_free(edge);
+
+	// see if another path from source to target still exists
+	target->flags |= DAG_NODE_VISITED;
+	rv = dag_node_visit(source, NULL, NULL);
+	target->flags ^= DAG_NODE_VISITED;
+				
+	return rv == 0 ? 0 : 1;
+}
+
+int dag_node_visit(dag_node_t * node, dag_node_visitor_func visitor, void * data)
+{
+	int i;
+	
+	if (node->flags & DAG_NODE_VISITED)
+		return -1;
+	node->flags |= DAG_NODE_VISITED;
+	if (visitor)
+		visitor(node, data, 0);
+	if (node->edges[1])
+	{
+		for (i = 0; node->edges[1][i]; ++i)
+		{
+			if (dag_node_visit(node->edges[1][i]->nodes[1], visitor, data) != 0)
+				goto abort_dag_node_visit;
+		}
+	}
+	if (visitor)
+		visitor(node, data, 1);
+
+	node->flags ^= DAG_NODE_VISITED;
+	return 0;
+abort_dag_node_visit :
+	node->flags ^= DAG_NODE_VISITED;
+	
+	return -1;
+}
 
