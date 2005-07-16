@@ -1,0 +1,7 @@
+2005-07-14	blytkerchan
+	* circular_reference_exception.hpp: new file
+	* dag_iterator.hpp: ditto
+	* dag_node.hpp: ditto
+	* scoped_flag.hpp: ditto
+	* visitors.hpp: ditto
+
