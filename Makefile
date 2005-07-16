@@ -1,8 +1,8 @@
-SOURCES=depends.c vector.c node.c edge.c
-OBJS=$(patsubst %.c,%.o,$(SOURCES))
+all : test
 
-all : $(OBJS)
+test : test.o
+	$(CXX) -g -O2 -Wall -Werror -o $@ $^
 
+%.o : %.cc dag.hpp $(wildcard detail/*.hpp)
+	$(CXX) -g -O2 -c -Wall -Werror -o $@ $<
 
-%.o : %.c
-	gcc -c -Wall -Werror -I$(HOME)/opt/include -o $@ $<

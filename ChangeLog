@@ -1,3 +1,20 @@
+2005-07-15	blytkerchan
+	* Makefile: rewrite
+	* dag.hpp: new file
+	* depends.hpp: ditto
+	* readme.txt: ditto
+	* test.cc: ditto
+	* dag.c: remove
+	* dag.h: ditto
+	* depends.c: ditto
+	* depends.h: ditto
+	* edge.c: ditto
+	* edge.h: ditto
+	* node.c: ditto
+	* node.h: ditto
+	* vector.c: ditto
+	* vector.h: ditto
+
 2005-05-31	blytkerchan
 	* dag.c (dag_node_new): initialize flags field
 	(dag_node_free): unlink from neighbours before destroying the node
