@@ -8,6 +8,7 @@
 #include "detail/circular_reference_exception.hpp"
 #include "detail/scoped_flag.hpp"
 #include "detail/visitors.hpp"
+#include "detail/node_ptr_sorter.hpp"
 
 namespace rlc
 {
@@ -25,10 +26,11 @@ namespace rlc
 		typedef const ValueType * const_pointer;
 		typedef unsigned long score_type;
 		typedef detail::dag_node<ValueType, score_type> node_type;
-		typedef detail::dag_iterator<ValueType, const ValueType &, const ValueType *, score_type, typename std::vector<node_type>::iterator> iterator;
-		typedef detail::dag_iterator<ValueType, const ValueType &, const ValueType *, score_type, typename std::vector<node_type>::iterator> const_iterator;
-		typedef detail::dag_reverse_iterator<ValueType, const ValueType &, const ValueType *, score_type, typename std::vector<node_type>::reverse_iterator> reverse_iterator;
-		typedef detail::dag_reverse_iterator<ValueType, const ValueType &, const ValueType *, score_type, typename std::vector<node_type>::reverse_iterator> const_reverse_iterator;
+		typedef std::vector< node_type* > nodes_type;
+		typedef detail::dag_iterator<ValueType, const ValueType &, const ValueType *, score_type, typename nodes_type::iterator> iterator;
+		typedef detail::dag_iterator<ValueType, const ValueType &, const ValueType *, score_type, typename nodes_type::iterator> const_iterator;
+		typedef detail::dag_reverse_iterator<ValueType, const ValueType &, const ValueType *, score_type, typename nodes_type::reverse_iterator> reverse_iterator;
+		typedef detail::dag_reverse_iterator<ValueType, const ValueType &, const ValueType *, score_type, typename nodes_type::reverse_iterator> const_reverse_iterator;
 		typedef typename std::vector<node_type>::difference_type difference_type;
 		typedef typename std::vector<node_type>::size_type size_type;
 
@@ -44,6 +46,12 @@ namespace rlc
 		}
 		
 		dag & operator=(const dag & d) { nodes_ = d.nodes_; return *this; }
+
+		~dag()
+		{
+			for (typename nodes_type::iterator iter = nodes_.begin(); iter != nodes_.end(); ++iter)
+				delete *iter;
+		}
 	
 		// we're a reversible container
 		iterator begin() { return iterator(nodes_.begin()); }
@@ -75,7 +83,7 @@ namespace rlc
 		{
 			if (std::find_if(nodes_.begin(), nodes_.end(), detail::dag_node_value_cmp<node_type>(val)) == nodes_.end())
 			{
-				nodes_.insert(nodes_.begin(), node_type(val));
+				nodes_.insert(nodes_.begin(), new node_type(val));
 				return std::make_pair(begin(), true);
 			}
 			else
@@ -95,13 +103,13 @@ namespace rlc
 				detail::scoped_flag<node_type> scoped_flag(source.node(), node_type::VISITED);
 				detail::dag_node_visitor<node_type>()(target.node());
 			}
-			source.node().targets_.push_back(&target.node());
+			source.node()->targets_.push_back(target.node());
 
 			// GCC 3.3 doesn't like it when I don't use a local variable for this functor..
 			detail::dag_node_inc_score_functor dag_node_inc_score_functor;
-			detail::dag_node_visitor<node_type, detail::dag_node_inc_score_functor, score_type>(dag_node_inc_score_functor, source.node().score_)(target.node());
+			detail::dag_node_visitor<node_type, detail::dag_node_inc_score_functor, score_type>(dag_node_inc_score_functor, source.node()->score_)(target.node());
 
-			std::sort(nodes_.begin(), nodes_.end());
+			std::sort(nodes_.begin(), nodes_.end(), detail::node_ptr_sorter<node_type>());
 		}
 
 		void link(iterator source, value_type target)
@@ -177,11 +185,11 @@ namespace rlc
 
 		bool unlink(iterator source, iterator target)
 		{
-			bool rv = source.node().targets_.erase(std::find(source.node().targets_.begin(), source.node().targets_.end(), &(target.node()))) != source.node().targets_.end();
+			bool rv = source.node()->targets_.erase(std::find(source.node()->targets_.begin(), source.node()->targets_.end(), &(target.node()))) != source.node()->targets_.end();
 
 			// GCC 3.3 doesn't like it when I don't use a local variable for this functor..
 			detail::dag_node_dec_score_functor dag_node_dec_score_functor;
-			detail::dag_node_visitor<node_type, detail::dag_node_dec_score_functor, score_type>(dag_node_dec_score_functor, source.node().score_)(target.node());
+			detail::dag_node_visitor<node_type, detail::dag_node_dec_score_functor, score_type>(dag_node_dec_score_functor, source.node()->score_)(target.node());
 
 			std::sort(nodes_.begin(), nodes_.end());
 
@@ -218,10 +226,18 @@ namespace rlc
 
 		iterator erase(iterator where)
 		{
-			while (!where.node().targets_.empty())
-				unlink(where, *(where.node().targets_[0]));
+			while (!where.node()->targets_.empty())
+				unlink(where, *(where.node()->targets_[0]));
 			iterator remove = where++;
-			nodes_.erase(nodes_.begin(), nodes_.end(), std::find(remove.node()));
+			for (typename nodes_type::iterator iter = nodes_.begin(); iter != nodes_.end(); )
+			{
+				if (*iter == remove.node())
+				{
+					delete *iter;
+					iter = nodes_.erase(iter);
+				}
+				else ++iter;
+			}
 
 			return where;
 		}
@@ -236,7 +252,7 @@ namespace rlc
 		}
 		
 	private :
-		mutable std::vector< node_type > nodes_;
+		mutable nodes_type nodes_;
 	};
 }
 

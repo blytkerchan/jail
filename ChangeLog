@@ -1,3 +1,19 @@
+2005-10-18	blytkerchan
+bugfix: storing nodes in the dag's vector and taking a pointer to such a node
+invalidated the pointer when sorting
+	* dag.hpp: reflect above throughout the rlc::dag class
+	[dag::nodes_type]: new typedef
+	(~dag): new destructor
+	(insert): allocate the new node dynamically
+	(erase): delete previously allocated node
+
+2005-07-14	blytkerchan
+	* circular_reference_exception.hpp: new file
+	* dag_iterator.hpp: ditto
+	* dag_node.hpp: ditto
+	* scoped_flag.hpp: ditto
+	* visitors.hpp: ditto
+
 2005-07-15	blytkerchan
 	* Makefile [install]: add target
 
