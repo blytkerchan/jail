@@ -20,16 +20,15 @@ namespace rlc
 			dag_iterator_base(const IteratorType & i) : iter_(i) {}
 			dag_iterator_base(const iterator & i) : iter_(i.iter_) {}
 
-			ReferenceType operator*() const { return iter_->value_; }
-			PointerType operator->() const { return &(iter_->value_); }
+			ReferenceType operator*() const { return (*iter_)->value_; }
+			PointerType operator->() const { return &((*iter_)->value_); }
 
 			bool operator==(const dag_iterator_base & i) const { return iter_ == i.iter_; }
 			bool operator!=(const dag_iterator_base & i) const { return iter_ != i.iter_; }
 
-			const node_type & node() const { return *iter_; }
-			node_type & node() { return *iter_; }
+			const node_type * node() const { return *iter_; }
+			node_type * node() { return *iter_; }
 
-//		protected :
 			IteratorType iter_;
 		};
 
@@ -45,6 +44,9 @@ namespace rlc
 
 			dag_iterator & operator++() { ++(super::iter_); return *this; };
 			dag_iterator operator++(int) { dag_iterator tmp = *this; ++(super::iter_); return tmp; };
+
+			dag_iterator & operator--() { --(super::iter_); return *this; };
+			dag_iterator operator--(int) { dag_iterator tmp = *this; --(super::iter_); return tmp; };
 		};
 
 		template <class ValueType, typename ReferenceType, typename PointerType, typename ScoreType, typename IteratorType>
@@ -59,6 +61,9 @@ namespace rlc
 
 			dag_reverse_iterator & operator++() { ++(super::iter_); return *this; };
 			dag_reverse_iterator operator++(int) { dag_reverse_iterator tmp = *this; ++(super::iter_); return tmp; };
+
+			dag_reverse_iterator & operator--() { --(super::iter_); return *this; };
+			dag_reverse_iterator operator--(int) { dag_reverse_iterator tmp = *this; --(super::iter_); return tmp; };
 		};
 	}
 }

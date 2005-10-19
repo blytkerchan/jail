@@ -13,7 +13,7 @@ namespace rlc
 		struct dag_node_visitor_empty_functor
 		{
 			template <class NodeType, class DataType>
-			dag_node_visitor_empty_functor & operator()(NodeType & node, DataType & data)
+			dag_node_visitor_empty_functor & operator()(NodeType * node, DataType & data)
 			{
 				return *this;
 			}
@@ -27,9 +27,9 @@ namespace rlc
 		struct dag_node_inc_score_functor
 		{
 			template <class NodeType, class DataType>
-			dag_node_inc_score_functor & operator()(NodeType & node, DataType & data)
+			dag_node_inc_score_functor & operator()(NodeType * node, DataType & data)
 			{
-				node.score_ += data;
+				node->score_ += data;
 
 				return *this;
 			}
@@ -43,9 +43,9 @@ namespace rlc
 		struct dag_node_dec_score_functor
 		{
 			template <class NodeType, class DataType>
-			dag_node_dec_score_functor & operator()(NodeType & node, DataType & data)
+			dag_node_dec_score_functor & operator()(NodeType * node, DataType & data)
 			{
-				node.score_ -= data;
+				node->score_ -= data;
 
 				return *this;
 			}
@@ -69,24 +69,20 @@ namespace rlc
 			{
 			}
 			
-			dag_node_visitor & operator()(NodeType & node)
+			dag_node_visitor & operator()(NodeType * node)
 			{
-				if (node.flags_ & NodeType::VISITED)
+				if (node->flags_ & NodeType::VISITED)
 					throw circular_reference_exception();
 				if (binary_function_)
 					binary_function_(node, data_);
 				{
 					scoped_flag<NodeType> scoped_flag(node, NodeType::VISITED);
 					std::for_each(
-						node.targets_.begin(),
-						node.targets_.end(),
+						node->targets_.begin(),
+						node->targets_.end(),
 						*this);
 				}
 				return *this;
-			}
-			dag_node_visitor & operator()(NodeType * node)
-			{
-				return (*this)(*node);
 			}
 
 			BinaryFunction binary_function_;

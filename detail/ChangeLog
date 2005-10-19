@@ -1,3 +1,19 @@
+2005-10-18	blytkerchan
+bugfix: storing nodes in the dag's vector and taking a pointer to such a node
+invalidated the pointer when sorting
+	* node_ptr_sorter.hpp: new file
+	* dag_iterator.hpp: the vector's iterator now stores a pointer (as the
+	dag's vector now stores pointers). Reflect that.
+	make the iterators bidirectional
+	* dag_node.hpp [dag_node_value_cmp]: add operator() to compare node
+	pointers
+	[dag_node]: add typedef targets_type
+	* scoped_flag.hpp: work with node pointers
+	* visitors.hpp [dag_node_visitor_empty_functor]: ditto
+	[dag_node_inc_score_functor]: ditto
+	[dag_node_dec_score_functor]: ditto
+	[dag_node_visitor]: ditto
+
 2005-07-14	blytkerchan
 	* circular_reference_exception.hpp: new file
 	* dag_iterator.hpp: ditto

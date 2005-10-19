@@ -8,11 +8,11 @@ namespace rlc
 		template <class NodeType, typename FlagType = unsigned int>
 		struct scoped_flag
 		{
-			scoped_flag(NodeType & node, FlagType flag)
-				: node_(&node),
+			scoped_flag(NodeType * node, FlagType flag)
+				: node_(node),
 				  flag_(flag)
 			{
-				node.flags_ |= flag;
+				node->flags_ |= flag;
 			}
 
 			~scoped_flag()

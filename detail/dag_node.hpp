@@ -14,6 +14,7 @@ namespace rlc
 
 			bool operator()(const value_type & v) const { return val_ == v; }
 			bool operator()(const NodeType & n) const { return n.value_ == val_; }
+			bool operator()(const NodeType * n) const { return n->value_ == val_; }
 			
 			value_type val_;
 		};
@@ -23,6 +24,8 @@ namespace rlc
 		{
 			typedef ValueType value_type;
 			typedef ScoreType score_type;
+			typedef std::vector<dag_node*> targets_type;
+			
 			enum flag_type { VISITED = 1 };
 
 			dag_node(const ValueType & v)
@@ -37,7 +40,7 @@ namespace rlc
 				return score_ < n.score_;
 			}
 			
-			std::vector<dag_node*> targets_;
+			targets_type targets_;
 			ValueType value_;
 			ScoreType score_;
 			unsigned int flags_;
