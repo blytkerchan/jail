@@ -1,0 +1,8 @@
+2005-11-12	blytkerchan
+	* contract.c: new file
+	* contract.h: ditto
+	* exception.c: ditto
+	* exception.h: ditto
+	* instructions.c: ditto
+	* instructions.h: ditto
+	* registers.h: ditto
