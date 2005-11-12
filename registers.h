@@ -8,7 +8,8 @@ struct jailvm_registers_type
 	uint32_t r[8];	// general-purpose registers
 	uint16_t o[4];	// object registers
 	uint32_t a[4];	// address registers
-	uint32_t eip;
+	uint32_t ip;	// instruction pointer
+	uint32_t eip;	// exception instruction pointer
 };
 
 #endif

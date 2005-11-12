@@ -14,14 +14,14 @@ void jailvm_exception_handlers_init(void)
 
 void jailvm_invalid_opcode(jailvm_registers_t * registers)
 {
-	fprintf(stderr, "Invalid opcode at address 0x%.8x\n", registers->eip);
+	fprintf(stderr, "Invalid opcode at address 0x%.8x\n", registers->ip);
 	registers->eip = exception_handlers[JAILVM_EXCEPTION_INVALID_OPCODE];
 	longjmp(exception_jump, 1);
 }
 
 void jailvm_invalid_opparam(jailvm_registers_t * registers)
 {
-	fprintf(stderr, "Invalid opparam at address 0x%.8x\n", registers->eip + 1);
+	fprintf(stderr, "Invalid opparam at address 0x%.8x\n", registers->ip + 1);
 	registers->eip = jailvm_exception_handlers[JAILVM_EXCEPTION_INVALID_OPPARAM];
 	longjmp(exception_jump, 1);
 }

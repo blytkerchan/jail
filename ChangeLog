@@ -1,4 +1,7 @@
 2005-11-12	blytkerchan
+	* registers.h [jailvm_registers_type]: add ip field
+	* exceptions.c: reflect above
+
 	* contract.c: new file
 	* contract.h: ditto
 	* exception.c: ditto
