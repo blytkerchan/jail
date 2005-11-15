@@ -1,6 +1,29 @@
+2005-11-14	blytkerchan
+	* object.c: new file
+	* object.h: ditto
+	* contract.c (ins_pre_condition): add func param
+	(ins_post_condition): new function
+	(pre_condition): ditto
+	(post_condition): ditto
+	* contract.h: reflect above
+	* excepions.h [jailvm_exception_jump]: rename from exception_jump
+	* exception.c: reflect 	above
+	(jailvm_integer_underflow): new function
+	(jailvm_integer_overflow): ditto
+	(jailvm_access_violation): ditto
+	(jailvm_bad_alloc): ditto
+	* exception.h: reflect above
+	[JAILVM_EXCEPTION_INTEGER_UNDERFLOW]: new macro
+	[JAILVM_EXCEPTION_INTEGER_OVERFLOW]: ditto
+	[JAILVM_EXCEPTION_ACCESS_VIOLATION]: ditto
+	* instructions.c: Add several new instructions and documentation
+	* registers.h: add typedef for jailvm_object_t
+	[jailvm_registers_type]: comment out ``a'' field
+	add _o and _t fields
+
 2005-11-12	blytkerchan
 	* registers.h [jailvm_registers_type]: add ip field
-	* exceptions.c: reflect above
+	* exception.c: reflect above
 
 	* contract.c: new file
 	* contract.h: ditto
