@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 
+#define JAILVM_FLAGS_EXCEPTION		0x00000001
 typedef struct jailvm_object_type jailvm_object_t;
 struct jailvm_registers_type
 {
@@ -16,6 +17,8 @@ struct jailvm_registers_type
 	uint8_t* _t[4];			// whatever is loaded in (o[n] + a[n]) is pointer to by _t[n]
 	uint32_t ip;			// instruction pointer
 	uint32_t eip;			// exception instruction pointer
+	uint32_t flags;
+	jmp_buf jailvm_exception_jump;
 };
 
 #endif

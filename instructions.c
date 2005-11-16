@@ -117,9 +117,10 @@ static void Xor(jailvm_registers_t * registers, uint8_t param)
 /* Int instruction - thow an exception according to the parameter */
 static void Int(jailvm_registers_t * registers, uint8_t param)
 {
+	ins_pre_condition(registers, registers->flags & JAILVM_FLAGS_EXCEPTION == 0, jailvm_stacked_exception1);
 	registers->ip += 2; 
 	registers->eip = jailvm_exception_handlers[param];
-	longjmp(jailvm_exception_jump);
+	longjmp(registers->jailvm_exception_jump);
 }
 
 /* Load an object into the object register and nullify the corresponding address register */
@@ -140,3 +141,11 @@ static void Load(jailvm_registers_t * registers, uint8_t param)
 jailvm_instruction_func jailvm_instructions[] = {
 	Nop, Add, Sub, Mul, Div, And, Or, Xor, Int, Load
 };
+
+void jailvm_instruction_execute(jailvm_registers_t * registers, uint8_t opcode, uint8_t param)
+{
+	if (opcode >= sizeof(jailvm_instructions) / sizeof(jailvm_instruction_func))
+		jailvm_invalid_opcode(registers);
+	(jailvm_instructions[opcode])(registers, param);
+}
+
