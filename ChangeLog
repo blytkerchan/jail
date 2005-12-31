@@ -1,3 +1,6 @@
+2005-12-31	blytkerchan	adding a tentative interface for a tokenizer
+	* Tokenizer.h: new file
+
 2004-09-27	blytkerchan
 	* parse.y [IDENT_TK]: new token
 	[DOUBLE_COLON_TK]: ditto
