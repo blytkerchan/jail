@@ -78,5 +78,5 @@ msvc7-libmemory-root -d libmemory -l .
 msvc7-libmemory-project -d libmemory/project project
 msvc7-libmemory-libmemory -d libmemory/libmemory libmemory
 msvc7-libmemory-arch -d libmemory/arch arch/include
-msvc7-libmemory-libarch -d libmemory/arch arch/msvc7
+msvc7-libmemory-libarch -d libmemory/libarch arch/msvc7
 msvc7-libmemory -a msvc7-libmemory-root msvc7-libmemory-project msvc7-libmemory-libmemory msvc7-libmemory-arch msvc7-libmemory-libarch
