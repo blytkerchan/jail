@@ -34,7 +34,11 @@
 #ifndef _arch_fetch_and_add_h
 #define _arch_fetch_and_add_h
 
+#ifndef DONT_HAVE_STDINT_H
 #include <stdint.h>
+#else
+	typedef signed long int32_t;
+#endif
 
 int32_t fetch_and_add(volatile int32_t * val, int32_t add);
 

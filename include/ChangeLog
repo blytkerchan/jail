@@ -1,3 +1,10 @@
+2006-02-28	blytkerchan
+	* compare_and_exchange.h: modify to build on WOE32 with MSVC7
+	* decrement.h: ditto
+	* fetch_and_add.h: ditto
+	* increment.h: ditto
+	* set.h: ditto
+
 2004-09-13	blytkerchan
 	* set.h (atomic_set): remove
 	(atomic_set_ptr): new function

@@ -34,7 +34,11 @@
 #ifndef _COMPARE_AND_EXCHANGE_H
 #define _COMPARE_AND_EXCHANGE_H
 
+#ifndef DONT_HAVE_STDINT_H
 #include <stdint.h>
+#else
+	typedef signed long int32_t;
+#endif
 
 #ifdef __cplusplus
 extern "C" {

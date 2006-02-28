@@ -38,6 +38,12 @@
 extern "C" {
 #endif
 
+	#ifndef DONT_HAVE_STDINT_H
+#include <stdint.h>
+#else
+	typedef signed long int32_t;
+#endif
+
 void atomic_set_ptr(void * target, void * value);
 void atomic_set_int(int32_t * target, int32_t value);
 

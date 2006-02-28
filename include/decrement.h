@@ -38,7 +38,11 @@
 extern "C" {
 #endif
 
+#ifndef DONT_HAVE_STDINT_H
 #include <stdint.h>
+#else
+	typedef unsigned long uint32_t;
+#endif
 
 /* Atomically decrement *TARGET */
 void atomic_decrement(uint32_t * target);
