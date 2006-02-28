@@ -1,3 +1,9 @@
+2006-02-28	blytkerchan
+	* hptr.c: modify to build on WOE32 with MSVC7
+	* hptr.h: ditto
+	* smr.c: ditto
+	* smr.h: ditto
+
 2005-04-23	blytkerchan
 	* module.mk: add support for INSTALL_HEADERS
 

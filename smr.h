@@ -35,7 +35,12 @@
 #define _LIBMEMORY_SMR_H
 /* This is an implementation of M.M. Micheal's Safe memory Reclamation 
  * memory management method. */
+#ifndef DONT_HAVE_POSIX_THREADS
 #include <pthread.h>
+#endif
+#if BUILDING_FOR_WOE32
+#include <windows.h> // for TLS and DWORD
+#endif
 #include "hptr.h"
 
 typedef struct _smr_global_data_t
@@ -43,7 +48,12 @@ typedef struct _smr_global_data_t
 	unsigned int p;		// number of participating threads
 	unsigned int k;		// number of hazard pointers per thread
 
+#ifndef DONT_HAVE_POSIX_THREADS
 	pthread_key_t key;	// the key used for the thread-local data
+#endif
+#if BUILDING_FOR_WOE32
+	DWORD key;
+#endif
 
 	hptr_local_data_t * first;
 	hptr_local_data_t * last;

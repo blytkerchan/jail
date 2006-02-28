@@ -34,7 +34,9 @@
 #define SMR_NO_REPLACE
 #include "smr.h"
 #include <stdlib.h>
+#ifndef DONT_HAVE_UNISTD_H
 #include <unistd.h>
+#endif
 #include <string.h>
 #include "arch/increment.h"
 #include "arch/decrement.h"
@@ -49,11 +51,21 @@ static smr_private_data_t * smr_get_private_data(void)
 {
 	smr_private_data_t * retval;
 	
+#ifndef DONT_HAVE_POSIX_THREADS
 	retval = pthread_getspecific(smr_global_data->key);
+#endif
+#if BUILDING_FOR_WOE32
+	retval = TlsGetValue(smr_global_data->key);
+#endif
 	if (retval == NULL)
 	{
 		retval = (smr_private_data_t*)calloc(1, sizeof(smr_private_data_t));
+#ifndef DONT_HAVE_POSIX_THREADS
 		pthread_setspecific(smr_global_data->key, retval);
+#endif
+#if BUILDING_FOR_WOE32
+		TlsSetValue(smr_global_data->key, retval);
+#endif
 		retval->dcount = 0;
 		retval->dsize = (smr_global_data->k * smr_global_data->p) + 1;
 		retval->dlist = (void**)calloc(retval->dsize, sizeof(void*));
@@ -78,7 +90,12 @@ static void smr_cleanup_private_data(void * data)
 		if (priv->dcount)
 		{
 			// still queued for deletion - we'll have to wait a bit..
+#ifndef DONT_HAVE_STDSLEEP
 			sleep(0);
+#endif
+#if BUILDING_FOR_WOE32
+			Sleep(1);
+#endif
 		}
 	}
 	free(priv->dlist);
@@ -92,14 +109,28 @@ int smr_init(unsigned int n_hptr)
 	smr_global_data = (smr_global_data_t*)calloc(1, sizeof(smr_global_data_t));
 	smr_global_data->p = 1;
 	smr_global_data->k = n_hptr;  
+#ifndef DONT_HAVE_POSIX_THREADS
 	rv = pthread_key_create(&(smr_global_data->key), smr_cleanup_private_data);
+#endif
+#if BUILDING_FOR_WOE32
+	/* Windoze doesn't have the possibility to have a "destructor" called on 
+	* thread exit. If we're in a DLL, the DLL can take care of this for us. 
+	* If not, too bad! */
+	smr_global_data->key = TlsAlloc();
+	rv = 0;
+#endif
 	
 	return(rv ? -1 : 0);
 }
 
 void smr_fini(void)
 {
+#ifndef DONT_HAVE_POSIX_THREADS
 	pthread_key_delete(smr_global_data->key);
+#endif
+#if BUILDING_FOR_WOE32
+	TlsFree(smr_global_data->key);
+#endif
 	free(smr_global_data);
 }
 
@@ -247,12 +278,22 @@ static void smr_thread_cleanup(void)
 {
 	smr_private_data_t * priv;
 
+#ifndef DONT_HAVE_POSIX_THREADS
 	priv = pthread_getspecific(smr_global_data->key);
+#endif
+#if BUILDING_FOR_WOE32
+	priv = TlsGetValue(smr_global_data->key);
+#endif
 	if (priv != NULL)
 	{
 		smr_cleanup_private_data(priv);
 	}
+#ifndef DONT_HAVE_POSIX_THREADS
 	pthread_setspecific(smr_global_data->key, NULL);
+#endif
+#if BUILDING_FOR_WOE32
+	TlsSetValue(smr_global_data->key, NULL);
+#endif
 }
 
 int smr_thread_init(void)

@@ -59,7 +59,7 @@ hptr_global_data_t * hptr_global_data = NULL;
 // "next" field to be valid.
 static void smr_hptr_free_list_enq(hptr_local_data_t * data)
 {
-	int i;
+	unsigned int i;
 	hptr_local_data_t * exp;
 	hptr_local_data_t * ptr = NULL;
 	
@@ -194,13 +194,23 @@ static hptr_local_data_t * hptr_get_local_data(void)
 {
 	hptr_local_data_t * retval;
 
+#ifndef DONT_HAVE_POSIX_THREADS
 	retval = pthread_getspecific(hptr_global_data->key);
+#endif
+#if BUILDING_FOR_WOE32
+	retval = TlsGetValue(hptr_global_data->key);
+#endif
 	if (retval == NULL)
 	{
 		if ((retval = smr_hptr_free_list_deq()) == NULL)
 		{
 			retval = (hptr_local_data_t*)calloc(1, sizeof(hptr_local_data_t));
+#ifndef DONT_HAVE_POSIX_THREADS
 			pthread_setspecific(hptr_global_data->key, retval);
+#endif
+#if BUILDING_FOR_WOE32
+			TlsSetValue(hptr_global_data->key, retval);
+#endif
 			retval->hp = (void**)calloc(smr_global_data->k, sizeof(void*));
 		}
 		hptr_register_local_data(retval);
@@ -245,7 +255,12 @@ try_again:
 int hptr_init(void)
 {
 	hptr_global_data = (hptr_global_data_t *)calloc(1, sizeof(hptr_global_data_t));
+#ifndef DONT_HAVE_POSIX_THREADS
 	pthread_key_create(&(hptr_global_data->key), hptr_cleanup_local_data);
+#endif
+#if BUILDING_FOR_WOE32
+	hptr_global_data->key = TlsAlloc();
+#endif
 
 	return(0);
 }

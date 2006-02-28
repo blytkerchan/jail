@@ -34,11 +34,25 @@
 #ifndef _LIBMEMORY_HPTR_H
 #define _LIBMEMORY_HPTR_H
 
+#ifndef DONT_HAVE_STDINT_H
 #include <stdint.h>
+#else
+	typedef signed long int32_t;
+#endif
+#if BUILDING_FOR_WOE32
+#include <windows.h>
+#endif
 
 typedef struct _hptr_global_data_t
 {
+#ifndef DONT_HAVE_POSIX_THREADS
 	pthread_key_t key;
+#else
+#if BUILDING_FOR_WOE32
+	DWORD key;
+#endif
+	int i;
+#endif
 } hptr_global_data_t;
 
 typedef struct _hptr_local_data_t
