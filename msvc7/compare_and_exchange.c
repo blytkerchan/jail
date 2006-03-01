@@ -35,7 +35,7 @@
 
 int compare_and_exchange_int(int32_t * exp_ptr, volatile int32_t * tar_ptr, int32_t src_ptr)
 {
-	int retval = 1;
+	int retval = 0;
 
 	__asm mov eax, DWORD PTR [exp_ptr]
 	__asm mov ebx, DWORD PTR [eax]
@@ -46,7 +46,7 @@ int compare_and_exchange_int(int32_t * exp_ptr, volatile int32_t * tar_ptr, int3
 	__asm jz done
 	__asm mov ebx, DWORD PTR [exp_ptr]
 	__asm mov DWORD PTR [ebx], eax
-	__asm mov retval, 0
+	__asm mov retval, -1
 done :
 
 	return retval;
@@ -54,7 +54,7 @@ done :
 
 int compare_and_exchange_ptr(void * exp_ptr, volatile void * tar_ptr, const void * src_ptr)
 {
-	int retval = 1;
+	int retval = 0;
 
 	__asm mov eax, DWORD PTR [exp_ptr]
 	__asm mov ebx, DWORD PTR [eax]
@@ -65,7 +65,7 @@ int compare_and_exchange_ptr(void * exp_ptr, volatile void * tar_ptr, const void
 	__asm jz done
 	__asm mov ebx, DWORD PTR [exp_ptr]
 	__asm mov DWORD PTR [ebx], eax
-	__asm mov retval, 0
+	__asm mov retval, -1
 done :
 
 	return retval;
