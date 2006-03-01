@@ -68,7 +68,7 @@ static smr_private_data_t * smr_get_private_data(void)
 #endif
 		retval->dcount = 0;
 		retval->dsize = (smr_global_data->k * smr_global_data->p) + 1;
-		retval->dlist = (void**)calloc(retval->dsize, sizeof(void*));
+		retval->dlist = calloc(retval->dsize, sizeof(smr_dlist_entry_t));
 	}
 	
 	return retval;
@@ -102,11 +102,19 @@ static void smr_cleanup_private_data(void * data)
 	free(data);
 }
 
-int smr_init(unsigned int n_hptr)
+int smr_init(smr_alloc_func_t alloc_func, smr_dealloc_func_t dealloc_func, unsigned int n_hptr)
 {
 	int rv;
 	
 	smr_global_data = (smr_global_data_t*)calloc(1, sizeof(smr_global_data_t));
+	if (alloc_func)
+        smr_global_data->alloc_func = alloc_func;
+	else
+		smr_global_data->alloc_func = malloc;
+	if (dealloc_func)
+		smr_global_data->dealloc_func = dealloc_func;
+	else
+		smr_global_data->dealloc_func = free;
 	smr_global_data->p = 1;
 	smr_global_data->k = n_hptr;  
 #ifndef DONT_HAVE_POSIX_THREADS
@@ -134,15 +142,17 @@ void smr_fini(void)
 	free(smr_global_data);
 }
 
-/* This version of malloc has nothing to do with SMR, but fixes a common problem
- * with native malloc() implementations */
 void * smr_malloc(size_t size)
 {
 	if (size > 0)
-		return malloc(size);
+		return smr_global_data->alloc_func(size);
 	else
-		return malloc(1);
+		return smr_global_data->alloc_func(1);
 }
+
+void smr_register(void * ptr)
+{ /* no-op: nothing to do here */ }
+
 
 static int smr_qsort_helper(const void * ptr1, const void * ptr2)
 {
@@ -194,7 +204,7 @@ static void smr_scan_worker(smr_private_data_t * priv_data)
 	unsigned int i, p, new_dcount;
 	void * hptr;
 	void ** plist = NULL;
-	void ** new_dlist;
+	smr_dlist_entry_t * new_dlist;
 	hptr_local_data_t * hptr_data;
 	hptr_local_data_t * next;
 	unsigned int R;
@@ -206,7 +216,7 @@ smr_scan_worker_start:
 	p = new_dcount = 0;
 	plist = (void**)realloc(plist, R * sizeof(void*));
 	memset(plist, 0, R * sizeof(void*));
-	new_dlist = (void**)calloc(new_dsize, sizeof(void*));
+	new_dlist = calloc(new_dsize, sizeof(smr_dlist_entry_t));
 		
 	// stage 1
 	hptr_data = smr_global_data->first;
@@ -238,13 +248,26 @@ smr_scan_worker_start:
 	// stage 3
 	for (i = 0; i < priv_data->dsize; i++)
 	{
-		if (smr_binary_search(plist, p, priv_data->dlist[i]) != ~0)
+		if (smr_binary_search(plist, p, priv_data->dlist[i].ptr) != ~0)
 		{
-			if (priv_data->dlist[i]) // don't re-queue NULL
-				new_dlist[new_dcount++] = priv_data->dlist[i];
+			if (priv_data->dlist[i].ptr) // don't re-queue NULL
+			{
+				new_dlist[new_dcount++].dealloc_func = priv_data->dlist[i].dealloc_func;
+				new_dlist[new_dcount++].ptr = priv_data->dlist[i].ptr;
+			}
+		}
+		else if (priv_data->dlist[i].dealloc_func)
+		{
+			priv_data->dlist[i].dealloc_func(priv_data->dlist[i].ptr);
+			priv_data->dlist[i].ptr = 0;
+			priv_data->dlist[i].dealloc_func = 0;
 		}
 		else
-			free(priv_data->dlist[i]);
+		{ /* nothing to do: there is no de-allocator function and the 
+		   * pointer wasn't found in the list of pointers to which 
+		   * there are still hazardous references. If the pointer points 
+		   * anything, there is no way for us to free that memory
+		   * safely.. */ }
 	}
 	
 	// stage 4
@@ -267,9 +290,16 @@ void smr_scan(void)
 
 void smr_free(void * ptr)
 {
+	smr_dealloc(smr_global_data->dealloc_func, ptr);
+}
+
+void smr_dealloc(smr_dealloc_func_t dealloc_func, void * ptr)
+{
 	smr_private_data_t * priv_data;
 	priv_data = smr_get_private_data();
-	priv_data->dlist[priv_data->dcount++] = ptr;
+	priv_data->dlist[priv_data->dcount].dealloc_func = dealloc_func;
+	priv_data->dlist[priv_data->dcount].ptr = ptr;
+	priv_data->dcount++;
 	if (priv_data->dcount >= priv_data->dsize)
 		smr_scan();
 }

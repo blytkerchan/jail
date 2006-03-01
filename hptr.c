@@ -146,12 +146,20 @@ static hptr_local_data_t * smr_hptr_free_list_deq(void)
 	do
 	{
 		retval = smr_global_data->free;
-		next = retval->next;
+		if (retval != NULL)
+			next = retval->next;
+		else
+			next = NULL;
 	} while (compare_and_exchange_ptr(&retval, &(smr_global_data->free), next) != 0);
 
-	// we now have ownership of retval.
-	retval->next = NULL;
-	retval->flag = 0;
+	// we now have ownership of retval - if there is anything there
+	if (retval != NULL)
+	{
+		retval->next = NULL;
+		retval->flag = 0;
+	}
+	else
+	{ /* there was nothing there */ }
 	
 	return retval;
 }

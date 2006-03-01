@@ -1,3 +1,15 @@
+2006-03-01	blytkerchan
+	* smr.h [smr_alloc_func_t]: new type
+	[smr_dealloc_func_t]: ditto
+	[smr_dlist_entry_t]: ditto
+	[struct _smr_global_data_t]: add fields alloc_func and dealloc_func
+	[struct _smr_private_data_t]: change type of dlist field to an array of smr_dlist_entry_t
+	(smr_init): two new parameters: alloc_func and dealloc_func
+	(smr_register): new function
+	(smr_dealloc): ditto
+	* smr.c: reflect above
+	* hptr.c (smr_hptr_free_list_deq): handle emptry free lists
+
 2006-02-28	blytkerchan
 	* hptr.c: modify to build on WOE32 with MSVC7
 	* hptr.h: ditto

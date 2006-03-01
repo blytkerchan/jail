@@ -43,8 +43,14 @@
 #endif
 #include "hptr.h"
 
+typedef void * (*smr_alloc_func_t)(size_t size);
+typedef void (*smr_dealloc_func_t)(void *);
+
 typedef struct _smr_global_data_t
 {
+	smr_alloc_func_t alloc_func;
+	smr_dealloc_func_t dealloc_func;
+
 	unsigned int p;		// number of participating threads
 	unsigned int k;		// number of hazard pointers per thread
 
@@ -60,14 +66,21 @@ typedef struct _smr_global_data_t
 	hptr_local_data_t * free;
 } smr_global_data_t;
 
+typedef struct _smr_dlist_entry_t
+{
+	smr_dealloc_func_t dealloc_func;
+	void * ptr;
+} smr_dlist_entry_t;
+
 typedef struct _smr_private_data_t
 {
 	unsigned int dcount;	// the number of pointers queued for destruction
-	void ** dlist;		// the pointers queued for destruction
+	smr_dlist_entry_t * dlist;		// the pointers queued for destruction
 	unsigned int dsize;	// size of the dlist in number of pointers
 } smr_private_data_t;
 
-int smr_init(unsigned int n_hptr);
+/* Initialize and configure the SMR implementation */
+int smr_init(smr_alloc_func_t alloc_func, smr_dealloc_func_t dealloc_func, unsigned int n_hptr);
 
 /* Call this function at the start of every thread (or suffer the consequences)
  */
@@ -83,8 +96,14 @@ void smr_fini(void);
 /* Allocate a chunk of SIZE bytes */
 void * smr_malloc(size_t size);
 
+/* Register a chunk of memory for use with SMR */
+void smr_register(void * ptr);
+
 /* Free a chunk of memory, safely */
 void smr_free(void * ptr);
+
+/* Free a chunk of memory safely, using a given function to do it when the time comes to do the actual de-allocation */
+void smr_dealloc(smr_dealloc_func_t dealloc_func, void * ptr);
 
 #ifndef SMR_NO_REPLACE
 #define free smr_free
