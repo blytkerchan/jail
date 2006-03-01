@@ -1,3 +1,6 @@
+2006-03-01	blytkerchan
+	* list_node.c (list_node_find): call list_node_free in stead of free to free a current node
+	
 2004-04-28	blytkerchan
 	* list.c: remove duplicate definition of list_empty
 

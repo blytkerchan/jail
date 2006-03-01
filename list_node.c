@@ -99,7 +99,7 @@ try_again:
 		else
 		{
 			if (compare_and_exchange_ptr(&(state->curr), &(state->prev->next), state->next) == 0)
-				free(state->curr);
+				list_node_free(state->curr);
 			else goto try_again;
 		}
 		state->curr = state->next;
