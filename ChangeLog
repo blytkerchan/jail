@@ -1,3 +1,7 @@
+2006-07-26	blytkerchan
+	* avail: add Charles Tremblay to the ACL for libmemory
+	remove stale entries
+
 2005-03-03	blytkerchan
 	* modules: new module work-libmemory
 
