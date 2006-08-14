@@ -36,15 +36,45 @@
 
 namespace Visitors
 {
+	//! Traits of a subject to be visited
+	/** This class defines how to interact with a subject to be visited
+	 * by the Visitor. By default, the subject's base class is the class
+	 * itself, the node to which it is linked is the class itself as
+	 * well and the data the visitor contains for it is a simple integer
+	 * (because we can't store a void). This is probably not what you want -
+	 * especially if you want the non-intrusive option of having the
+	 * acceptance of a visitor done by something other than the subject, so
+	 * you can specialize this class to your heart's content, as long as 
+	 * you provide the same typedefs and methods. 
+	 * \param Subject the type of the subject
+	 * \param Visitor the type of the visitor */
 	template < typename Subject, typename Visitor >
 	struct SubjectTraits
 	{
+		//! Type of the data stored in the visitor
 		typedef int Data;
+		//! Type of the base class of all subjects
 		typedef Subject Base;
+		//! Type of the hierarchy nodes that link the subjects
 		typedef Subject Node;
 
-		static void accept( Subject * subject, Visitor * visitor, typename Visitor::Visit visit ) { subject->accept(visitor, visit); }
+		/** \brief Called when the visitor wants to be accepted by the subject
+		 * \param subject the subject to visit
+		 * \param visitor the visitor to be accepted */
+		static void accept( Subject * subject, Visitor * visitor ) { subject->accept(visitor); }
+		/** \brief get the node corresponding to the given subject base
+		 * In order to traverse the hierarchy, the visitor needs to
+		 * get the nodes that link the subjects together. This method
+		 * get ssuch a node from the base class of a subject.
+		 * \param base base to get the node from 
+		 * \returns a pointer to the node */
 		static Node * getNode(Base * base) { return base; }
+		/** \brief get the subject corresponding to a node
+		 * Once the next node to visit has been found, the Visitor
+		 * needs to have the subject that belongs to that node in
+		 * order to visit it
+		 * \param node the node to get the subject from
+		 * \returns the subject */
 		static Base * getSubject(Node * node) { return node; }
 	};
 }

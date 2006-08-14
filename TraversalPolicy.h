@@ -36,26 +36,38 @@
 
 namespace Visitors
 {
+	//! Traversal policy for a DOM-like hierarchy
+	/** This class is here more as an example than anything else. It provides
+	 * a means of traversing a DOM-like hierarchy of nodes in which the
+	 * subject of the visit is linked to a node that has a getFirstChild,
+	 * getNextSibling and a getParent accessor.
+	 * \param Subject_ the type of the subject */
 	template < typename Subject_ >
 	class TraversalPolicy
 	{
 	public :
 		typedef typename SubjectTraits< Subject_ >::Base SubjectBase;
 		typedef typename SubjectTraits< Subject_ >::Node SubjectNode;
-		
-		SubjectBase * getNext(SubjectBase * base)
+	
+		//! Called to find out which is the next subject to visit
+		/** The Visitor calls this method to find out which is the next 
+		 * subject to visit. It should return 0 if the visit is over
+		 * after the current node
+		 * \param base current subject
+		 * \returns the next subject to visit or 0 if none */
+		static SubjectBase * getNext(SubjectBase * base)
 		{
 			SubjectNode * node( SubjectTraits< Subject_ >::getNode(base) );
 			SubjectNode * retval(node->getFirstChild());
 			if (!retval)
 			{
-				retval = node->getNextCibling();
+				retval = node->getNextSibling();
 				if (!retval)
 				{
 					SubjectNode * parent(node->getParent());
 					while (!retval && parent)
 					{
-						retval = parent->getNextCibling();
+						retval = parent->getNextSibling();
 						parent = parent->getParent();
 					}
 				}
