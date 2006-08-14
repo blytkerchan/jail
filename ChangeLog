@@ -1,0 +1,7 @@
+2006-08-13	blytkerchan
+	* SubjectTraits.h: new file
+	* TraversalPolicy.h: ditto
+	* Visitor.h: ditto
+	* VisitorTraits.h: ditto
+	* documentation.hpp: ditto
+
