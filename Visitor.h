@@ -39,6 +39,30 @@
 
 namespace Visitors
 {
+	//! The Visitor class
+	/** This class wraps the traits and policy together to make them into
+	 * a functional implementation of the Visitor pattern. Normally, you'd
+	 * want to use it like this:
+	 * \code
+	 * typedef Visitor< MySubject, MyTraversalPolicy > MyVisitor;
+	 * ...
+	 * void foo()
+	 * {
+	 * 	...
+	 * 	MyVisitor my_visitor;
+	 * 	my_visitor.setData(my_data);
+	 * 	my_visitor.visit(root_node_of_my_hierarchy);
+	 * 	// now get anything the visitor may have found during its visit..
+	 * }
+	 * \endcode
+	 * \param Subject_ the type of the subject to visit (note: this is
+	 *        the only type the visitor will actually visit. Any nodes
+	 *        of any different type will not be called upon to accept 
+	 *        the visitor)
+	 * \param TraversalPolicy_ a policy class that determines how the
+	 *        the next node to visit is determined - i.e. how to traverse
+	 *        the hierarchy
+	 * */
 	template <
 		typename Subject_,
 		template < typename > TraversalPolicy_ = TraversalPolicy >
@@ -47,12 +71,22 @@ namespace Visitors
 	public :
 		typedef Subject_ Subject;
 		
+		//! Get the data transported by the visitor
+		//! \returns the data transported by the visitor. The type of this data is determined by the SubjectTraits specialization
 		SubjectTraits< Subject >::Data getData() const { return data_; }
-		void setData( const SubjectTraits< Subject >::Data & data ) { data_ = data; }
+		//! Set the data transported by the visitor
+		//! \param data the data to be transported by the visitor.
+		void setData( SubjectTraits< Subject >::Data data ) { data_ = data; }
 
+		//! Visit a given node
+		//! \param subject first node to visit
 		void visit(SubjectTraits< Subject >::Base * subject)
 		{ VisitorTraits< Visitor< Subject_, TraversalPolicy_ > >::visit(subject, visitor); }
 	private :
+		//! The data transported by the visitor
+		/** The visitor can accumulate and/or transport data during 
+		 * its visit. This field holds that data and the getData and
+		 * setData methods allow access to it. */
 		SubjectTraits< Subject >::Data data_;
 	};
 }

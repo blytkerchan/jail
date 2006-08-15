@@ -36,11 +36,20 @@
 
 namespace Visitors
 {
+	//! Traits of a visitor
+	/** By specializing this class, you can change how the visitor determines
+	 * whether or not to visit a node and how it visits that node. Normally,
+	 * though, you'll want to specialize SubjectTraits rather than VisitorTraits
+	 * to alter the visitor's behavior.
+	 * \param Visitor_ the type of the visitor */
 	template < typename Visitor_ >
 	struct VisitorTraits
 	{
 		typedef Visitor_ Visitor;
 
+		//! Have a visitor visit a given subject
+		/** \param visitor the visitor
+		 * \param subject the subject to visit */
 		static void visit( Visitor * visitor, typename SubjectTraits< Visitor::Subject >::Base * subject )
 		{
 			bool perform_visit(false);
