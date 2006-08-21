@@ -1,0 +1,7 @@
+2006-08-20	blytkerchan
+	* Expression.h: new file
+	* ExpressionOrIdentifier.h: ditto
+	* Identifier.h: ditto
+	* Node.h: ditto
+	* Operator.h: ditto
+
