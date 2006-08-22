@@ -31,46 +31,41 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
-#include "Node.h"
+#include "ExpressionOrIdentifier.h"
+#include "Operator.h"
 
 namespace Jail
 {
 	namespace Tree
 	{
-		class Identifier;
-		class Operator;
-		class Type;
+		Expression::Expression(Operator * oper, Identifier * lhs, Identifier * rhs = 0)
+			: operator_(oper),
+			  lhs_(lhs),
+			  rhs_(rhs)
+		{ /* no-op */ }
 		
-		//! Node modeling an expression
-		/** An expression is a note with one or two identifiers and an operator
-		 * as children and a return type. If the operator is unary, there is only
-		 * one identifier. Otherwise, there are two. The return type of the
-		 * expression depends on the operator used. Hence, the Expression class
-		 * basically only wraps the Operator and Identifier instances together.
-		 * However, the Expression can also be compound - i.e. link together
-		 * (with an operator) an identifier with an expression, and expression
-		 * with an identifier, or two expressions. In that case, the operator
-		 * cannot be unary. */
-		class Expression : public Node
-		{
-		public :
-			//! Build an expression from an operator and one or two identifiers
-			Expression(Operator * oper, Identifier * lhs, Identifier * rhs = 0);
-			//! Build an expression from an operator, an identifier and an expression
-			Expression(Operator * oper, Identifier * lhs, Expression * rhs);
-			//! Build an expression from an operator, an expression and an identifiers
-			Expression(Operator * oper, Expression * lhs, Identifier * rhs);
-			///! Build an expression from an operator and two expressions
-			Expression(Operator * oper, Expression * lhs, Expression * rhs);
-			//! Get the return type of the expression
-			Type * getType() const;
+		Expression::Expression(Operator * oper, Identifier * lhs, Expression * rhs)
+			: operator_(oper),
+			  lhs_(lhs),
+			  rhs_(rhs)
+		{ /* no-op */ }
+		
+		Expression::Expression(Operator * oper, Expression * lhs, Identifier * rhs);
+			: operator_(oper),
+			  lhs_(lhs),
+			  rhs_(rhs)
+		{ /* no-op */ }
 			
-		private :
-			Type * type_;
-			Operator * operator_;
-			ExpressionOrIdentifier * lhs_;
-			ExpressionOrIdentifier * rhs_;
-		};
+		Expression::Expression(Operator * oper, Expression * lhs, Expression * rhs);
+			: operator_(oper),
+			  lhs_(lhs),
+			  rhs_(rhs)
+		{ /* no-op */ }
+
+		Type * Expression::getType() const
+		{
+			return operator_->getReturnType();
+		}
 	}
 }
 

@@ -41,15 +41,73 @@ namespace Jail
 		/** An operator binds together one or two expressions (or
 		 * identifiers), depending on whether the operator is unary 
 		 * or not. In any case, it corresponds to either a built-in
-		 * operator or a function that overloads the operator. */
+		 * operator or a function that overloads the operator.
+		 * An operator can have one of two states: either it is resolved,
+		 * or it isn't. If it's resolved, we know whether we should use
+		 * a built-in operator or an overloaded function and we hold a
+		 * pointer to it. If not resolved, the pointer is 0 */
 		class Operator : public Node
 		{
 		public :
-			Type * getType() const { return type_; }
+			enum OperatorType {
+				//! (^) left-hand-side raised to the power of the right-hand-side
+				power,
+				//! (*) left-hand-side multiplied by the right-hand-side
+				multiply,
+				//! (/) left-hand-side divided by the right-hand-side
+				divide,
+				//! (%) remainder of the left-hand-side divided by the right-hand-side
+				module,
+				//! (+) right-hand-side added to the left-hand-side
+				add,
+				//! (-) right-hand-side substracted from the left-hand-side
+				substract,
+				//! (:=) right-hand-side assigned to the left-hand-side
+				assign,
+				//! (++x) left-hand-side incremented, incremented result returned
+				pre_increment,
+				//! (x++) left-hand-side incremented, result before incrementation returned
+				post_increment,
+				//! (--x) left-hand-side decremented, decremented result returned
+				pre_decrement,
+				//! (x--) left-hand-side decremented, result before decrementation returned
+				post_decrement,
+				//! (!x) logical negation of left-hand-side returned, left-hand-side unchanged
+				logical_negate,
+				//! (==) true if left-hand-side and right-hand-side are equal
+				equality,
+				//! (===) true if left-hand-side and right-hand-side are the same object
+				same,
+				//! (!=) true if left-hand-side and right-hand-side are unequal
+				inequality,
+				//! (!==) true if left-hand-side and right-hand-side are the not same object
+				not_same,
+				//! (<=) true if left-hand-side is less than or equal to the right-hand-side
+				less_than_or_equal,
+				//! (<) true if left-hand-side is less than the right-hand-side
+				less_than,
+				//! (>=) true if left-hand-side is greater than or equal to the right-hand-side
+				greater_than_or_equal,
+				//! (>) true if left-hand-side is greater than the right-hand-side
+				greater_than
+			};
+			enum OperatorAssociation {
+				//! left-to-right association (ex: any ary operator that does not assign)
+				left_to_right,
+				//! right-to-left association (ex: all unary operatos and the assignment operator (:=) )
+				right_to_left
+			};
+			
+			OperatorType getType() const;
+			Type * getReturnType() const { return type_; }
 			bool unary() const;
+			bool resolved() const;
+
 		private :
 			Type * type_;
 		};
+
+		bool operator<(const Operator & oper1, const Operator & oper2);
 	}
 }
 

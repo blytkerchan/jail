@@ -37,17 +37,32 @@ namespace Jail
 	{
 		class Expression;
 		class Identifier;
-		
+	
+		//! Wrapper class around an expression or an identifier
+		/** In some cases, expressions and identifiers may be inter-
+		 * changeable as both may appear in the same place in the
+		 * parse tree. In those cases, you can use this class as a
+		 * place-holder for either.
+		 * This class has no mutators - only constructors and accessors.
+		 * This is by design: you cannot create an instance of this
+		 * class without knowing what you're going to put in it and
+		 * you can't change its contents afterwards. */
 		class ExpressionOrIdentifier
 		{
 		public :
+			//! Construct from an expression
 			ExpressionOrIdentifier(Expression * expression) : expression_(expression), identifier_(0) {}
+			//! Construct from an identifier
 			ExpressionOrIdentifier(Identifier * identifier) : expression_(0), identifier_(identifier) {}
 
+			//! Returns true if it holds an expression
 			bool isExpression() const { return expression_ != 0; }
+			//! Returns true if it holds an identifier
 			bool isIdentifier() const { return identifier_ != 0; }
 
+			//! Returns the expression, or 0 if none
 			Expression * getExpression() { return expression_; }
+			//! Returns the identifier, or 0 if none
 			Identifier * getIdentifier() { return identifier_; }
 
 		private :
