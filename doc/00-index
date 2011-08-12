@@ -1,0 +1,19 @@
+PLEASE NOTE: none of the material in this directory is covered by the Jail
+license. It is only here for reference by the developers of the Jail-ust
+project and should not be used by anyone else.
+
+00-index		this file
+1996_PODC_queues.pdf	Article on shared queues by Micheal and Scott
+24319101.pdf		i486 instruction reference, downloaded from 
+			http://developer.intel.com/design/pentium/manuals/24319101.pdf
+auug97.pdf		Article on (non-)recursive Makefiles
+disc-2004.pdf		Practical Lock-Free and Wait-Free LL/SC/VL 
+			Implementations Using 64-bit CAS
+europar-2003.pdf	CAS-Based Lock-Free Algorithm for Shared Deques
+ChangeLog		change log for this directory
+lock-free_lists.pdf	An article on lock-free lists and hashes that may be 
+			very useful - YA file that is not covered under the 
+			Jail license - i.e. it is here for "educational" 
+			purposes only and is not to be used for anything 
+			intended to be profitable..
+links.html		HTML page for interesting links to internet sites 

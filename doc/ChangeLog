@@ -1,0 +1,48 @@
+2005-02-23	blytkerchan	add new article
+	* disc-2004.pdf: new file
+	* 00-index: update
+
+add new article
+	* europar-2003.pdf: new file
+	* 00-index: update
+
+2004-09-23	blytkerchan	update instruction reference
+	* 24319101.pdf: remove
+	* 25366714.pdf: new file
+	* 25366614.pdf: ditto
+
+2004-08-11	blytkerchan
+	* links.html: add link to Joe Seigh's atomic_ptr
+
+2004-07-19	blytkerchan
+	* auug97.pdf: new file
+	* 00-index: update
+
+2004-07-15	blytkerchan
+	* links.html: add two links to memory management related articles
+
+2004-05-05	blytkerchan
+	* 00-index: make it clearer that the documents here are not under Jail licence
+
+2003-02-20	blytkerchan
+	* podc-2002.pdf: new file
+
+2003-12-11	blytkerchan
+	* links.html: add new link
+
+2003-11-16	blytkerchan
+	* 1996_PODC_queues.pdf: new file
+	* 00-index: update
+
+2003-10-30	blytkerchan
+	* links.html: new file
+	* 00-index: update
+
+2003-10-23	blytkerchan
+	* lock-free_lists.pdf: new file
+	* 00-index: updated
+
+2003-10-10	blytkerchan
+	* 00-index: new file
+	* 24319101.pdf: ditto
+
