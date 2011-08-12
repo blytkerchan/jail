@@ -1,0 +1,15 @@
+2006-08-14	blytkerchan
+	* Visitor.h: add documentation
+	* VisitorTraits.h: ditto
+
+	* documentation.hpp: add documentation
+	* SubjectTraits.h: ditto
+	* TraversalPolicy.h: ditto
+
+2006-08-13	blytkerchan
+	* SubjectTraits.h: new file
+	* TraversalPolicy.h: ditto
+	* Visitor.h: ditto
+	* VisitorTraits.h: ditto
+	* documentation.hpp: ditto
+
