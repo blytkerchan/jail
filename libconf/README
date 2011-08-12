@@ -1,0 +1,71 @@
+The libconf library will manage the configuration of the Justice platform 
+(in which Justice means "Jail Uses Silly Terms In Common Expressions").
+It is to be used by each element of the toolchain to handle the configuration,
+such as default paths, version information, etc.
+
+There are two distinct implementations of libconf: one UNIX and one Windows.
+This is basically because the way configurations are handled on UNIX platforms
+is very different to the way they are handled on Windows: Windows has a single
+registry database which contains most configuration information that concerns
+the programs on the platform, whereas UNIX puts that information in text files
+in the /etc/ directory. The windows implementation is in the woe32 directory,
+whereas the unix implementation is in the posix directory.
+
+Implementation details
+======================
+The configuration is parsed in four phases:
+
+phase 1: read and parse the command-line options.
+--------
+  For this, we need to know the command-line options first. 
+  Each command-line option is described by the libconf_cmdline_opt_t 
+structure. For this structure, the co_short_opt field is optional and may be 0 
+(in which case there is no short option) as is the co_long_opt field, which may
+be NULL (in which case there is no long option).
+  There are some implied long and short options:
+  -C	--config	expects a filename, which should point to a local 
+  			configuration file to use in stead of the default
+  -G	--global-config	expects "yes" or "no". If it's "no", the global 
+  			configuration file will not be parsed; if it is "yes" 
+			(or something other than "no") it will be parsed. If 
+			it is something other than "yes" or "no", a warning 
+			will be emitted.
+  -v	--verbose	be verbose - sets a global variable (int) verbose to 1
+                        unless this variable doesn't exist (compile-time option)
+  -h	--help		display a help screen to stdout.
+  If there are any errors on the command-line, a help screen will be shown and
+the program will exit with code 1.
+  For each option, a help text can be supplied, which will be wrapped and 
+formatted for the screen when the help screen is requested (either by the 
+--help option or by an error on the command-line).
+
+phase 2: read and parse the global defaults
+-------
+  For this phase, the library needs to know the defaults of all the options 
+it may find in the configuration files and/or on the command-line. The names
+of the command-line options should be the same as the names in the configuration
+files (but do not necessarilly have to be the long options, which are optional).
+  In this phase, those defaults are set to be the actual values, which will then
+be overridden with the global, local and command-line options, in that order.
+
+phase 3: read and parse the global configuration
+-------
+  This is the first phase where the POSIX and woe32 implementations differ: the
+POSIX version parses a file normally located in /etc (the exact filename should
+be given to the function libconf_init), whereas the woe32 version searches the
+configuration information in the registry.
+  The values that are found (wherever they are found) override the global 
+defaults set in phase 2.
+
+phase 4: read and parse the local configuration
+-------
+  This is the second phase where the POSIX and woe32 implementations differ: 
+the POSIX version always parses a while, normally located in a directory under
+the home directory, whereas the woe32 version searches in the registry again.
+Both can be overridden to read a file with the -C option, though.
+
+phase 5: override the configuration with the command-line options
+-------
+  In this phase, no parsing is done, but the values aquired earlier are 
+overridden with the ones found on the command-line.
+

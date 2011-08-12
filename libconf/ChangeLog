@@ -1,0 +1,175 @@
+2005-04-23	blytkerchan
+	* module.mk [INSTALL_HEADERS]: bugfix
+
+	* module.ml: add support for INSTALL_HEADERS
+
+2004-10-20	blytkerchan
+	* libconf.c: include libcontain/hash_helpers.h
+	(libconf_init): update calls to hash_new
+
+2004-10-18	blytkerchan
+	* libconf_config.h: new file, temporary addition
+	* libconf.c: search for libconf_config.h locally
+	include libcontain/hash.h
+	use vector in stead of array
+	* libconf.h: include libcontain/vector.h in stead of
+	libcontain/array.h
+	use vector in stead of array throughout
+	(libconf_optconst): constify argument
+	* libconf_opt.c: reflect above changes
+	* libconf_optparam.c: ditto
+	
+	* module.mk: new file
+
+	* Makefile.am: remove
+	* configure.ac: ditto
+	* bootstrap : ditto
+
+2004-05-11	blytkerchan
+	* Makefile.am [SUBDIRS]: include libmemory
+	* bootstrap: bootstrap libmemory
+	* configure.ac: require autoconf 2.57 and up, not 2.59 and up
+	configure libmemory
+	* libconf.c (libconf_init): s/new_hash/hash_new/g
+	(libconf_fini_helper): constify parameters, cast to compensate
+	(libconf_fini): s/delete_hash/hash_free/g
+	(libconf_phase5_helper): constify parameters
+	* libconf_optparam.c (libconf_optparam_dup): ditto
+	(libconf_optparams_dup): ditto
+
+	* libconf.c: include stdarg.h
+	(libconf_getopt): implement
+	(libconf_setopt): ditto
+	* libconf.h [libconf_t]: comment the fields
+	* libconf_optparam.c: include libreplace/macros.h
+	(libconf_optparam_new): trim the string values
+
+2004-04-12	blytkerchan
+	* configure.ac: define Automake conditional MT_SAFE (always true for the time being)
+	* libconf.c (libconf_init): zero out handle's argv field on allocation
+	(libconf_phase1): test that aregc is > 0 (i.e. make argc == -1 break the loop)
+	prevent in-param parameters from being counted 
+	fix indentation error
+	(libconf_phase2): don't do anything if there are no defaults
+
+2004-04-08	blytkerchan	license application & killing memory bugs
+	* libconf.c: apply license
+	(libconf_init): handle the possibility that the passed-in filenames are NULL
+	copy the defaults
+	copy the keys into the hashes (call strdup)
+	(libconf_fini_helper): new function
+	(libconf_fini): free the values of the hash before deleting the hash
+	free the defaults
+	(libconf_phase1): strdup the hash keys when putting them in the hash
+	(libconf_phase4): ditto
+	* libconf.h: apply license
+	(libconf_optparam_free): new function
+	(libconf_optparams_free): ditto
+	* libconf_config.h.in: apply license
+	* libconf_opt.c: ditto
+	* libconf_optparam.c: ditto
+	(libconf_optparam_free): new function
+	(libconf_optparams_free): ditto
+
+2004-04-05	blytkerchan
+	* tests/test1.c: new file
+	* tests/global_conf_test1: ditto
+	* tests/Makefile.am: ditto
+	* Makefile.am [SUBDIRS]: add subdirs to be compiled
+	[libconf_la_LIBADD]: add libreplace, posix and libcontain
+	* configure.ac: generate tests/Makefile
+	* libconf.h (libconf_optconst): new function
+	* libconf_opt.c (libconf_optconst): new function
+	(libconf_defaultopts): call libconf_optconst
+
+2004-04-02	blytkerchan
+	* libconf.h [libconf_param_type_t]: add PT_NUMERIC_LIST, PT_STRING_LIST and PT_FILENAME_LIST types
+	[libconf_optparam_t]: add val.array_val field
+	[libconf_t]: add t_pt field
+	* libconf.c (libconf_phase1): handle list types
+	(libconf_phase5_helper): change prototype to make void* pointers non-const
+	* libconf_optparam.c (libconf_optparam_dup): handle list types
+	(libconf_optparam_new): ditto
+
+	* libconf_opt.c: new file
+	* libconf_optparam.c: ditto
+	* libconf_config.h.in: ditto
+	* Makefile.am [libconf_la_SOURCES]: add libconf_opt.c and libconf_optparam.c
+	* configure.ac: check the host platform and set POSIX_OR_WOE32 accordingly
+	generate libconf_config.h
+	* libconf.c: move libconf_optparam-related functions to libconf_optparam.c
+	move libconf_opt-related functions to libconf_opt.c
+	include libconf_config.h
+	(libconf_init): handle default options differently (i.e. get them from the libconf_defaultopts function)
+	take default parameters as parameter
+	(libconf_phase1): pass name of parameter to libconf_optparam_new()
+	(libconf_phase2): implement
+	(libconf_phase3): ditto
+	(libconf_phase4): ditto
+	(libconf_phase5): ditto
+	* libconf.h [libconf_optparam_t]: add name field
+	[libconf_t]: add defaults field
+	(libconf_init): take default configuration parameters as parameter
+	(libconf_optparam_new): take name of parameter as parameter
+	
+
+2004-04-01	blytkerchan
+	* configure.ac: new file
+	* Makefile.am: ditto
+	* bootstrap: ditto
+	* NEWS: ditto
+	* Makefile: remove
+	* libconf.h [libconf_t::yylineno]: make int
+
+2004-03-31	blytkerchan
+	* libconf.c (libconf_optdefaults): comment out
+	(libconf_optcat): ditto
+	(libconf_init): use a hash for the options in the handle
+	(libconf_optparam_new): make it exportable
+	[libconf_phase_error_t]: rename from libconf_phase1_error_t
+	add ET_UNKNOWN_OPTION
+	(libconf_phase1_helper1): new function
+	(libconf_phase1): use a hash for the options in the handle
+	* libconf.h: make it possible to include this file from C++ source
+	[libconf_t]: use a hash for the options field
+	(libconf_optparam_new): new function
+
+2004-03-30	blytkerchan
+	* tests: new directory
+	* Makefile [all]: generate libconf.3
+	[libconf.3]: new target
+	* libconf.sgml: new file
+	* libconf.c: include libreplace/catstr.h
+	[default_options]: new variable
+	(libconf_optdefaults): new function
+	(libconf_optdup): handle NULL parameter
+	(libconf_optcat): new function
+	(libconf_init): remove misleading comment
+	take two more parameters: argc and argv
+	add default parameters to the one in the handle
+	add argc and argv to the handle
+	add a temporary hash to the handle, which will contain the command-line options from phase 1
+	(libconf_fini): free the new fields in the handle
+	(libconf_optparam_new): new function
+	[libconf_phase1_error_t]: new type
+	(libconf_phase1): implement
+	(libconf_phase2): provide minimalist implementation
+	(libconf_phase3): ditto
+	(libconf_phase4): ditto
+	(libconf_phase5): ditto
+	(libconf_getopt): ditto
+	(libconf_setopt): ditto
+	* libconf.h: rename enum types so they don't conflict
+	reflect above changes
+	[libconf_optparam_t]: new type
+
+2004-03-29	blytkerchan
+	* libconf.h: new file
+	* libconf.c: ditto
+	* Makefile: ditto
+	* README: new file
+	* ChangeLog: ditto
+	* AUTHORS: ditto
+	* posix: new directory
+	* woe32: ditto
+

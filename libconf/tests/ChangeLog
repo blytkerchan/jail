@@ -1,0 +1,20 @@
+2004-05-11	blytkerchan
+	* Makefile.am [test1_CFLAGS]: add top sourcedir to include path
+	* test1.c: include libmemory headers
+	(main): initialize and finialize libmemory
+
+2004-04-12	blytkerchan
+	* test1.c [struct test1_helper1_data]: new type
+	(test1_helper1): new function
+	(test1_helper2): ditto
+	(test1): check the values added to the array
+
+	* Makefile.am: add SRCDIR define to test1's compile flags
+	* test1.c: include assert.h
+	(test1): test result of libconf functions
+	go through the phases
+
+2004-04-08	blytkerchan
+	* test1.c: apply license
+	(test1): copy defaults to a temp variable
+

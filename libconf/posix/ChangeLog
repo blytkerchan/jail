@@ -1,0 +1,55 @@
+2004-04-12	blytkerchan
+	* confp.y: include ../libreplace/macros.h
+	strip values added to existing arrays
+
+	* Makefile.am: take MT_SAFE option into account
+	* confl.l: ditto
+	* confp.y: enable parser debugging
+	[list_val]: put the colon before the token to eliminate the need for an extra look-ahead character
+	* readconf.cc: take MT_SAFE option into account (make yyin use stdin in that case)
+
+2004-04-08	blytkerchan
+	* LCFlexLexer.cc: apply license
+	* LCFlexLexer.h: ditto
+	* readconf.cc: ditto
+	* readconf.h: ditto
+	* confl.l: ditto
+	* confp.y: ditto
+
+2004-04-05	blytkerchan
+	* LCFlexLexer.cc (yyFlexLexer::yylex): new function
+	* Makefile.am [libconf_posix_la_LIBADD]: add flex' library
+	* confl.l [YY_DECL]: define
+	* conp.y (yyerror): new function
+
+2004-04-02	blytkerchan
+	* LCFlexLexer.h [class LCFlexLexer]: remove yvalp field
+	* confl.l: handle list types
+	* confp.y: ditto
+
+2004-04-02	blytkerchan
+	* confl.l: handle spaces and newlines correctly
+	* confp.y: expect a colon between the configuration option's name and its value
+	pass the name of the parameter to libconf_optparam_new
+
+2004-04-01	blytkerchan
+	* readconf.cc: new file
+	* readconf.h: ditto
+	* Makefile.am: ditto
+	* Makefile: remove
+	* LCFlexLexer.h: search for confp.h in standard include path
+	* confp.y: include string.h
+	include libconf.h from parent dir
+	[setval]: remove erroneous {
+	[config_def::T_UNKNOWN_OPTION]: add missing semicolon
+
+2004-03-31	blytkerchan
+	* ChangeLog: new file
+	* LCFlexLexer.cc: ditto
+	* LCFlexLexer.h: ditto
+	* Makefile: ditto
+	* README: ditto
+	* confl.l: ditto
+	* confp.h: ditto
+
+
