@@ -1,0 +1,43 @@
+2004-10-14	blytkerchan
+	* BUILDING-HOWTO: update
+
+	* mksnap: fix bugs to find make
+	add features to compile other stuff than just libcontain
+
+	* 00-index: update
+	* mksnap: new file
+
+2004-07-20	blytkerchan
+	* BUILDING-HOWTO: update
+
+2004-02-20	blytkerchan
+	* BUILDING-HOWTO: new file
+	* ROADMAP: add libreplace description
+
+2004-02-03	blytkerchan
+	* RELEASE-HOWTO: update
+
+	* RELEASE-HOWTO: new file
+
+2003-10-17	blytkerchan
+	* ROADMAP: update to include arch directory
+
+2003-10-10	blytkerchan
+	* ROADMAP: update to include doc directory
+
+	* ROADMAP: update
+
+2003-10-09	blytkerchan
+	* ROADMAP: update
+
+2003-10-07	blytkerchan
+	* licensing: new file
+	* 00-index: updated
+
+	* 00-index: new file
+	* AUTHORS: ditto
+	* ChangeLog: ditto
+	* JOIN-US-HOWTO: ditto
+	* README: ditto
+	* ROADMAP: ditto
+

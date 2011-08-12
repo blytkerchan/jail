@@ -1,0 +1,100 @@
+This file describes the structure of the CVS repository of the Jail project.
+
+The CVS repository currently contains five "modules":
+* arch
+  This directory contains architecture-dependant code. All code written in 
+  assembler (inline or otherwise) should be here, and should have a well-
+  defined C interface.
+  This directory shall contain a subdirectory for each platform (chipset)
+  supported, and a "gen" directory with generic implementations of the
+  functions found in those subdirectories.
+  The goal of the functions in these directories is *not* to optimise (not 
+  directly, anyway): that's the compiler's job. The goal is to use 
+  functionalities that the compiler doesn't know about.
+  A good example is the compare_and_exchange function which can be implemented
+  using a single instruction on most chipsets/architectures but for which the
+  compiler would need to know what you're trying to do.
+  Avoid relying on calling conventions and somesuch as much as possible: they
+  differ per platform (OS/object file format/etc.). Try using inline asm
+  in stead.
+* compiler
+  This directory contains the files directly related to the compiler. The 
+  compiler is the tool that translates preprocessed source code to JailVM 
+  assembler code - it doesn't do *anything* else.
+  If you want to work on this component, the required skills (the ones you have
+  or want to learn) are:
+  - YACC
+    for the parser: if you want to modify the grammar or the semantics of the 
+    language's implementation
+  - LEX
+    for the scanner: if you want to modify the keywords and how they are 
+    recognised
+  - C
+    for the rest
+* doc
+  This directory contains documentation that may be of interest to the 
+  developers involved in the project. It is not intended for documentation
+  on the language and tools themselves - we'll use jaildoc for that.
+  If you reference a document that may be hard to find, feel free to put it
+  here but *please* don't use any non-open formats when doing so (e.g. no 
+  Microsoft Word files, please).
+* htdocs
+  This directory contains the website sources - available at jail-ust.sf.net
+  If you want to work on this, you need to know about HTML.
+* jaildk
+  This directory contains the files that describe how you can join the 
+  development of the project. You can't work on this unless you're a project
+  admin.
+* libcontain
+  This directory contains the containers library. If you want to work on this
+  the required skills (the ones you have or want to learn) are:
+  - C++
+    for the Hash library classes
+  - C
+    for the C interface
+* preprocessor
+  The files for the preprocessor. If you want to work on this, the required 
+  skills (the ones you have or want to learn) are the same as for the compiler.
+* standards
+  This directory contains the coding and other standards applicable to the
+  project. You can't work on this unless you're a project admin.
+* libreplace
+  Functions commonly found in libc, but not standard - meaning they may have to
+  be replaced on some systems with custom implementations.
+  Functions implemented in this library should only be written in standard C 
+  and should not depend on any non-standard functionality.
+  This is not typically a library you'd want to work on: functions in this 
+  library are added as needed - i.e. if we find out we've been using a function
+  that is les sportably than we may have thought les sportably than we may have
+  thought..
+
+it also contains three files at the root:
+* license.h
+  This is the applicable license that should be added to all source and header 
+  files in the project. It is a BSD-like license that covers the source file 
+  with both the license itself and the GNU General Public License, unless 
+  otherwise specified by rlc. Read jaildk/licensing for details.
+* AUTHORS
+  This is the list of authors of the files at the root - normally this only
+  contains me (rlc)
+* ChangeLog
+  These are the changes made to the files at the root of the repository.
+ 
+Generally, shared libraries are found at the root, and shared features are
+found in those libraries. The toolchain is divided into several parts, each
+of which have their own directory, at the root. Within those directories, 
+there may be a subdivision of the sources according to the features they
+implement. Libraries that don't get used outside of the component they are
+made for are, for example, found in the directory of the component. If they
+ever get moved "down" the tree, CVS mechanisms will be used to make that 
+possible (alias modules).
+
+Some directories that don't exist yet at the time of writing, but will soon:
+
+libdb		the files for the shared database manager
+config		configuration (and IDE project) files
+
+This file is subject of discussion on the jail-ust-devel list - as is the tree
+it describes. The tree itself is not subject to any standards, but must at 
+least be coherent.
+

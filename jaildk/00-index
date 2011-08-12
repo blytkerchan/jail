@@ -1,0 +1,8 @@
+00-index:	this file
+AUTHORS:	the authors of these files
+JOIN-US-HOWTO:	how to join the development
+README:		general information
+ROADMAP:	the layout of the CVS repository
+licensing:	a brief explanation of the Jail licensing setup
+mksnap:		script used to make snapshots
+

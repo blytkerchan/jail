@@ -1,0 +1,56 @@
+The project, as such, cannot be built: you can't just check out the libcontain
+module and hope that a simple './configure && make' will work - it won't. The
+same goes for every other module in CVS - you simply can't build them without
+some special action.
+
+The reason for this is that most of the modules in CVS depend on eachother 
+to be built: libcontain for example, needs libmemory, libreplace and arch to
+work - libmemory for memory management, arch for the architecture-dependant
+code and libreplace for the non-portable but widely-used functions (such as
+memcmp, strdup, etc.).
+
+The CVSROOT/modules file contains a number of "virtual" CVS modules which 
+can be used to check out the different modules for building. Each of those
+modules, once checked out, contains a script called ``bootstrap''. That script 
+is used to pre-configure the building - i.e. generate the configure script
+that will generate the Makefile.
+
+Jail-ust uses the GNU Autotools for its compilation configuration. The
+bootstrap script will therefore need recent versions of:
+*	GNU autoconf
+*	GNU libtool
+As of July 2004, we no longer use GNU automake. The reason for this is *not* 
+the fact that it creates huge and clunky Makefile.in files, *nor* the fact that
+automake depends on recursive makes, which is considered harmful (see 
+$CVSROOT/doc/auug97.pdf), but because in July 2004, I've centralized all of
+the configury in a single module, called config. This uses a non-recursive
+Makefile and requires easier-to-maintain module.mk files in each module.
+
+Hence, the way to build any of the libraries or other packages in this
+project is illustrated by libcontain:
+$ export CVSROOT=:pserver:anoncvs@cvs.sf.net:/cvsroot/jail-ust
+$ cvs login
+<< enter anoncvs as password >>
+$ cvs co release-libcontain
+<< libcontain and everything it depends on is checked out >>
+$ cd libcontain
+$ bash bootstrap # note: you really need Bash!
+$ mkdir .build
+$ cd .build
+$ ../configure
+$ make		 # note: you need GNU Make
+$ make check
+$ make install
+
+This entire process is also run through by the mksnap script, which is run 
+periodically and nags to me about compilation errors by mail.
+
+Current modules can always be found in ${CVSROOT]/CVSROOT/modules, which is
+always up-to-date. The list below is current for today, Thu Oct 14 17:34:21 EST
+2004.
+release-libcontain:	anything needed to build (and release) libcontain
+release-libmemory:	ditto for libmemory
+release-preprocessor:	ditto for jailpp
+release-libconf:	ditto for libconf
+release-libthread:	ditto for libthread
+

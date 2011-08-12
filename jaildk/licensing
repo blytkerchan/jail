@@ -1,0 +1,16 @@
+The license applicable to Jail code is derived from the BSD license, with one
+important exception: the GNU General Public License also applied unless the
+licensee has a written statement saying otherwise from me (rlc).
+
+The reason for this is to disallow commercial (non open-source) use of the Jail
+source code to people who have not contributed to the Jail project in a 
+significant way - either monetary or with code. If you want to use the Jail 
+source code - go ahead, but if you want to close it, you must contribute to
+it first.
+
+Any monetary contributions will go into a special account used only for the
+project - no developers (including myself) are paid for their work on the 
+project.
+
+rlc
+
