@@ -1,0 +1,7 @@
+2004-04-08	blytkerchan
+	* ChangeLog: moved from ../htdocs
+	* poll.pl: ditto
+	* poll_db.pl: ditto
+	* poll_http.pl: ditto
+	* poll_response.pl: ditto
+	* poll_result.pl: ditto
