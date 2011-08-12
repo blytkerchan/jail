@@ -1,0 +1,1177 @@
+2006-03-01	blytkerchan
+	* list_node.c (list_node_find): call list_node_free in stead of free to free a current node
+	
+2004-04-28	blytkerchan
+	* list.c: remove duplicate definition of list_empty
+
+2004-03-23	blytkerchan
+	* module.mk: install types.h and libcontain_config.h
+	* vector.c (internal_resize): return int in stead of void so as not 
+	to give the nofail guarantee
+	(vector_put): ditto
+	(vector_push_back): ditto
+	(vector_resize): ditto
+	(vector_copy): check for errors better
+	(vector_deep_copy): ditto
+	* vector.h: reflect above
+
+	* list.c (list_empty): new function
+	* list.h: reflect above
+
+	* module.mk: add support for INSTALL_HEADERS
+
+2005-02-28	blytkerchan
+	* deque.c (deque_stabilize_front): implement
+	* deque.notes: new file
+
+2005-02-24	blytkerchan
+	* deque.c (deque_stabilize_back): fix (hopefully)
+
+	* deque.c (deque_node_alloc): rename from node_alloc
+	(deque_node_free): rename from node_free
+	(deque_stabilize_front): new function
+	(deque_stabilize_back): ditto
+	(deque_stabilize): implement
+
+2005-02-23	blytkerchan	adding partial deque implementation
+	* deque.c: new file
+	* deque.h: ditto
+
+2004-10-28	blytkerchan
+	* array.c: canonicalize the arch-specific includes
+	canonicalize libmemory includes
+	* binomial_tree.c: ditto
+	* hash.c: ditto
+	* heap.c: ditto
+	* list.c: ditto
+	* list_node.c: ditto
+	* map.c: ditto
+	* queue.c: ditto
+	* stack.c: ditto
+	* vector.c: ditto
+
+2004-10-22	blytkerchan
+	* hash.c (hash_remove): implement
+
+implement lock-free hash implementation
+	* hash.h: include list_node.h
+	[hash_t]: new member n_entries
+	change type of buckets member to list_node_t
+	[hash_node_t]: move to hash.c
+	(hash_put): change prototype to not return a value
+	* hash.c: include arch/include/compare_and_exchange.h
+	include arch/include/increment.h
+	[hash_node_t]: move to this file from hash.h
+	(hash_node_new): don't cast return value of calloc
+	reflect changes to hash.h
+	(hash_free_helper): remove
+	(hash_free): re-implement to not use list_foreach
+	(hash_get): re-implement to use list nodes in stead of full-fledged
+	lists
+	(hash_put): implement
+	(hash_keys): ditto
+	(hash_foreach): ditto
+	(hash_foreach_helper): new function
+	* list.c (list_foreach): use list_node_foreach
+	* list_node.c (list_node_find): document the state of the hazard
+	pointers on return
+	(list_node_foreach): new function
+	* list_node.h (list_node_foreach): new function
+
+2004-10-21	blytkerchan	compile vector impl with stricter compiler
+	* vector.h [vector_t]: change types of size_t elements to uint32_t
+	* vector.c: prefer local copies to installed ones for libmemory
+	headers
+	(internal_resize): reflect changes to vector_t
+
+move list node functions to their own files
+	* list_node.c: new file
+	* list_node.h: ditto
+	* list.c: include list_node.h
+	[list_state_t]: move to list_node.h
+	(list_node_free): move to list_node.c
+	(list_node_new): ditto
+	(list_node_insert): ditto
+	(list_find): ditto, but rename to list_node_find
+	(list_insert): update calls to list_node_insert
+	(list_delete): call list_node_find in stead of list_find
+	(list_search): ditto
+	* list.h: include list_node.h
+	[list_node_t]: move to list_node.h
+	* module.mk [libcontain_SRC]: add list_node.c
+
+2004-10-20	blytkerchan
+	* hash_helpers.h: new file
+	* hash_helpers.c: ditto
+	* module.mk [libcontain_SRC]: add hash_helpers.c
+	[GLIB_SRC]: remove
+	[libcontain_GLIB_SRC]: remove
+	* hash.c: don't include c_interface.h
+
+2004-10-19	blytkerchan	remove last remnants of obsolete code
+	* glib/*: remove
+	* c_interface.cc: ditto
+	* c_interface.h: ditto
+	* hash.c: remove all obsolete code
+	* hash.h: ditto
+
+fix the vector implementation
+	* vector.c (internal_resize): fix type-o in name
+	use compare_and_exchange_ptr or compare_and_exchange_int in stead of
+	compare_and_exchange
+	(vector_put): ditto (second)
+	(vector_copy): use vector_new in stead of new_vector
+	(vector_merge1): ditto
+	(vector_deep_copy): ditto
+	(vector_merge): lock the proper vectors, properly
+	(vector_set_default_increase): use atomic_set_int in stead of
+	atomic_set
+
+2004-10-18	blytkerchan
+	* vector.h [vector_t]: fix rw-spinlock type
+	* module.mk [libcontain_SRC]: add vector.c
+
+remove references to C++ hash implementation
+	* module.mk: remove anything related to the C++ hash implementation
+
+obsolete C++ hash implementation
+	* Hash.7.pod: remove
+	* Hash.cc: ditto
+	* Hash.h: ditto
+	* IniHash.cc: ditto
+	* IniHash.h: ditto
+	* IntHash.cc: ditto
+	* IntHash.h: ditto
+	* Makefile.am: ditto
+	* NocaseStringHash.cc: ditto
+	* NocaseStringHash.h: ditto
+	* StringHash.cc: ditto
+	* StringHash.h: ditto
+
+2004-08-22	blytkerchan
+	* vector.c (interal_resize): move rw_spinlock_downgrade call down to
+	protect node pointer replacement
+
+2004-08-11	blytkerchan
+	* array.c (array_put): use compare_and_exchange_ptr in stead of
+	obsolete compare_and_exchange
+	* binomial_tree.c (binomial_tree_get): ditto
+	(binomial_tree_set_root): ditto
+	(binomial_tree_node_set_left): ditto
+	(binomial_tree_node_set_right): ditto
+	(binomial_tree_node_set_value): ditto
+	* list.c (list_find): ditto
+	(list_delete): ditto
+	* map.c (map_remove): ditto
+	* queue.c (queue_enq): ditto
+	(queue_deq): ditto
+	* stack.c (free_stack): ditto
+	(stack_pop): ditto
+	(stack_push): ditto
+	* heap.c (heap_select_node): use uint32_t for exp
+	use compare_and_exchange_int in stead of obsolete compare_and_exchange
+	(heap_fix): ditto (both)
+	(heap_add): use uint32_t for o_n, n and exp
+	use compare_and_exchange_int in stead of obsolete compare_and_exchange
+	* heap.h: include stdint.h
+	[heap_node_t]: use uint32_t for flag in stead of int
+	[heap_t]: ditto for N and flag
+
+2004-08-10	blytkerchan	compile with gcc 2.95.4
+	* array.c (array_sort_worker): move declaration for t_array up a bit
+	* hash.c (hash_get): move variable declarations before optional code
+	* list.c (list_search): move declaration of node to the top of the
+	function
+	
+solve race condition in vector with rw-spinlock
+	* vector.h: include libthread/rw_spinlock.h
+	[vector_t]: new member lock
+	* vector.c (interal_resize): new function
+	(internal_condense): ditto
+	(vector_new): initialize the new lock member
+	(vector_free): free the new lock member
+	(vector_get): set a read lock on the vector while working
+	(vector_get_size): ditto
+	(vector_get_numentries): ditto
+	(vector_copy): ditto
+	(vector_merge): ditto
+	(vector_sort): ditto
+	(vector_search): ditto
+	(vector_deep_copy): ditto
+	(vector_foreach): ditto
+	(vector_put): ditto
+	use internal_resize in stead of vector_resize, due to locking
+	(vector_push_back): ditto (both)
+	use internal_condense in stead of vector_condense, due to locking
+	(vector_resize): move contents to internal_resize after applying
+	write-lock to prevent race condition
+	call internal_resize after applying read lock
+	(vector_condense): move contents to internal_condense after applying
+	write lock to prevent qsort being run concurrently
+	call internal_condense after applying read lock
+
+2004-07-23	blytkerchan
+	* binary.c: move to libreplace
+	* binary.h: ditto
+	* module.mk: update
+
+2004-07-22      blytkerchan
+	* module.mk: update
+	* array.c (array_get)[size]: remove, use array->size
+	(array_get)[size]: ditto
+	(array_condense)[size]: ditto
+	(array_search)[size]: ditto
+	(array_put)[size]: ditto
+	[increase]: remove
+	(array_copy): use array_new in stead of new_array
+	(array_merge1): ditto
+	(array_deep_copy): ditto
+	(array_sort_worker): use array_free in stead of free_array
+	* heap.c: change all calls to atomic_increment and atomic_decrement to
+	cast their parameter to uint32_t*
+
+2004-07-21	blytkerchan
+	* Hash.cc:  type-case parameters for all calls to atomic_increment and
+	atomic_decrement
+
+2004-07-20	blytkerchan
+	* vector.h: s/array/vector/g
+	s/ARRAY/VECTOR/g
+	s/Array/Vector/g
+	* vector.c: ditto
+
+	* module.mk: use support for conditionally compiled files - don't try
+	using the automake method
+
+	* module.mk: new file
+	* stack.c: don't use already-installed libmemory headers for compile
+
+2004-07-18	blytkerchan
+	* Makefile.am: don't compile stuff in test
+	* array.h (array_put): fix prototype
+
+	* Makefile.am: prepare for use with new src tree
+
+2004-07-17	blytkerchan
+	* vector.c: new file
+	* vector.h: ditto
+	* array.c: remove resize()
+	* array.h: ditto
+
+2004-07-16	blytkerchan
+	* version: new file
+	* bootstap: removed
+	* configure.in: ditto
+
+	* singleton.cc: new file
+	* singleton.h: ditto
+
+2004-05-11	blytkerchan	make libmemory optional for compilation (parent might have it)
+	* Makefile.am [HAVE_LIBMEMORY]: new conditional
+	[DIST_SUBDIRS]: conditionally add libmemory
+	[libcontain_la_LIBADD]: conditionally search for libmemory in parent dir
+	[AM_CXXFLAGS]: remove arch/include, add $(top_srcdir)
+	* configure.in: check that libmemory is in this dir. define automake conditional HAVE_LIBMEMORY accordingly
+	re-indent
+
+add missing files..
+	* types.h: new file
+
+start implementing list-based hash
+	* hash.c: include libmemory headers
+	(hash_node_new): new function
+	(hash_node_free): ditto
+	(hash_node_cmp): ditto
+	(hash_new): take new parameter n_buckets
+	enclose hash type parameter in conditional block
+	return newly created hash even if the type is not well-specified
+	enclose old code in conditional block
+	(hash_free_helper): new function
+	(hash_free): free the hash (new type, type not specified)
+	enclose old code in conditional block
+	(hash_get): enclose old code in conditional block
+	implement getting from new implementation
+	* hash.h: reflect above changes
+	* hash_config.h.in: add DONT_USE_OBSOLETE
+	* libcontain_config.h: bump LIBCONTAIN_MIN_HPTRS
+start normalizing interfaces
+	* map.c: s/map_key_cmp_func_t/libcontain_cmp_func_t/g
+	(map_free_helper): constify
+	(map_remove_helper): ditto
+	* map.h: reflect above changes
+	* list.c: s/list_compare_fn_t/libcontain_cmp_func_t/g
+	(list_node_free): rename from list_free_node
+	(list_node_new): rename from list_new_node
+	(list_node_insert): rename from list_insert_node
+	(list_insert): reflect above
+	(list_new): rename from new_list
+	(list_free): new function
+	(list_foreach): ditto
+	* list.h: reflect above changes
+	* heap.c: s/heap_val_cmp_func_t/libcontain_cmp_func_t/g
+	(heap_free_helper): constify, cast to compensate
+	* heap.h: reflect above changes
+	* hash.c: s/hash_val_cmp_func_t/libcontain_cmp_func_t/g
+	s/hash_key_hash_func_t/libcontain_hash_func_t/g
+	s/hash_key_cmp_func_t/libcontain_cmp_func_t/g
+	s/hash_foreach_helper_func_t/libcontain_foreach2_func_t/g
+	(hash_new): rename from new_hash
+	(hash_free): rename from delete_hash
+	(hash_put): de-constify parameters
+	(hash_remove): ditto
+	(hash_search_helper): constify parameters, ugly cast to compensate
+	* hash.h: reflect above changes
+	* array.c: s/array_cmp_func_t/libcontain_cmp_func_t/g
+	s/array_valcopy_func_t/libcontain_copy_func_t/g
+	s/array_foreach_func_t/libcontain_foreach_func_t/g
+	* array.h: reflect above changes
+	* binomial_tree.c: s/binomial_tree_node_foreach_func_t/libcontain_foreach_func_t/g
+	* binomial_tree.h: reflect above changes
+	* c_interface.cc (cxx_hash_for_each): s/hash_foreach_helper_func_t/libcontain_foreach2_func_t/g
+	ugly cast to compensate..
+	* c_interface.h: reflect above changes
+updating files after 0.2-alpha1 release
+	* NEWS: add the news added to the SF news page
+	* TODO: update
+
+2004-05-07	blytkerchan
+Making Hash thread-safe
+	* Hash.cc (get): re-write to increment and decrement reader count on container as appropriate
+	(put): ditto
+	(remove): ditto
+	(count): ditto
+	(keys): ditto
+	(contains): ditto
+	(for_each): ditto
+	(read): ditto
+	deprecate
+	(write): ditto (both, all versions)
+	(set_write_helper_function): deprecate
+	(get_write_helper_function): ditto
+	(set_filename): ditto
+	(_get): use find() to locate the bucket to use, and decrement the read count on it when done
+	(_keys): ditto
+	(_contains): ditto
+	(_put): ditto, but also unlock the bucket
+	(_remove): completely rewrite to not clear the bucket but just the value, thus not needing to re-hash and making the code faster and clearer
+	(clear): lock the container while working
+	(hash): fix the bug where consecutive leading 0s didn't change the hash
+	(grow): lock the container while working
+	dont re-allocate if the target size results in the same size as current
+	don't use _put to put the values in the new hash but do it here
+	(reg_reader): new function
+	(ureg_reader): ditto
+	(reg_breader): ditto
+	(ureg_breader): ditto
+	(lock): ditto
+	(unlock): ditto
+	(block): ditto
+	(bunlock): ditto
+	(select): ditto
+	(find): ditto
+	* Hash.h: reflect above changes
+	[class Hash]: add readers and _lock fields
+	add write_helper_func_t type
+	[mapping_type]: add readers and lock fields
+	* IniHash.cc (read): re-write to increment and decrement reader count on container as appropriate
+	(get): ditto
+	(put): ditto
+	(keys): ditto
+	(contains): ditto
+	(remove): ditto
+	* IntHash (read): ditto
+	(get): ditto
+	(contains): ditto
+	(keys): ditto
+	(remove): ditto
+	* StringHash.cc (read): ditto
+Hash code cleanup
+	* Hash.cc: remove obsolete stuff (comments, code, etc.)
+	replace includes with C++-style ones where appropriate
+	re-indent
+	use unsigned int instead of ulong
+	use calloc in stead of malloc + memset where applicable
+	* IntHash.cc: ditto (all)
+	* IniHash.cc: ditto (all)
+	* StringHash.cc: ditto (all)
+	* NocaseStringHash.cc: ditto (all)
+	* Hash.h: ditto (all)
+	* IntHash.h: ditto (all)
+	* IniHash.h: ditto (all)
+	* StringHash.h: ditto (all)
+	* NocaseStringHash.h: ditto (all)
+	* c_interface.cc: re-indent
+	* Hash.cc: move get_prime to prime.c file
+	* prime.c: new file
+	* prime.h: ditto
+	* Makefile.am [libcontain_la_SOURCES]: add prime.c
+	[noinst_HEADERS]: add prime.h
+
+2004-05-05	blytkerchan
+integrating libmemory
+	* list.c: give full path to compare_and_exchange header
+	include libmemory header files
+	[list_state_t]: new fields next and pmark
+	(list_find): re-implement according to MM Micheal's algorithm, including the "delete node when flagged for deletion" bit (lines D6, D7, E5 and D8 of the algorithm)
+	annotate the difference between this implementation and the one described in the article
+	(list_insert_node): implement use of hazard pointers
+	(list_delete): ditto
+	(list_search): ditto
+	* list.h: include libcontain_config.h
+	* queue.c: remove mention of the ABA problem
+	include libmemory files
+	give full path to compare_and_exchange header
+	(free_queue): fix memory leak
+	(queue_enq): implement use of hazard pointers
+	(queue_deq): ditto
+	* queue.h: include libcontain_config.h
+	* stack.c: remove mention of the ABA problem
+	include libmemory headers
+	give full path to compare_and_exchange header
+	(stack_top): implement to use hazard pointers
+	(stack_pop): ditto
+	(stack_push): rewrite to not need hazard pointers
+	* stack.h: include libcontain_config.h
+
+debug session
+	* Makefile.am [libcontain_la_SOURCES]: add heap.c
+	[pkginclude_HEADERS]: add heap.h
+	* heap.c: include necessary files
+	use heap_node_t throughout (in stead of map_node_t)
+	name the proper binomial_tree_node_* functions (i.e. don't try using binomial_heap_*
+	(heap_node_new): new function
+	(heap_node_free): ditto
+	(heap_add): set n to o_n + 1, not n + 1
+	* heap.h: include libcontain_config.h
+	* thread.h: include unistd.h in stead of stdlib.h
+
+2004-05-04	blytkerchan
+debug session
+	* binomial_tree.c: include binary.h
+	(binomial_tree_node_get_left): add missing semicolon
+	(binomial_tree_node_select): set K after the label
+	don't use K when setting n
+	take right branch when r == F
+	(binomial_tree_node_foreach): don't forget to pass data to func
+	(binomial_tree_node_foreach): release hazardous reference in register 1
+	(binomial_tree_foreach): release hazardous reference to root
+	* binomial_tree.h: include libcontain_config.h
+	* map.c: whitespace change
+	* TODO: update
+
+implementing hazard pointers in the binomial tree
+	* binomial_tree.c: include libmemory headers
+	(binomial_tree_get_root): make a hazardous reference to the node before returning it
+	(binomial_tree_node_get_left): ditto
+	(binomial_tree_node_get_right): ditto
+	(binomial_tree_node_get_parent): ditto
+	(binomial_tree_node_register): implement
+	(binomial_tree_node_release): ditto
+	(binomial_tree_node_select): new function
+	(binomial_tree_node_foreach): re-implement
+
+2004-05-03	blytkerchan	debug session
+	* array.c (array_get): use local nodes pointer in stead of the descriptor's nodes pointer
+	return retval, not NULL
+	* array.h: move the descriptive comment up
+	include libcontain_config.h
+
+2004-04-30	blytkerchan	repairing compilation :)
+	* Makefile.am [SUBDIRS]: move libmemory before local
+	[libcontain_la_LIBADD]: add libmemory
+	* array.c: include increment.h and decrement.h from architecture-specific code
+	(array_put): add missing semicolon
+	(array_push_back): ditto
+	(array_resize): use n_size in stead of size to allocate the new nodes
+	remove unused variable exp
+	cast n_size to pointer in compare_and_exchange call
+	(array_copy): repair call to array_put
+	(array_search): define size variable
+	repaire type-o
+	(array_deep_copy): define val variable
+	repair call to array_put
+	* configure.in: find pthread_setspecific function in pthread library
+
+2004-04-29	blytkerchan	using libmemory in array implementation
+	* how_arrays_work: new file
+	* thread.h: ditto
+	* libcontain_config.h: ditto
+	* array.c: include libmemory header files
+	(array_get): rewrite to use hazard pointers and atomic actions (where applicable)
+	(array_put): ditto
+	(array_push_back): ditto
+	(array_resize): ditto
+	(array_merge): ditto
+	(array_condense): ditto
+	(array_sort): ditto
+	(array_search): ditto
+	(array_default_increase): ditto
+	(array_deep_copy): ditto
+	(array_foreach): ditto
+	(array_copy): ditto
+	(array_get_size): rewrite to handle size temporarily being 0
+	(array_binary_search): re-format leading comment
+	(array_merge2): re-format function parameters
+	* array.h [array_t]: add flag attribute
+	* array.sgml: update regarding thread-safety
+	
+2004-04-28	blytkerchan
+	* Makefile.am [SUBDIRS]: add libmemory (both instances)
+	[libcontain_la_SOURCES]: add binary.c
+	[noinst_HEADERS]: add binary.h
+	* binary.c: include sys/types.h and binary.h
+	* bootstrap: bootstrap libmemory if it's there
+	* configure.in: configure libmemory
+
+2004-04-27	blytkerchan
+	* binary.c: new file
+	* binary.h: ditto
+	* how_heaps_work: ditto
+	* array.c [pow2s]: move to binary.c
+	(lg): ditto
+	(pow2): ditto
+	* heap.c: include license
+	include stdlib.h
+	[heap_left_child]: remove
+	[heap_right_child]: ditto
+	[SOFT_LOCK]: new macro
+	[SOFT_UNLOCK]: ditto
+	[HARD_LOCK]: ditto
+	[HARD_UNLOCK]: ditto
+	(heap_alloc): remove
+	(heap_grow): ditto
+	(heap_size): ditto
+	(heap_num_entries): ditto
+	(heap_new): re-implement
+	(heap_free): ditto
+	(heap_fix): ditto
+	(heap_add): ditto
+	(heap_top): ditto
+	(heap_pop): ditto
+	(heap_free_helper): new function
+	(heap_select_node): ditto
+	* heap.h: include binomial_tree.h
+	[heap_node_t]: new field flag
+	[heap_t]: re-write
+	(heap_size): remove
+	(heap_num_entries): ditto
+
+2004-04-26	blytkerchan
+	* Makefile.am [pkginclude_HEADERS]: fix type-o
+	* binomial_tree.c: include required headers
+	(binomial_tree_free): free all nodes if they exist
+	(binomial_tree_head): rename to binomial_tree_get_root
+	(binomial_tree_get_root): rename from binomial_tree_head
+	don't free a node we need - free one we don't need :)
+	(binomial_tree_set_root): new function
+	(binomial_tree_node_free_deep): ditto
+	(binomial_tree_node_get_left): ditto
+	(binomial_tree_node_get_right): ditto
+	(binomial_tree_node_set_left): ditto
+	(binomial_tree_node_set_right): ditto
+	(binomial_tree_node_get_parent): ditto
+	(binomial_tree_node_register): ditto
+	(binomial_tree_node_release): ditto
+	(binomial_tree_node_get_value): ditto
+	(binomial_tree_node_set_value): ditto
+	(binomial_tree_node_foreach): ditto
+	(binomial_tree_foreach): ditto
+	* binomial_tree.h [binomial_tree_node_t]: fix type-o for parent and children types
+	(binomial_tree_node_new): take parent node as parameter
+	(binomial_tree_node_free_deep): new function
+	(binomial_tree_foreach): ditto
+	* binomial_tree.sgml: update binomial_tree_node_new function declaration in synopsis
+	add words on the use of the functions
+	add words on memory management
+	add words on me (author section)
+	* map.c: include compare_and_exchange.h
+	(map_new): return the new map
+	(map_free_helper): new function
+	(map_free): free all map nodes stored in the tree before freeing the tree
+	(map_remove): suppress warning on using an integer as a pointer without casting (i.e. cast)
+
+2004-04-22	blytkerchan
+	* binomial_tree.c: new file
+	* Makefile.am [libcontain_la_SOURCES]: add map.c and binomial_tree.c
+	[pkginclude_HEADERS]: add map.h and binomial_tree.h
+	[libcontain_la_LDFLAGS]: bump interface version number to 2:0:1
+	* binomial_tree.h: comments added throughout
+	[binomial_tree_node_t]: add tag for structure
+	add left and right child nodes
+	add parent node
+	[binomial_tree_node_foreach_func_t]: new type
+	(binomial_tree_head): rename to binomial_tree_get_root
+	(binomial_tree_get_root): rename from binomial_tree_head
+	(binomial_tree_node_leftchild): rename to binomial_tree_node_get_left
+	(binomial_tree_node_rightchild): rename to binomial_tree_node_get_right
+	(binomial_tree_node_get_left): rename from binomial_tree_node_leftchild
+	(binomial_tree_node_get_right: rename from binomial_tree_node_rightchild
+	(binomial_tree_set_root): new function
+	(binomial_tree_node_new): ditto
+	(binomial_tree_node_free): ditto
+	(binomial_tree_node_set_left): ditto
+	(binomial_tree_node_set_right): ditto
+	(binomial_tree_node_get_parent): ditto
+	(binomial_tree_node_register): ditto
+	(binomial_tree_node_get_value): ditto
+	(binomial_tree_node_set_value): ditto
+	(binomial_tree_node_foreach): ditto
+	* binomial_tree.sgml: add words pertaining to binomial tree implementation
+	remove words pertaining to array implementation
+	* configure.in: bump version to 0.2-alpha1
+	* map.c: add copyright notice
+	add includes
+	(map_insert): implement
+	(map_get): ditto
+	(map_remove): ditto
+	[map_remove_helper_data_t]: new type
+	(map_remove_helper): new function
+	(map_node_new): ditto
+	(map_node_free): ditto
+	* map.h [map_node_t]: new field flag
+	
+2004-04-20	blytkerchan
+	* map.c: new file
+	* map.h: ditto
+	* binomial_tree.h: ditto
+	* binomial_tree.sgml: ditto
+
+2004-04-16	blytkerchan
+	* heap.c: new file
+	* heap.h: ditto
+
+	* array.sgml: new file
+	* libcontain.sgml: ditto
+	* array.c (new_array): initialize condensed attribute to set
+	(array_put): calculate the size to increase the array with for the index to be in bounds (bugfix)
+	don't clear the condensed attribute unless we're not overwriting a value in the array (bugfix)
+
+2004-04-14	blytkerchan	prepare for distribution
+	* Makefile.am [DIST_SUBDIRS]: new variable
+	* TODO: re-organize
+	
+2004-04-12	blytkerchan	making the array atmomically correct
+	* Makefile.am [libcontain_la_SOURCES]: add arch/@ARCH@/set.c
+	* array.c: include arch/include/set.h 
+	include arch/include/compare_and_exchange.h
+	(array_put): use compare_and_exchange to set the value and see if there already was one
+	(array_push_back): condense before adding to make sure there's nothing where we add
+	use atomic_set to set the value
+	(array_resize): indent
+	(array_copy): copy condensed attribute
+	(array_deep_copy): implement
+	(array_foreach): ditto
+	(array_condense): set condensed attribute
+	* array.h [array_t]: new condensed attribute
+	[array_valcopy_func_t]: new type
+	[array_foreach_func_t]: ditto
+	(array_deep_copy): new function
+	(array_foreach): ditto
+	
+2004-04-08	blytkerchan	license update
+	* Hash.cc: update the copyright notice's years
+	* Hash.h: ditto
+	* IniHash.cc: ditto
+	* IniHash.h: ditto
+	* IntHash.cc: ditto
+	* IntHash.h: ditto
+	* NocaseStringHash.cc: ditto
+	* NocaseStringHash.h: ditto
+	* StringHash.cc: ditto
+	* StringHash.h: ditto
+	* c_interface.cc: ditto
+	* c_interface.h: ditto
+	* hash.c: ditto
+	* hash.h: ditto
+	* list.c: ditto
+	* list.h: ditto
+	* queue.c: ditto
+	* queue.h: ditto
+	* stack.c: ditto
+	* stack.h: ditto
+	* array.c: apply license
+	* array.h: ditto
+	
+2004-04-05	blytkerchan
+	* Hash.cc (Hash::for_each): dereference value field of mapping (in stead of non-existance val field)
+	* c_interface.cc (cxx_hash_for_each): new function
+	* c_interface.h (cxx_hash_for_each): ditto
+	* hash.c (hash_foreach): call cxx_hash_for_each
+
+2004-04-02	blytkerchan
+	* hash.h (hash_foreach): correct prototype
+
+	* hash.h (hash_foreach): new function
+	* hash.c (hash_search): call hash_foreach
+	(hash_foreach): new function
+
+2004-03-31	blytkerchan
+	* Hash.cc (Hash::for_each): new function
+	* Hash.h (Hash::foreach_func_t): new type
+	(Hash::for_each): new function
+	* hash.c (struct hash_search_t): new type
+	(hash_search_helper): new function
+	(hash_search): ditto
+	* hash.h (hash_val_cmp_func_t): new type
+	(hash_search): new function
+
+2004-03-29	blytkerchan
+	* array.c (array_linear_search): don't compare if the value in the array is NULL (i.e. node is empty)
+	(array_condense_helper): sort empty nodes to the end of the array
+	* tests/array_test.c (array_test1): add a comment on what we do
+	check that the sorting worked
+	fix memory leak
+	[array_test2_t]: new structure
+	(array_test2_compare): new function
+	(array_test2): ditto
+	(main): call array_test2
+
+2004-03-27	blytkerchan
+	* array.c (array_resize): fix memory leak
+	(array_sort_worker): ditto
+	* tests/array_test.c (array_test1): ditto
+	(array_test1_sort_helper): invert sort order
+
+2004-03-25	blytkerchan
+	* array.h: new file
+	* array.c: ditto
+	* tests/array_test.c: ditto
+	* Makefile.am [libcontain_la_SOURCES]: add array.c
+	[pkginclude_HEADERS]: add array.h
+	* tests/Makefile.am [TESTS]: add array_test
+	[array_test_LDADD]: new variable
+
+2004-03-22	blytkerchan
+	* hash.h [hash_t]: new type
+	[libhash_hashtype]: add GLIB_HASH hash type
+	[hash_key_cmp_func_t]: new type
+	[hash_key_hash_func_t]: ditto
+	(new_hash): take two more parameters (hash_func and compare_func)
+	return hash_t
+	(delete_hash): take a hash_t as parameter
+	(hash_get): ditto
+	(hash_put): ditto
+	(hash_remove): ditto
+	(hash_keys): ditto
+
+2004-03-09	blytkerchan
+	import a hash implementation from glib to have a C-only implementation
+	* Makefile.am: make C++ code optional (CXX defined by configure)
+	make glib code optional (GLIB defined by configure)
+	set version info on library
+	* hash-config.h.in: new file
+	* c_interface.h: ditto
+	* hash.c: ditto
+	* glib/*: ditto
+	* NEWS: add words on the 0.1-alpha1 release
+	* c_interface.cc: include C++-impl related headers
+	rename all functions to prefix with cxx_
+	(cxx_new_hash): don't put ``enum'' in the parameter list
+	* configure.in: bump version to 0.1-alpha1
+	take --with[out]-cxx into account
+	take --with[out]-glib into account
+	check endianness
+
+	move test cases to a new subdirectory, rename them and implement new ones
+	* Makefile.am: remove test-related targets
+	[SUBDIRS]: add . and tests (. to force compiling locally first)
+	* tests/hash_test*: renamed from test*
+	* tests/{stack, list, queue}_test.c: new files
+	* tests/makefile.am: ditto
+	* configure.in: generate tests/Makefile
+	
+	general bugfixed & changes
+	* config-libcontain.in: don't call config-swing
+	link with -lcontain, not -lhash
+	* list.c (new_list): new function
+	* stack.c (stack_top): fix endless loop
+
+2004-02-20	blytkerchan
+	* Makefile.am: repair README target for out-of-dir building
+
+2004-02-12	blytkerchan
+	* TODO: update
+	* NEWS: ditto
+	* configure.in: ditto
+	generate README.in
+	* README.in: rename to README.in.in
+	* README.in.in: rename from README.in and add contents
+	* Makefile.am: start the contents of README with the contents of 
+	README.in
+
+	* list.c <list_state_t>: new type
+	(list_find): make re-entrant: take state as parameter
+	(list_insert_node): make a local state pointer and use it
+	(list_delete): ditto
+	(list_search): ditto
+	* list.h <list_t>: remove prev, curr, cval and cmark members
+
+2004-02-10	blytkerchan
+	* NEWS: update
+
+	* Hash.7.pod: update
+	* Makefile.am [AM_CFLAGS]: include top_srcdir in -I option
+	[AM_CXXFLAGS]: ditto
+	[test6_SOURCES]: use test6.c
+	[test6_LDADD]: link with -lstdc++
+
+	* TODO: update
+
+	* IniHash,cc: use libreplace in stead of libswing
+	* IniHash.h: don't expect libhash to be there
+	* Makefile.am: compile IniHash into libcontain
+	add testcases
+	* test5.cc: trivial fix
+
+	* configure.in: bump the patchlevel number and put alpha where it belongs
+	* Makefile.am: re-organize
+	* config.log: remove from CVS
+	* list.c: minor bugfix
+	* queue.h: ditto
+
+	* NEWS: add words on the prev. version.
+
+	* list.c: new file
+	* list.h: ditto
+
+2004-02-04	blytkerchan
+	* config-libhash: remove
+
+2004-02-03	blytkerchan
+	* Makefile.am: update
+	* configure.in: ditto
+	* NocaseStringHash.cc: use libreplace in stead of swing for strlwr replacement
+	* config.h.in: remove (generated)
+	* config-libcontain.in: rename from config-libhash.in
+
+2004-02-02	blytkerchan
+	* TODO: update
+
+2003-11-16	blytkerchan
+	* queue.c: new file
+	* queue.h: ditto
+
+2003-10-28	blytkerchan
+	* stack.c: rewrite
+	* stack.h: ditto
+
+2003-10-22	blytkerchan
+	* stack.c: new file
+	* stack.h: ditto
+
+2003-10-09	blytkerchan
+	* TODO: update
+
+2003-10-07	blytkerchan
+	* Hash.cc: added/replaced copyright notice
+	* Hash.h: ditto
+	* IniHash.cc: ditto
+	* IniHash.h: ditto
+	* IntHash.cc: ditto
+	* IntHash.h: ditto
+	* NocaseStringHash.cc: ditto
+	* NocaseStringHash.h: ditto
+	* StringHash.cc: ditto
+	* StringHash.h: ditto
+	* c_interface.cc: ditto
+	* hash.h: ditto
+	* test1.cc: ditto
+	* test2.cc: ditto
+	* test3.cc: ditto
+	* test4.cc: ditto
+	* test5.cc: ditto
+
+2003-10-05	blytkerhan
+	* AUTHORS: update to Jail's standards
+	* COPYING: removed
+	* INSTALL: ditto
+	* NEWS: update
+
+2003-06-22 (4)	Ronald Landheer-Cieslak	<ronald@landheer.com>
+	* Makefile.am []: libhash_la_LDFLAGS new variable
+	[AM_CFLAGS]; add call to config-swing
+	[AM_CXXFLAGS]: ditto
+	[bin_SCRIPTS]: new variable
+	<test6$(EXEEXT)>: new target
+	* configure.in: set CFLAGS and LDFLAGS before checking for Swing functions
+	create config-libhash script
+
+2003-06-22 (3)	Ronald Landheer-Cieslak	<ronald@landheer.com>
+	* Hash.h: repair C declaration of hash
+	* Makefile.am: add testcase for C interface
+	* c_interface.cc (hash_put): return 0 if OK, 1 if not
+	(hash_remove): ditto
+	repair hash indirection
+	* configure.in: bump minor version number
+	* hash.h: repair libhash_hashtype declaration
+	repair has_put and hash_remove declarations
+
+2003-06-22 (2)	Ronald Landheer-Cieslak	<ronald@landheer.com>
+	* Hash.h: move __cplusplus macro
+	make C definition of Hash class
+	* IntHash.h: move __cplusplus macro
+	* Makefile.am: add c_interface.cc and hash.h
+	* c_interface.cc: new file
+	* hash.h: ditto
+
+2003-06-22 	Ronald Landheer-Cieslak	<ronald@landheer.com>
+	* Makefile.am: remove support for NocaseStringHash and IniHash
+	* NocaseStringHash.h: repair include directive
+	* StringHash.h: ditto
+	* Hash.h: add missing newline at end of file
+	* bootstrap: new file
+	* config.h.in: re-generated
+	* configure.in: don't check for malloc
+
+2002-09-06 (2)	Ronald Landheer  <ronald@landheer.com>
+	* Makefile.am: added README to noinst_DATA
+	added %.3 target
+	added EXTRA_DIST variable
+	* Hash.3.pod: new file
+	* bootstrap: touching README before automake call
+	touching README.in after automake call to have README rebuilt
+	* TODO: added documentation itm
+	
+2002-09-06	Ronald Landheer  <ronald@landheer.com>
+	* Hash_7.pod: renamed to Hash.7.pod
+	* Hash.7.pod: renamed from Hash_7.pod
+	filled in
+	* README: renamed to README.in
+	* README.in: renamed from README
+	emptied
+	* IniHash.cc: added includes for Hash.h, StringHash.h and NocaseStringHash.h - local versions
+	* IntHash.cc: added includes for Hash.h and IntHash.h - local version
+	* Hash.cc: set include for Hash.h to local version
+	* NocaseStringHash.cc: added includes for Hash.h and StringHash.h - local versions
+	* StringHash.cc: added include for Hash.h - local version
+	* test1.cc: set include for Hash.h to local version
+	removed all calls to o_debug
+	put in macros rnd and unless
+	removed include swing.h
+	* test2.cc: added includes for Hash.h and IntHash.h - local version
+	* test3.cc: added include for Hash.h - local version
+	* test4.cc: added includes for Hash.h and StringHash.h - local versions
+	* test5.cc: added includes for Hash.h, StringHash.h and NocaseStringHash.h - local versions
+
+2002-09-05 (4)	Ronald Landheer  <ronald@landheer.com>
+	* Hash_7.pod: new file
+	
+2002-09-05 (3)	Ronald Landheer  <ronald@landheer.com>
+	* Hash.cc (_keys): changed realloc call to malloc: was messing up recursive hashes
+	put malloc call outside of loop and allocate the whole array at once - we have the final size anyway
+	IniHash.cc: include config.h only when not in native Windows
+	added #include <assert.h>
+	removed all calls to o_debug
+	changed all instances of unless() to if (!())
+	removed #include <Hash.h>
+	removed #include <StringHash.h>
+	removed #include <NocaseStringHash.h>
+	removed #include <libswing/o_debug.h>
+	changed #include <IniHash.h> to #include "IniHash.h"
+	(read): replaced section that did the putting in the hash by a call to put
+	no longer using curr_value and curr_value_count
+	removed calls to o_debug
+	debugged key_name and value filling
+	(write(char*)): removed
+	(write(void)): renamed to _write
+	(_write): renamed from write(void)
+	asserting the number of primary keys is the same as the entry count
+	(put): using the proper get to get the NocaseStringHash ncs
+	changed unless () to if (!())
+	(keys): new function
+	(contains): new function
+	(remove): new function
+	* IniHash.h (class IniHash): new function keys
+	new function contains
+	removed write(void) and write(char*)
+	new function _write
+	new function remove
+	removed swing includes
+	new typedef key_list_type
+	* Makefile.am: added test5 testcase for IniHash
+	* NocaseStringHash.cc (NocaseStringHash::empty_key): removed
+	* NocaseStringHash.h (class NocaseStringHash): removed empty_key: it's the same as StringHash' empty_key so we'll inherit
+	* StringHash.cc	(write(void)): renamed to _write
+	(_write) renamed from write(void)
+	rewritten, using IniHash::keys()
+	* StringHash.h (class StringHash): removed write(void) and write(char*)
+	new function _write
+	* TODO: removed task for debugging - done
+		
+2002-09-05 (2)	Ronald Landheer  <ronald@landheer.com>
+	* NocaseStringHash.cc: include config.h only when not in native Windows
+	For native Windows: define strlwr as _strlwr
+	Encapsulate string.h in the HAVE_STRING_H defines
+	remove libswing dependencies (all calls to o_debug)
+	Look for NocaseStringHash locally
+	* test4.cc: new copy of test3.cc with as only change that hash is an instance of NocaseStringHash in stead of StringHash
+	* Makefile.am: added test4.cc and test4 testcase
+		
+2002-09-05	Ronald Landheer  <ronald@landheer.com>
+	* StringHash.cc: include config.h only when not in native Windows
+	look for local Hash.h, not the installed library one
+	remove libswing dependencies (all calls to o_debug)
+	include <string.h>
+	put StringHash.h include between quotes in stead of brackets (<>)
+	(StringHash::write): same fwrite() fix as before for the magic numbers
+	size of a key is strlen(the key) + 1 ==> fixed
+	(StringHash::read): changed realloc call to malloc for key and data mem allocations
+	forgot to read the key value from the file - fixed
+	call to put was malformed - fixed
+	* test3.cc: define an rnd macro
+	(main): char-cast malloced key array
+	change all instances of unless() to if(!())
+	put in missing bracket in strlen() call05-09-2002 10:49
+
+2002-09-04 (4)	Ronald Landheer  <ronald@landheer.com>
+	* TODO: CVS-Id tag added
+	* test3.cc: new file (copied and modified off test1.cc - tests StringHash)
+	* Makefile.am: added test3.cc for the testsuite
+	
+2002-09-04 (3)	Ronald Landheer  <ronald@landheer.com>
+	* TODO: mention of IntHash removed from list to debug
+	
+2002-09-04 (2)	Ronald Landheer  <ronald@landheer.com>
+	* test2.cc (main): tests added
+	* Hash.h (class Hash): made keys virtual
+	added _keys
+	added _write
+	added _remove
+	made remove virtual
+	* Hash.cc: removed all calls to o_debug
+	removed all libswing includes
+	put #include <config.h> as contional non-native W32
+	(Hash::_keys): renamed from Hash::keys
+	(Hash::_write): renamed from Hash::write(void)
+	(Hash::keys): renamed to _keys
+	new wrapper around _keys
+	(Hash::write(void)): renamed to _write
+	(Hash::_remove): renamed from remove
+	(Hash::remove): renamed to _remove
+	new wrapper around _remove
+	new wrapper around _write
+	* IntHash.h (class IntHash): added keys
+	removed write()
+	added _write
+	* IntHash.cc: removed all calls to o_debug
+	put #include <config.h> as contional non-native W32
+	removed all linswing includes
+	(IntHash::keys): new function
+	(IntHash::_write): renamed from IntHash::write
+	debugged fwrite() calls for setting magic stuff (passing string in stead of pointer)
+	(IntHash::remove): new function
+	(IntHash::read): changed call that allocates data from realloc to malloc
+	* test1.cc (main): added WIN32 versions of calls to read and write
+		
+2002-09-04 (1)	Ronald Landheer  <ronald@landheer.com>
+	* test2.cc: implemented
+	* IntHash.cc (IntHash::cmp_keys): added debug output
+	(IntHash::~IntHash): commented out
+	(IntHash::put): new function
+	(IntHash::get): new function
+	(IntHash::read): changed call to put to send the integer instead of the pointer to it
+	(IntHash::write): changed call to get to send the integer instead of the pointer to it
+	(IntHash::contains): new function
+	(IntHash::empty_key): no longer expecting a pointer to an integer - expecting integer instead
+	(IntHash::cmp_keys): ditto
+	(IntHash::hash): ditto
+	(IntHash::read): changed call to put to pass the key as a parameter properly
+	(IntHash::write): changed call to get to pass the key as a parameter properly
+	* IntHash.h (class IntHash): commented out declaration of destructor
+	added prototypes for put and get
+	added prototype for contains
+	* Hash.h (class Hash): made contains virtual
+	new function _contains declared
+	* Hash.cc (Hash::_contains): renamed from contains
+	(Hash::contains): renamed to _contains
+	new wrapper around _contains
+	(Hash::_put): changed calls to put to calls to _put
+	(Hash::remote): ditto
+	(Hash::write): changed calls to get to calls to _get
+	
+2002-09-03 (3)	Ronald Landheer  <ronald@landheer.com>
+	* Hash.cc (Hash::Hash(ulong)): fixed a bug: Count = 0 now
+	(Hash::keys): added debug output
+	asserted that all keys will be found
+	unsigned num_keys
+	Changed malloc call to realloc - bugfix
+	(Hash::grow): added debug output
+	(Hash::remove): in changed to cmp_keys - bugfix
+	(Hash::write): changed fwrite() calls - bugfixes
+	(Hash::read): forgot to read the actual value of the key - fixed
+	* test1.cc (main): tests for all functions added
+	(write_helper): new function
+	* test2.cc: emptied
+	
+2002-09-03 (2)	Ronald Landheer  <ronald@landheer.com>
+	* IniHash.cc(IniHash::put): making new NocaseStringhash if one doesn't already exist
+	debug output added (call to o_debug)
+	made ncs static
+	(IniHash::write): debug output added (call to o_debug)
+	removed voidcast of key in call to _get
+	* main.cc: renamed to test1.cc
+	* test1.cc: renamed from main.cc
+	test only Hash
+	* Makefile.am: reflect changes above - target of compile now test1 in stead of test
+	add test2 targets
+	add TESTS variable to include test1 and test2 as tests
+	* test2.cc: new file with tests for IntHash
+	* Hash.cc (Hash::grow): fixed - used addresses where the values themselves were needed
+	(Hash::remove): ditto
+	(Hash::cmp_keys): fixed o_debug output formatting - newlines removed
+	(Hash::_put): making sure every call to grow actually grows the hash (first call changed)
+	re-structured the for-loop - it was buggy
+	moved the call to o_debug
+	(Hash::read): key is now a static pointer
+	
+2002-09-03 (1)	Ronald Landheer  <ronald@landheer.com>
+	* Hash.h (class Hash): added _get and _put for the benifit of IniHash
+	* Hash.cc (Hash::_put): new (= old put)
+	(Hash::put): new wrapper around _put
+	(Hash::_get): new (= old get)
+	(Hash::get): new wrapper around _get
+	* IniHash.cc (IniHash::read): changed call to this->get to this->_get
+	(IniHash::write): ditto
+	(IniHash::get): ditto
+	(IniHash::put): ditto
+	* IniHash.h (class IniHash): removed bogus declarations of get and put
+	
+2002-09-02	Ronald Landheer  <ronald@landheer.com>
+	* README: changed the introduction to correct misconception about C++ not having hashes
+	mention TODO in introduction (twice)
+	Added the two newer derived classes to the API desc.
+	* IniHash.cc (IniHash::write(void)): implemented (were already defined)
+	(IniHash::write(char*)): ditto
+	(IniHash::get(char*, char*)): ditto
+	(IniHash::put(char*, char*, char*)): ditto
+	* IniHash.h: removed include for <stdio.h> - moved to Hash.h
+	(class IniHash): removed filename property (moved to Hash baseclass)
+	* Hash.h : added include for <stdio.h>
+	(class Hash): added read(char*), write(...) and set_write_helper_function(int (*helper_function)(void*))
+	* Hash.cc: implemented read & write methods:
+	added #include <assert.h>
+	(Hash::read(char*)): implemented
+	(Hash::write(char *, int (*helper_function)(void*))): ditto
+	(Hash::write(int (*helper_function)(void*))): ditto
+	(Hash::write(char*)): ditto
+	(Hash::write(void)): ditto
+	(Hash::set_write_helper_function): ditto
+	(Hash::get_write_helper_function): ditto
+	(Hash::get_filename): ditto
+	* IntHash.cc: implemented read & write methods
+	added #include <assert.h>
+	(IntHash::read(char*)): implemented
+	(IntHash::write(void)): ditto
+	* NocaseStringHash.h (class NocaseStringHash): inherit from StringHash instead of Hash (to get the read & write methods from the StringHash)
+	added constructor to construct with StringHash (being the parent of NocaseStringHash, StringHash can always be initialised with NocaseStringHash)
+	* NocaseStringHash.cc (NocaseStringHash::NocaseStringHash(StringHash*)): implemented
+	* StringHash.cc: implemented read & write methods
+	added #include <assert.h>
+	(StringHash::read(char*)): implemented
+	(StringHash::write(void)): ditto	
+	* TODO: new file
+	
+2002-08-28	Ronald Landheer	<ronald@landheer.com>
+	* IniHash.cc: new file (derived class from NocaseStringHash)
+	* IniHash.h: ditto
+	* Makefile.am: added IniHash.cc and IniHash.h to source files and header files, resp.

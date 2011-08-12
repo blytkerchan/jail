@@ -1,0 +1,90 @@
+$Id: NEWS,v 1.6 2004/05/11 15:59:21 blytkerchan Exp $
+
+New News
+========
+version 0.2-alpha1
+------------------
+Mon, May 07, 2004: libcontain-0.2-alpha1 released
+
+This release introduces a number of important new features including a heap and
+a map, both based on a lock-free binomial tree. It also includes the required 
+memory management to make the containers impervious to the ABA problem and thus
+truly thread-safe.
+
+Many of the restrictions formerly bound to the containers have been lifted by 
+the integration of the SMR-based memory management, provided by libmemory. 
+Most of the containers are now truly thread-safe in the sense that you can 
+combine any operation with any other on a single object, including two or more 
+write operations.
+
+Additionally, the hash implementation from libhash - with which this library 
+began - has been reviewed and rendered thread-safe and faster than it was 
+before. This same hash implementation was also the basis of a dictionary object
+that outran Microsoft's equivalent. This implementation should now be faster 
+than the dictionary in question! It is, however, still lock-based - but a 
+non-blocking hash implementation has been on the drawing boards for quite some
+time now and should be forthcoming shortly.
+
+Help is still wanted for this project: there is an unsolved race condition in 
+the array (vector) implementation and the architecture-specific code needs 
+porting to non-IA32 platforms.
+
+version 0.1-alpha1
+------------------
+Mon, Mar 08, 2004: To be more helpful for the cgdb project, an implementation
+of a hashtable written only in C was needed. For the time being, the one from
+glib was "ported" into libcontain.
+The license of glib is the GNU LGPL, which is strictly speaking not compatible 
+with the Jail license the rest of the library falls unde falls under. To not 
+have the effects of that license on your program (which will only bother you
+if you have a GPL-waiver from me) don't use the glib implementation: configure
+with the ``--without-glib'' option.
+The reason for using glib was that it's implemented in C whereas the provided
+implementation is written in C++. You can turn the provided implementation 
+off with ``--without-cxx''.
+Note that if you do both --without-cxx and --without-glib, you're left without
+a hash table implementation.
+
+version 0.0-alpha3
+------------------
+Thu, Feb 12, 2004: In my list implementation, the variables marked as "private"
+in the algorithm description were put in the list_t type, which basically means
+they were part of the list descriptor. That means that they were inherently 
+shared among threads, which means that the implementation wasn't thread-safe
+at all.
+I've created a new type, list_state_t, which is used in the list implementation
+by each of the functions that calls list_find(). list_find and all of its
+callers will use a local copy of the state, which is allocated on the stack
+and which is therefore local to the thread. This should make the list 
+thread-safe.
+
+Old News
+========
+version 0.0-alpha2
+------------------
+Tue, Feb 10, 2004: I've just finished implementing the lists described by 
+M.M. Micheal, though I haven't used his "tag" to prevent the ABA problem:
+I will be using the SMR memory management method later on, and I don't have
+a CAS that will take both the pointer and the tag at the same time, at the
+moment. (That, and I don't want to count on the alignment of the structure
+in memory...).
+Apart from that, a major new thing is that all of the hash classes actually 
+compile now, and that the final library actually contains all of the containers
+which was not the case in the previous release.
+We still need testcases for all of the non-hash objects, though.., and the
+README file isn't quite up-to-date yet..
+
+version 0.0-alpha1
+------------------
+Tue, Feb 3, 2004: first alpha release of the container library - no testing 
+has been done whatsoever, except on the hash. I haven't even taken the time to
+re-read the documentation yet. The implementations should work, though, and 
+have been tested marginally separately, but as the testsuite hasn't been 
+implemented yet, there's not much to guarantee that anything here will
+actually work.
+
+Geriatric  News
+===============
+Oct 5, 2003: integrated in Jail
+Aug 15, 2002: First alpha version of the library ready for release.
+

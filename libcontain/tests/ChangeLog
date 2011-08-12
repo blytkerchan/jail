@@ -1,0 +1,62 @@
+2004-10-28	blytkerchan
+	* array_test.c: canonicalize the libmemory includes
+	* heap_test.c: ditto
+	* list_test.c: ditto
+	* map_test.c: ditto
+	* queue_test.c: ditto
+	* stack_test.c: ditto
+	
+2004-05-11	blytkerchan
+	* hash_test6.c
+	(test_glib): add a value for the n_buckets parameter
+	* list_test.c (main): call list_new in stead of new_list
+
+2004-05-05	blytkerchan	
+debug session & implementing use of libmemory
+	* heap_test.c (test1): write heap contents to stderr
+	* list_test.c: include libmemory headers
+	(main): initialize and finilize libmemory
+	* queue_test.c: include libmemory headers
+	(queue_test1): fix memory leak
+	(main): initialize and finilize libmemory
+	* stack_test.c: include libmemory headers
+	(main): initialize and finilize libmemory
+
+debug session
+	* heap_test.c: new file
+	* Makefile.am [TESTS]: add heap_test
+	[heap_test_LDADD]: new variable
+
+2004-05-04	blytkerchan	debug session
+	* map_test.c (main): initialize and finilize libmemory
+
+2004-05-03	blytkerchan	debug session
+	* Makefile.am: put top source dir in include path
+	* array_test.c (main): initialize and finilize libmemory
+
+2004-04-26	blytkerchan
+	* map_test.c: new file
+	* Makefile.am [TESTS]: add map_test
+	[map_test_LDADD]: new variable
+
+2004-04-16	blytkerchan
+	* array_test.c (array_test3): new function
+	(main): call array_test3
+
+2004-04-14	blytkerchan
+	* Makefile.am [noinst_HEADERS]: new variable
+
+2004-04-08	blytkerchan
+	* array_test.c: apply license
+	* hash_test6.c: ditto
+	* list_test.c: ditto
+	* queue_test.c: ditto
+	* stack_test.c: ditto
+	* hash_test1.cc: add 2004 to license years
+	* hash_test2.cc: ditto
+	* hash_test3.cc: ditto
+	* hash_test4.cc: ditto
+	* hash_test5.cc: ditto
+	* test.h: ditto
+	
+	

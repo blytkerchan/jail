@@ -1,0 +1,10 @@
+The Deque implementation has an ABA problem that has yet to be solved: a pop
+does not de-stabilize the deque but does change the index of the side popped.
+A subsequent push can set the index back to what it previously was. If this 
+happens while a stabilization is in progress, this may cause ABA problems.
+There are two possibilities: add a tag to the node pointers stored in
+handle->nodes to disallow node_alloc to allocate a new node there, or add an 
+ABA counter to handle->stat
+
+I guess I prefer the first option..
+

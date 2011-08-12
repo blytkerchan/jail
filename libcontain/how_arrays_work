@@ -1,0 +1,329 @@
+A cursory glance at the array implementation will tell you that there are some
+things in this implementation that need explanation. One of those things is how
+I've prevented the ABA problem.
+
+The ABA problem is the problem where a value you're looking at may change from
+A to B back to A between two times you're looking at it. Consider, for example,
+the following code:
+1	do
+2	{
+3		nodes = array->nodes;
+4		size = array->size;
+5		hptr_register(0, nodes);
+6	} while (nodes != array->nodes);
+Now, if array->nodes changes from A to B, back to A again between lines 3 and
+6, size may reflect the size of a completely different set of nodes! The way
+to prevent this is to read size in such a way that you're sure that nodes can't
+change from A to B back to A while you're not looking:
+1	do
+2	{
+3		do
+4		{
+5			nodes = array->nodes;
+6			hptr_register(0, nodes);
+7		} while (nodes != array->nodes);
+8		size = array->size;
+9		if (!size)
+10			continue;
+11	} while (nodes != array->nodes);
+Now, I read the value from array->nodes in line 5 and register a hazardous
+reference to that value in line 6. Logically, the ABA problem still exists
+between lines 3 and 7: I have no way of knowing that the nodes attribute of
+array didn't change from A to B back to A. I *do* know, however, that if it's
+still A in line 7, it won't be able to change to B and back to A while I hold
+the hazardous reference to it: it will be able to change to B, but as long as
+my hazardous reference exists, it won't be able to change back to A. Hence, 
+if I read the size (which reflects the number of nodes) in line 8 and in line
+11 the nodes attribute is still the same, I am certain that I've read the proper
+size.
+Note, though, that this is only true for attributes that reflect something
+about the nodes attribute: it wouldn't be true if I'd want to read the 
+num_entries attribute, which has nothing to do with nodes itself.
+
+Now, any action that is taken on the nodes once they've been selected is likely
+to work for the selected nodes, but there is no guarantee that the nodes will
+still be in the array once the action has been performed, which means we have
+to check that after the action has been performed. Hence, taking a look at 
+the array_put function, we get this:
+
+1	void array_put(array_t * array, size_t i, void * val)
+2	{
+3		void * rv;
+4		size_t increase;
+5		array_node_t * nodes;
+6		size_t size;
+7	
+8		do
+9		{
+10			do
+11			{
+12				do
+13				{
+14					do
+15					{
+16						nodes = array->nodes;
+17						hptr_register(0, nodes);
+18					} while (nodes != array->nodes);
+19					size = array->size;
+20					if (!size)
+21						continue;
+22				} while (nodes != array->nodes);
+23				if (i >= size)
+24				{
+25					increase = array->increase;
+26					increase = (((i - size) / increase) + 1) * increase;
+27					array_resize(array, size + increase);
+28				}
+29			} while (nodes != array->nodes)
+30			rv = NULL;
+31			while (compare_and_exchange(&rv, &(nodes[i].val), val) != 0);
+32		} while (nodes != array->nodes);
+33		hptr_free(0);
+34		if (rv == NULL)
+35		{
+36			atomic_increment(&(array->num_entries));
+37			array->condensed = 0;
+38		}
+39		array->sorted = 0;
+40	}
+So, why use four embedded loops? The deepest one, lines 14 to 18, select the
+nodes and register a hazardous reference to them, so prevent any subsequent 
+ABA problems. The surrounding loop, lines 12 to 22, make sure the size we 
+read reflect something that is relative to the nodes we've selected. The
+block following it, lines 23 to 28, compare that size to the index and 
+make sure that the index is within bounds. That means that the array's size
+may e changed by a call to array_resize on line 27, which means that by the
+time we get to line 29, the nodes we've selected may no longer be the nodes
+of the array, which explains the loop from line 10 to line 29. We then put 
+the value in the array of nodes at the requested position in line 31. After
+this loop, rv will contain the former value of the position we put our new
+value at. That change will not have any effect on the array if the nodes
+attribute of the array has changed since then, which is why we check in line
+32.
+In line 33, we release the hazardous reference on the nodes, because it is no
+longer subject to the ABA problem. Lines 34 to 38 update the number of entries
+in case the value is put somewhere where there was no value before, in which
+case we assume the array is no longer condensed. In any case, we assume the
+array is no longer sorted because we do not compare it to the surrounding
+values, which explains line 39.
+
+In the function array_push_back, things get a bit more complicated: we need
+to know a number of things which may all change over time. Without taking
+thread-safety concerns into consideration, the function would look like this:
+1	void array_push_back(array_t * array, void * val)
+2	{
+3		if (array->condensed == 0)
+4			array_condense(array);
+5		if (array->num_entries == array->size)
+6			array_resize(array, array->size + array->increase);
+7		array->nodes[array->num_entries++].val = val;
+8		array->sorted = 0;
+9	}
+Pretty straight-forward, isn't it? Except for the fact that there are four
+information points we need to gather, atomically: whether or not the array
+is condensed, how many entries there are, what the size is and what the
+value of the nodes attribute is. We also clear the flag that the array is
+sorted, but we don't need to know what it was set to before so we're not
+concerned about that for the moment.
+Now, there is a way to check that we're doing things right: iff the information
+we've gathered is correct, the value at array->nodes[array->num_entries].val 
+at the time we set it to val should be NULL. That means we can use the atomic
+compare_and_exchange function to set the value and compare the old one to the
+one we expect there:
+1	void * exp = NULL;
+2	compare_and_exchange(&exp, &(array->nodes[array->num_entries].val), val);
+The compare_and_exchange function will return 0 and perform the action iff
+its second argument points to the same value as its first one. This is something
+we can exploit in two ways:
+1.	if num_entries were to increase during the run of array_push_back, the 
+	position we'd want to put our new value at would no longer contain NULL
+	so we should start over
+2. even if num_entries were to increase and then decrease, if the array is no
+	longer condensed the position we'd want to put our new value at would no
+	longer contain NULL.
+I.e., if we do not guarantee that the array is condensed when the call to
+array_push_back is finished - which we cannot guarantee, the following code
+will do very nicely:
+1	void array_push_back(array_t * array, void * val)
+2	{
+3		array_node_t * nodes;
+4		size_t num_entries, size;
+5		void * exp;
+6		
+7		do
+8		{
+9			if (array->condensed == 0)
+10				array_condense(array);
+11			do
+12			{
+13				num_entries = array->num_entries;
+14				do
+15				{
+16					do
+17					{
+18						nodes = array->nodes;
+19						hptr_register(0, nodes);
+20					} while (nodes != array->nodes)
+21					size = array->size;
+22					if (!size)
+23						continue;
+24				} while (nodes != array->nodes);
+25				if (num_entries >= size)
+26				{
+27					array_resize(array, size + array->increase);
+28					continue;
+29				}
+30			} while (nodes != array->nodes);
+31			exp = NULL;
+32			if (compare_and_exchange(&exp, &(nodes[num_entries].val), val) != 0)
+33				continue;
+34		} while (nodes != array->nodes);
+35		hptr_free(0);
+36		if (val != NULL)
+37			atomic_increment(&(array->num_entries));
+38		array->sorted = 0;
+39	}
+We find our call to compare_and_exchange at line 32. Lines 14 to 24 should be
+very familiar by now, and get us the size if the array. We get the number of 
+entries (or should we say, the supposed number of entries) at line 13 but don't
+use it until line 25. The last moment where we could get it is between lines
+24 and 25, but if it's going to change, we'll find out sooner or later anyway
+:).
+So, by the time we get to line 31, we know there are enough nodes in nodes to
+put something at index number num_entries, but we do not know for certain
+that there is nothing there. If there is nothing there, the value should be
+NULL, and the call to compare_and_exchange in line 32 will work. Otherwise, 
+the continue on line 31 will make us start over.
+On line 34, we check that the change we made actually affected the array we
+wanted to affect. If so, we increment the number of entries if val wasn't
+NULL on line 37, and we're done.
+There is a slight chance that the value gets added to the array more than once:
+if the nodes attribute of the array changes between lines 32 and 34, the value
+was accessible from the array itself, for a copy. Hence, there is something
+to say for not checking at line 34, but only if it's worse to have more than 
+one copy in the array. 
+In stead, I've documented this possibility in the manpage, which should be 
+enough.
+
+The resize function presents an interesting challenge, which is resolved by
+following its definition strictly: more than one resize can be in progress at
+any given time, which means the resize that is in progress may result in the
+same results, or different ones, than the other one(s). The definition of 
+the array_resize function in the documentation of version 0.1 of this library
+says "resize the array ARRAY to be able to hold at least SIZE elements". This
+means the final size may not be less, but it may be more. Hence, the final
+check of the resize function (listed below) is whether the final size is at 
+least the requested size.
+The second part of the challenge is that the size and the number of nodes are
+intended to be linked: when reading the size and subsequently reading the 
+nodes, it has to be certain that the size is the one corresponding to the nodes.
+You may have noticed these two lines in the loop where we get the nodes and the
+size:
+	do
+	{
+		do
+		{
+			nodes = array->nodes;
+			hptr_register(0, nodes);
+		} while (nodes != array->nodes);
+		size = array->size;
+=>		if (!size)
+=>			continue;
+	} while (nodes != array->nodes)
+These two lines provide the solution to our problem: if we define that size
+cannot be 0 unless it is being changed, we can change size to 0, change the
+nodes attribute to whatever we like, and change size to the requested size.
+This is kinda like a lock, but we only block the progress of other functions
+while changing the size of the array. Technically, though, the array is not
+entirely lock-free. The problem is, however, that a 64-bit version of a 
+compare_and_exchange version on a 32-bit platform is not as portable as we'd
+like it to be, which means we can't atomically change both at the same time.
+On platforms where we can, we can forego this "lock" and do a single 
+compare_and_exchange with both values.
+Here's the array_resize function:
+1	void array_resize(array_t * array, size_t n_size)
+2	{
+3		array_node_t * new_nodes = calloc(size, sizeof(array_node_t));
+4		array_node_t * o_nodes;
+5		array_node_t * nodes;
+6		size_t size;
+7		int exp = 0;
+8		
+9		do
+10		{
+11			do
+12			{
+13				do
+14				{
+15					nodes = array->nodes;
+16					hptr_register(0, nodes);
+17				} while (nodes != array->nodes);
+18				size = array->size;
+19				if (!size) 
+20					continue;
+21			} while (nodes != array->nodes);
+22			if (size == n_size)
+23			{
+24				hptr_free(0);
+25				return;
+26			}
+27			memcpy(new_nodes, nodes, 
+28				(size < n_size ? size : n_size) * sizeof(array_node_t));
+29			o_nodes = nodes;
+30			
+31			if (compare_and_exchange(&size, &(array->size), 0) != 0)
+32			{
+33				free(new_nodes);
+34				continue;
+35			}
+36			if (compare_and_exchange(&o_nodes, &(array->nodes), new_nodes) != 0)
+37			{
+38				free(new_nodes);
+39				continue;
+40			}
+41			size = 0;
+42			compare_and_exchange(&size, &(array->size), n_size);
+43			free(o_nodes);
+44		} while (n_size < array->size);
+45		hptr_free(0);
+46	}
+Lines 11 to 21 should be pretty familiar by now. Lines 22 to 26 simply avoid
+us doing any unnecessary work, while lines 27 and 28 (one function call) copy
+the old array contents to a new one.
+!	Between lines 27 and 36 there's a race conditions I haven't found an answer
+!	to yet: any changes made to the array between these two points will not be
+!	taken into account. This can easily be corrected with a lock, but that
+!	wouldn't be as much fun :)
+
+The array implementation also implements some algorithms that are not all that
+hard to understand from a thread-safety point of view, but are important to
+understand from other perspectives. One of those is a binary search, implemented
+in array_binary_search().
+The array_search() implementation expects the array to be sorted and remain 
+sorted throughout the search - if it is not sorted at the start, it will use
+a linear search implemented in array_linear_search, which is less efficient but
+doesn't require the array to be sorted. When array_linear_search begins, it
+starts knowing what the upper and lower limits of the search are, so the size 
+and the nodes are recovered by the array_search function and the hazardous 
+reference to nodes is made there.
+
+The array_condense function uses qsort(3) to condense the array. Depending on 
+the underlying CRTL, qsort may or may not be thread-safe for concurrent calls
+to the function on the same object: i.e. most qsort implementations will not
+use atomic writes, which means most qsort implementations won't be thread-safe
+when sorting an array from two different threads.
+
+But a real point of interest is the binary merge sort implemented in these 
+sources: it breaks the array up into small arrays of two elements, sorts them
+and merges them into larger arrays. The intention is to minimize the number
+of comparisons and swaps. In theory, this should be faster than QuickSort 
+except that QuickSort is a randomized algorithm, so it's kinda hard to figure
+out it bounds. In the worst case, though, it is definitely slower than a binary
+merge sort.
+
+In conclusion, if you've read and understood this file, you know enough to find
+any bugs that may be lurking and fix them. Please do so and send patches to
+jail-ust-devel@lists.sourceforge.net or ronald@landheer.com (or both).
+
+rlc
+
