@@ -1,0 +1,21 @@
+SHELL=@SHELL@
+top_builddir=..
+srcdir=@srcdir@
+OBJEXT=lo
+OBJECTS=compare_and_exchange.$(OBJEXT) increment.$(OBJEXT) decrement.$(OBJEXT) set.$(OBJEXT)
+CC=@CC@
+CPPFLAGS=@CPPFLAGS@
+CFLAGS=@CFLAGS@
+LIBTOOL=@LIBTOOL@
+COMPILE=$(LIBTOOL) --mode=compile $(CC) $(CPPFLAGS) $(CFLAGS) -c
+LINK=$(LIBTOOL) --mode=link $(CC) $(CFLAGS) $(LDFLAGS)
+all : libarch.la
+
+libarch.la : $(OBJECTS)
+	$(LINK) -o $@ $^
+
+%.$(OBJEXT) : @ARCH@/%.c Makefile
+	$(COMPILE) -o $@ $<
+
+Makefile : Makefile.in
+	$(srcdir)/config.status
