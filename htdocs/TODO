@@ -1,0 +1,36 @@
+The following is a wishlist for the Jail-ust site:
+* users are able to log in, create comments, bookmarks, etc. This should be
+  kept and possibly enhanced a bit
+* I (rlc) wrote a couple of Perl scripts for polling a while ago, but never
+  actually put them on the site - mostly because they're not completely
+  finished. It would be nice if we had an easy way to poll the public - not
+  necessarilly using those scripts. Check the scripts and the database layout
+  for the info we want and the way we want to ask..
+* The site can remember a user's login, but a "remembered" used should not be
+  allowed to do everything a freshly logged-in user can - most notably to
+  change his credentials, he should be fresh.
+* Single quotes in text entered in the database are not displayed. As we're
+  defining a language in which single quotes play at least a minor role, this
+  may be important to fix.
+* The content of the site, currently in htdocsa/texts, should go into the
+  database. However, it should be easy to edit it (e.g. import & export in 
+  SGML/XML (DocBook) form)
+* We might need (and I would like) a Wiki
+* Forums are already provided by SourceForge, so may not be all too important.
+  If we do decide to add a forum, it should at least be linked to the proper
+  mailing lists somehow (e.g. be a forum-like interface to the mailing list).
+* It would be nice to be able to track the changed made in CVS through the 
+  site: we already have a jail-ust-cvs list, but it would be nice to have an
+  easy-to-understand web interface as well. If need be, a script can be called
+  on commit.
+* It would be nice to make the site search-able..
+* It would be nice to make it a bit easier for a bot (such as Google) to visit
+  the site - improve our indexing a bit..
+
+However:
+* existing booksmarks should keep working
+* Changes to the site should be noted in the ChangeLog
+* The PHP code of the site must be under some open source license..
+
+rlc
+

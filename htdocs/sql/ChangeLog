@@ -1,0 +1,13 @@
+2004-08-24	blytkerchan
+	* jailust.news.sql: new file
+
+2004-05-28	blytkerchan
+	* site.sql [comments table]: add date field
+	add some contents
+
+	* site.sql: new file
+
+2004-04-08	blytkerchan
+	* jailust.answers.sql: move from ..
+	* jailust.examples.sql: ditto
+	* jailust.questions.sql: ditto

@@ -1,0 +1,22 @@
+#question {
+	background: #FFFFA0;
+}
+#answer {
+	background: #FFFFF8;
+}
+#example_title {
+	font-size: smaller;
+	background: #FFFFF0;
+}
+#example {
+	background: #FFFFF8;
+	border: thin ridge #FFFFA0;
+}
+#comment {
+	background: #FFFFF8;
+}
+#result_table_title {
+	font-weight: bold;
+	color: #0000FF;
+	background: #FFFFF0;
+}

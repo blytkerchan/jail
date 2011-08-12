@@ -1,0 +1,543 @@
+2004-08-24	blytkerchan
+	* news.php: new file
+
+2004-08-10	blytkerchan
+	* TODO: update
+
+2004-08-09	blytkerchan
+	* banner2.png: re-generate smaller (180x360)
+
+	* banner2.xcf: move to banners/
+	* banner2.png: ditto
+
+	* banner2.xcf: new file
+	* banner2.png: ditto - generated from banner2.xcf
+
+2004-07-20	blytkerchan
+	* comments.php (edit_comment): new function
+	(edit_comment1): ditto
+	* index.php: reflect above
+
+	* login_functions.php (edit_login): new function
+	(save_login): ditto
+	* login_menu.php: reflect above
+
+	* session.php (do_session): systematically update session expiration
+
+2004-05-28	blytkerchan
+	* bookmarks.php: %s/mysql_real_escape_string/mysql_escape_string/g
+	* comments.php: ditto
+	* login_functions.php: ditto
+	* session.php: ditto
+
+	* mysql.php: new file (used previously: 2004-05-27)
+	* bookmarks.php: set style for input elements to inputbox
+	* comments.php: set date on new comments
+	(get_comment_date): new function
+	(get_comment_author): ditto
+	* config.php: set $session to 0, not ""
+	[$remembered]: new global variable
+	* index.php: slightly change layout to add text left and right of section menu
+	if logged in, display a welcome message left of section menu
+	if remembered, display message right of section menu
+	when displaying a comment, display the author and the date as well
+	* login_functions.php (create_account): repair query
+	(get_login_name): new function
+	* login_menu.php: apply inputbox style to input elements
+	re-arrange to compensate for new style
+	* section_menu.php: compensate for layout changes in index.php
+	* session.php (close_session): re-write
+	(do_session): use global $remembered
+	
+2004-05-27	blytkerchan
+	* main.php: remove
+	* login_fail.php: new file
+	* login_functions.php: ditto
+	* bookmarks.php: s/session/user/ where appropriate
+	don't connect to mysql DB - done at the start of the site
+	don't disconnect either - done at the end of the site
+	* comments.php: ditto (all three)
+	(show_comments): show comments to non-logged-in users
+	* config.php: new global variables: user, session and login_status
+	* index.php: reformat code
+	include login_functions.php
+	make new logins here - not on login failure
+	include and use login_fail.php when needed
+	s/session/user/ where appropriate
+	start by opening the DB, finish by closing it
+	* login_create.php: re-write
+	* login_menu.php: don't check the session to get the user ID - use the global variable
+
+	* section_menu.php: generate the menu on the fly
+	* session.php (check_session): re-write
+	(close_session): ditto
+	(open_session): remove
+	(update_session_expire): new function
+	(do_session): ditto
+
+2004-05-24	blytkerchan
+	* config.php [$db_cfg]: new variable
+	* functions.php (print_warning): new function
+	* index.php: include comments.php and session.php at the start
+	set $section and $page at the start
+	put the left-hand menu in a table
+	put a login menu at the left-hand side
+	put a bookmarks and a comments block on the right-hand side for registered users
+	* bookmarks.php: new file
+	* comments.php: ditto
+	* login_create.php: ditto
+	* login_menu.php: ditto
+	* login_why.php: ditto
+	* session.php: ditto
+
+2004-05-20	blytkerchan
+	* functions.php: new file
+	* config.php: move functions to functions.php
+	* index.php: include functions.php, once.
+
+2004-05-19	blytkerchan
+	* design.html: move text to text/design.php
+	* empty_lang.html: remove
+	* language.html: move text to text/language.php
+	* table_dev.html: remove
+	* development.html: move text to text/development.php
+	* goals.html: move text to text/goals.php
+	* libcontain_down.html: move text to text/libcontain.php
+	* table_down.html: remove
+	* download.html: move text to text/download.php
+	* how_you_can_help.html: move text to text/how_you_can_help.php
+	* libmemory_down.html: move text to text/libmemory.php
+	* table.html: remove
+	* empty_dev.html: ditto
+	* index.html: move text to text/welcome.php
+	* license.html: move text to text/license.php
+	* table_lang.html: remove
+	* empty_down.html: ditto
+	* jailop.html: move text to text/jailop.php
+	* menu.html: remove
+	* tech_arch.html: move text to text/tech_arch.php
+	* empty.html: remove
+	* jailtype.html: move text to text/jailtype.php
+	* progress.html: move text to text/progress.php
+	* text: new directory
+	* config.php: new file
+	* main.php: ditto
+	* page_header.php: ditto
+	* toc_functions.php: ditto
+	* index.php: ditto
+	* page_footer.php: ditto
+	* section_menu.php: ditto
+
+2004-05-10	blyterchan
+	* libmemory_dowy.html: new file
+	* libcontain_down.html: update for 0.2-alpha1 release
+	* table_down.html: add link to libmemory_down.html
+
+2004-05-04	blytkerchan
+	* development.html: update the current status of development
+
+2004-04-23	blytkerchan
+	* libcontain_down.html: bump current version to 0.1-alpha2, mention the bugfixes and add the download link.
+
+2004-04-19	blytkerchan
+	* design.html: link to CSS in css/ and images in images/
+	* development.html: ditto
+	* download.html: ditto
+	* empty.html: ditto
+	* empty_dev.html: ditto
+	* empty_down.html: ditto
+	* empty_lang.html: ditto
+	* goals.html: ditto
+	* how_you_can_help.html: ditto
+	* index.html: ditto
+	* jailop.html: ditto
+	* jailtype.html: ditto
+	* language.html: ditto
+	* license.html: ditto
+	* menu.html: ditto
+	* progress.html: ditto
+	* table.html: ditto
+	* table_dev.html: ditto
+	* table_down.html: ditto
+	* table_lang.html: ditto
+	* tech_arch.html: ditto
+	* libcontain_down.html: ditto
+	update text for version 0.1-alpha1 of libcontain
+	add links for downloads of available versions
+	
+2004-04-08	blytkerchan
+	* ChangeLog: rectify date of previous change
+	* *.pl: move to ../cgi-bin
+	* images: new directory
+	* css: ditto
+	* sql: ditto
+	* *.png: move to new images directory
+	* *.xcf: ditto
+	* *.css: move to new css directory
+	* *.sql: move to new sql directory
+
+2004-02-09	blytkerchan
+	* index.html: add (funny) publicity banner
+	* menu.html: add download section
+
+2004-02-06	blytkerchan
+	* libcontain_down.html: add words on current and future versions
+
+	* jail-banner.xcf: new file
+	* banners/banner1.xcf: ditto
+	* banners/banner1.png: ditto
+
+2004-02-05	blytkerchan
+	* libcontain_down.html: add words on current version
+
+	* libcontain_down.html: new file
+	* table_down.html: add reference to libcontain_down.html
+	repair targets of all links
+
+	* download.html: add words on versions and concluding remark
+
+2004-02-04	blytkerchan
+	* empty_down.html: new file
+	* table_down.html: ditto
+	* download.html: ditto
+
+2004-02-03	blytkerchan
+	* empty_dev.html, empty_lang.html: new files
+
+2004-02-02	blytkerchan
+	* ChangeLog: correct dates
+	* design.html, development.html, empty.html, goals.html, how_you_can_help.html, index.html, jailop.html, jailtype.html, language.html, license.html, progress.html, tech_arch.html: add menu bar
+	* development.html, license.html, tech_arch.html: use table_dev.html in stead of table.html
+	* jailop.html, jailtype.html, language.html: use table_lang.html in stead of table.html
+	*  menu.html, table_dev.html, table_lang.html: new files
+	* jail.css: new style table.menu
+	
+2004-01-30	blytkerchan
+	* license.html: new file
+
+	* *.html: re-organize to put the SF logo at the foot of the page..
+
+2004-01-29	blytkerchan
+	* design.html: homogenize (normalize?) style
+	* tech_arch.html: ditto
+
+CVS tag site_update_20040129
+	* jailtype.html: add words about pre-defined associative container types
+
+2004-01-28	blytkerchan
+	* jailtype.html: add words on pre-defined container types
+
+2004-01-27	blytkerchan
+	* jailtype.html: add words on pre-defined types
+
+2004-01-26	blytkerchan
+	* jail.css: define caption style
+	* jailtype.html: add words about namespaces, classes, etc. and start
+	on pre-defined types
+
+	* TODO: new file
+	* jailtype.html: ditto
+	* jail.css: add definitions for h3, table.toc, p.notice, a.toc:link, a.toc:active and a.toc:visited.
+	* jailop.html: add a lot of words :)
+	* table.html: use the ``toc'' table class to define the style
+	add a link to jailtype.html
+
+2004-01-21	blytkerchan
+	* *.html: link to jail.css stylesheet
+	set anchor named "top"
+	normalize use of headers (h1 for the first title, etc.)
+	* *.html (except table.html): make a "back to top" link at the bottom
+	* jail.css: new file
+	* jailop.html: ditto
+
+2004-01-20	blytkerchan
+	* index.html: roll back to revision 1.10
+	remove alignment from SF logo
+
+	* poll.css: new style for result_table_title
+	* poll_db.pl: remove trailing semicolon from table declaration
+	* poll_response.pl: kill warning about uninitialized variable 
+	* poll_result.pl: implement
+
+2004-01-10	blytkerchan
+	* poll_db.pl: new file
+	* poll_result.pl: ditto
+	* poll_http.pl: ditto
+	* poll.pl: move all database-related functions and globals to poll_db.pl
+	move the header and footer functions to poll_http.pl
+	* poll_response.pl: ditto
+
+	* jailust.answers.sql: normalize
+	* jailust.examples.sql: ditto
+	* jailust.questions.sql: ditto
+	* poll.pl: put the question_id in the form
+	* poll_response.pl: save the response to the database
+
+2004-01-08	blytkerchan
+	* poll.pl: re-introduce PROGID
+
+	* poll.pl: give comment a name in stead of an id
+
+	* index.html: let poll iframe have full height
+
+	* jailust.questions.sql: fix syntax error
+
+	* jailust.answers.sql: use checkbox in stead of radio
+	* jailust.questions.sql: make question commentable
+
+	* poll.pl: set names on radio buttons & check boxes.
+
+	* poll.pl: set width of poll form to 200 pixels
+	* index.html: integrate poll.pl in an iframe under the SF logo
+	* poll_response.pl: repair experimental version
+
+	* poll.pl: rename base_url to response_url
+
+2004-01-07	blytkerchan
+	* poll_response.pl: new experimental implementation..
+
+	* jailust.questions.sql: add ask_email field
+	* poll_response.pl: new file
+
+	* poll.pl: update config settings
+	update URL of stylesheet
+	repair support of examples
+	* jailust.answers.sql: add some data
+	
+	* jailust.answers.sql: new file
+	* poll.pl: take answers into account
+	* jailust.questions.sql: make `examples' and `answers' more obviously boolean
+	let the second question have answers
+
+	* jailust.examples.sql: name the table properly
+	fix the size of the example (make it TEXT in stead of VARCHAR)
+
+	* poll.pl: preparations for usage on a server (committed in earlier commit - forgot to mention it here)
+
+	* intended_audience.html: removed - contents moved to index.html
+	* index.html: updated with intended audience info
+	* table.html: updated
+
+2004-01-06	blytkerchan
+	* poll.pl: take examples into account
+	* poll.css: ditto
+	* jailust.examples.sql: new file
+	* jailust.questions.sql: add some nonesense data for testing
+
+	* poll.pl: new file
+	* poll.css: ditto
+	* jailust.questions.sql: ditto
+	
+2003-12-09	blytkerchan
+	* design.html: re-write
+	* language.html: add (most of) old contents of design.html
+	* table.html: update to reflect new file
+	* development.html: update the development plan
+
+	* language.html: new file
+
+2003-10-05	blytkerchan
+	* development.html: new file
+	* table.html: add link to development.html
+
+2003-09-29	blytkerchan
+	* how_you_can_help.html: fix an embedded list so it doesn't show up as
+	an extra bullet in lynx
+
+2003-09-21	blytkerchan
+	* design.html: remove the "generator" meta-tag: files are hand-written
+	* empty.html: ditto
+	* goals.html: ditto
+	* how_you_can_help.html: ditto
+	* index.html: ditto
+	* intended_audience.html: ditto
+	* progress.html: ditto
+	* table.html: ditto
+	* tech_arch.html: ditto
+
+	* table.html: remove "last updated" line - ugly in the table
+
+	* tech_arch.html: update with description of components and files
+
+2003-09-17	blytkerchan
+	* design.html: add "This page was last updated" tag at the bottom-right
+	* how_you_can_help.html: ditto
+	* progress.html: ditto
+	* empty.html: ditto
+	* index.html: ditto
+	* table.html: ditto
+	* goals.html: ditto
+	* intended_audience.html: ditto
+	* tech_arch.html: ditto
+
+2003-09-11	blytkerchan
+	* empty.html: make it more evident where to put text
+
+2003-09-10	blytkerchan
+	* tech_arch.html: add link to list (and words to accompany it)
+
+2003-09-04	blytkerchan
+	* design.html: change layout to make room for SF logo
+	* how_you_can_help.html: ditto
+	* progress.html: ditto
+	* empty.html: ditto
+	* index.html: ditto
+	* table.html: ditto
+	* goals.html: ditto
+	* intended_audience.html: ditto
+	* tech_arch.html: ditto
+
+2003-09-02	blytkerchan
+	* grammar.msg: removed
+
+2003-09-02	blytkerchan
+	* progress.html: update
+
+2003-09-02	blytkerchan
+	* design.html: fix layout
+	* empty.html: ditto
+	* goals.html: ditto
+	* how_you_can_help.html: ditto
+	* index.html: ditto
+	* intended_audience.html: ditto
+	* progress.html: ditto
+	* table.html: ditto
+	* tech_arch.html: ditto
+
+2003-09-02	blytkerchan
+	* empty.html: set width and height of the iframe properly
+	* table.html: target _top for all links
+	* design.html: use iframe for the table
+	* goals.html: ditto
+	* how_you_can_help.html: ditto
+	* index.html: ditto
+	* intended_audience.html: ditto
+	* progress.html: ditto
+	* tech_arch.html: ditto
+
+2003-09-02	blytkerchan
+	* empty.html: use IFRAME element in stead of OBJECT
+	undo previous change (SF.NET server is down)
+
+2003-09-02	blytkerchan
+	* empty.html: attempt to fix link to SF logo
+
+2003-09-02	blytkerchan
+	* table.html: new file
+	* empty.html: use OBJECT element to include table.html
+
+2003-09-02	blytkerchan
+	* tech_arch.html: update references to dereference new files
+
+2003-08-25	blytkerchan
+	* goals.html: new file
+	* how_you_can_help.html: ditto
+	* intended_audience.html: ditto
+	* design.html: update references to dereference new files
+	* empty.html: ditto
+	* progress.html: ditto
+	* index.html: ditto
+	move contents to proper (new) files
+ 
+2003-08-19	blytkerchan
+	* progress.html: new file
+	* grammar.msg: ditto
+	* index.html: add reference to progress.html
+	* empty.html: ditto
+	* tech_arch.html: ditto
+	* design.html: ditto
+	remove empty line from left-hand link table
+	* ChangeLog: new file
+	* AUTHORS: ditto
+
+2003-09-17	blytkerchan
+	* design.html: add "This page was last updated" tag at the bottom-right
+	* how_you_can_help.html: ditto
+	* progress.html: ditto
+	* empty.html: ditto
+	* index.html: ditto
+	* table.html: ditto
+	* goals.html: ditto
+	* intended_audience.html: ditto
+	* tech_arch.html: ditto
+
+2003-09-11	blytkerchan
+	* empty.html: make it more evident where to put text
+
+2003-09-10	blytkerchan
+	* tech_arch.html: add link to list (and words to accompany it)
+
+2003-09-04	blytkerchan
+	* design.html: change layout to make room for SF logo
+	* how_you_can_help.html: ditto
+	* progress.html: ditto
+	* empty.html: ditto
+	* index.html: ditto
+	* table.html: ditto
+	* goals.html: ditto
+	* intended_audience.html: ditto
+	* tech_arch.html: ditto
+
+2003-09-02	blytkerchan
+	* grammar.msg: removed
+
+2003-09-02	blytkerchan
+	* progress.html: update
+
+2003-09-02	blytkerchan
+	* design.html: fix layout
+	* empty.html: ditto
+	* goals.html: ditto
+	* how_you_can_help.html: ditto
+	* index.html: ditto
+	* intended_audience.html: ditto
+	* progress.html: ditto
+	* table.html: ditto
+	* tech_arch.html: ditto
+
+2003-09-02	blytkerchan
+	* empty.html: set width and height of the iframe properly
+	* table.html: target _top for all links
+	* design.html: use iframe for the table
+	* goals.html: ditto
+	* how_you_can_help.html: ditto
+	* index.html: ditto
+	* intended_audience.html: ditto
+	* progress.html: ditto
+	* tech_arch.html: ditto
+
+2003-09-02	blytkerchan
+	* empty.html: use IFRAME element in stead of OBJECT
+	undo previous change (SF.NET server is down)
+
+2003-09-02	blytkerchan
+	* empty.html: attempt to fix link to SF logo
+
+2003-09-02	blytkerchan
+	* table.html: new file
+	* empty.html: use OBJECT element to include table.html
+
+2003-09-02	blytkerchan
+	* tech_arch.html: update references to dereference new files
+
+2003-08-25	blytkerchan
+	* goals.html: new file
+	* how_you_can_help.html: ditto
+	* intended_audience.html: ditto
+	* design.html: update references to dereference new files
+	* empty.html: ditto
+	* progress.html: ditto
+	* index.html: ditto
+	move contents to proper (new) files
+ 
+2003-08-19	blytkerchan
+	* progress.html: new file
+	* grammar.msg: ditto
+	* index.html: add reference to progress.html
+	* empty.html: ditto
+	* tech_arch.html: ditto
+	* design.html: ditto
+	remove empty line from left-hand link table
+	* ChangeLog: new file
+	* AUTHORS: ditto
+
