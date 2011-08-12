@@ -1,0 +1,66 @@
+2006-02-28	blytkerchan
+	* compare_and_exchange.h: modify to build on WOE32 with MSVC7
+	* decrement.h: ditto
+	* fetch_and_add.h: ditto
+	* increment.h: ditto
+	* set.h: ditto
+
+2004-09-13	blytkerchan
+	* set.h (atomic_set): remove
+	(atomic_set_ptr): new function
+	(atomic_set_int): ditto
+
+2004-09-12	blytkerchan
+	* membar.h: new file
+
+2004-09-01	blytkerchan
+	* swap.h: new file
+
+2004-08-11	blytkerchan
+	* compare_and_exchange.h (compare_and_exchange_ptr): rename from
+	compare_and_exchange
+	(compare_and_exchange_int): new function
+
+2004-08-10	blytkerchan	compiling with gcc version 2.95.4
+	* compare_and_exchange.h (compare_and_exchange): change prototype to expect integers and
+	pointers to integers
+
+	* fetch_and_add.h (fetch_and_add): make first param volatile
+
+2004-08-03	blytkerchan
+	* fetch_and_add.h: include stdint.h
+
+2004-08-02	blytkerchan
+	* fetch_and_add.h: new file
+
+2004-07-17	blytkerchan
+	* set.h (atomic_set): take void* as target argument in stead of void**
+
+2004-05-07	blytkerchan
+	* compare_and_exchange.h: add C++ guards
+	* set.h: ditto
+	* increment.h: ditto
+	* decrement.h: ditto
+
+2004-04-12	blytkerchan
+	* compare_and_exchange.h: be slightly more verbose in comments
+	* set.h: new file
+
+2004-04-08	blytkerchan
+	* compare_and_exchange.h: add 2004 to the license's years
+	* decrement.h: ditto
+	* increment.h: ditto
+
+2004-02-10	blytkerchan
+	* compare_and_exchange.h: minor prototype fix
+
+2004-02-03	blytkerchan
+	* increment.h (atomic_increment): don't return a value
+	* decrement.h (atomic_decrement): ditto
+
+2003-01-06	blytkerchan
+	* increment.h: new file
+	* decrement.h: ditto
+
+2003-10-18	blytkerchan
+	* compare_and_exchange.h: moved from ../i486

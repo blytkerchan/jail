@@ -1,0 +1,14 @@
+2004-10-28	blytkerchan
+	* compare_and_exchange.c: canonicalize the arch-specific includes
+	* decrement.c: ditto
+
+2004-04-08	blytkerchan
+	* compare_and_exchange.c: apply license
+	* decrement.c: ditto
+
+2004-03-09	blytkerchan
+	* decrement.c: new file
+
+2003-10-18	blytkerchan
+	* compare_and_exchange.c: moved from ../i486/main.c
+

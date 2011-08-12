@@ -1,0 +1,34 @@
+2004-10-20	blytkerchan
+	* module.mk [arch_SRC]: add membar.c
+
+2004-08-03	blytkerchan
+	* module.mk [arch_CFLAGS]: remove
+
+2004-08-02	blytkerchan
+	* module.mk: add fetch_and_add.c
+	[arch_CFLAGS]: new variable
+
+2004-07-22	blytkerchan
+	* module.mk: update
+
+2004-07-20	blytkerchan
+	* module.ml: new file
+	* configure.ac: remove
+
+2004-07-18	blytkerchan
+	* configure.ac: new file
+	* Makefile.in: ditto
+
+2004-02-03	blytkerchan
+	* config.arch: new file
+
+2003-10-18	blytkerchan
+	* AUTHORS: new file
+	* gen: new directory
+	* include: ditto
+	* test: ditto
+
+2003-10-17	blytkerchan
+	* i486: new directory
+
+
