@@ -1,0 +1,50 @@
+2005-11-15	blytkerchan
+	* registers.h [jailvm_registers_type]: new fields jailvm_exception_jump
+	and flags
+	* exceptions.h [jailvm_exception_jump]: remove
+	(jailvm_stacked_exception1): new function
+	(jailvm_stacked_exception): ditto
+	(jailvm_unexpected_eof): ditto
+	(jailvm_unhandled_exception): ditto
+	* exception.c: reflect above
+	* instructions.c (Int): add instruction pre-condition that no
+	exception shall be /en route/
+	(jailvm_instruction_execute): new function
+	* instructions.h: ditto
+	[jailvm_instructions]: remove
+	* main.c: new file
+
+2005-11-14	blytkerchan
+	* object.c: new file
+	* object.h: ditto
+	* contract.c (ins_pre_condition): add func param
+	(ins_post_condition): new function
+	(pre_condition): ditto
+	(post_condition): ditto
+	* contract.h: reflect above
+	* excepions.h [jailvm_exception_jump]: rename from exception_jump
+	* exception.c: reflect 	above
+	(jailvm_integer_underflow): new function
+	(jailvm_integer_overflow): ditto
+	(jailvm_access_violation): ditto
+	(jailvm_bad_alloc): ditto
+	* exception.h: reflect above
+	[JAILVM_EXCEPTION_INTEGER_UNDERFLOW]: new macro
+	[JAILVM_EXCEPTION_INTEGER_OVERFLOW]: ditto
+	[JAILVM_EXCEPTION_ACCESS_VIOLATION]: ditto
+	* instructions.c: Add several new instructions and documentation
+	* registers.h: add typedef for jailvm_object_t
+	[jailvm_registers_type]: comment out ``a'' field
+	add _o and _t fields
+
+2005-11-12	blytkerchan
+	* registers.h [jailvm_registers_type]: add ip field
+	* exception.c: reflect above
+
+	* contract.c: new file
+	* contract.h: ditto
+	* exception.c: ditto
+	* exception.h: ditto
+	* instructions.c: ditto
+	* instructions.h: ditto
+	* registers.h: ditto
