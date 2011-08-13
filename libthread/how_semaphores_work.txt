@@ -1,0 +1,116 @@
+How semaphores work
+===================
+The semaphore implementation described below does not guarantee
+* the order in which the waiting threads are allowed to proceed
+* the number of times the waiting threads are "woken up" while waiting
+It does not include
+* semaphores that can be shared by multiple processes (i.e. this is not
+  possible with this implementation: storing a semaphore in shared memory
+  and using it from different processes will result in undefined behaviour!)
+It is designed to:
+* let a waiting process sleep as long as possible (until the semaphore is
+  released)
+* be as non-blocking as possible
+* wait as little as possible
+
+The general idea
+----------------
+Semaphores can have any positive value and 0. A thread that waits on a
+semaphore waits for it to get a positive value and decrements the value. It
+will then continue its normal execution.
+
+A thread that releases a semaphore increments its value. If the value was 0,
+it will be come 1, etc. This allows a thread that is waiting on the semaphore
+to continue (while it decrements the value back to 0).
+
+This rather simple method of synchronization allows threads to pass the baton,
+to signal events, etc.
+
+This implementation
+-------------------
+lt_sem_init() initializes a semaphore with the given value. This causes
+undefined behaviour if there is already a thread waiting on the semaphore -
+use with caution.
+
+lt_sem_new() creates a new semaphore initialized to a given value
+
+lt_sem_free() frees a semaphore and associated resources. Use of the object's
+descriptor after or during the execution of this function results in undefined
+behaviour; using this function on an in-use descriptor results in undefined 
+behaviour as well.
+
+lt_sem_wait() waits on a semaphore. This follows the following algorithm:
+with:
+lt_sem_t : struct {
+	value : int >= 0;				# the curr value of the semaphore
+	queue : queue of thread_t;	# queue of waiting threads
+}
+lt_sem_wait(sem : lt_sem_t)
+{
+	uint32_t value;		# local copy of the sem value
+	sigset_t mask, o_mask;	# signal masks we work on (new & old)
+	
+	# set the signal mask for the calling thread. This prevents SIGCONT
+	# signals from being ignored in the waiting loop
+	sigemptyset(&mask);
+	sigaddset(&mask, SIGCONT);
+	pthread_sigmask(SIG_BLOCK, &mask, &o_mask);
+
+	# first, put us on the queue. This ensures we don't miss any
+	# wake-up calls and nobody will miss us. It also ensures FIFO on the
+	# semaphore, making it fair.
+	lt_sem_enq(sem, lt_thread_self());
+	# this is the waiting loop. When we get out of this,
+	# the semaphore is ours
+	while (1) {
+		# now, see if we're the first on the list
+		if (lt_thread_eq(lt_sem_first(sem), lt_thread_self()) == 0)	{
+			# once we're the first in the list, that will always be the case 
+			# until we remove ourselves. No other thread has the right to do
+			# that
+			
+			# get the current value of the semaphore
+			value = sem^.value;
+			if (value > 0) {
+				# try to get the semaphore
+				if (compare_and_exchange(value, sem^.value, value - 1) != OK) {
+					continue;	# try again
+				} else break;	# OK
+			}
+		} else {	# semaphore is locked and/or we're not the first waiting
+					# wait for it to be unlocked
+			sigsuspend(&mask);
+		}
+	}
+	
+	# set the old mask back
+	pthread_sigmask(SIG_SETMASK, &o_mask, NULL);
+}
+This guarantees a fair, FIFO queued semaphore.
+
+lt_sem_release() releases a semaphore when it's done with it. It awakes a 
+waiting thread, but does not guarantee that that thread will actually get the
+semaphore. The algorithm is described below, with lt_sem_t the same as above:
+lt_sem_release(sem : lt_sem_t) {
+	value : int >= 0;
+
+	# check whether we were ever queued - if so, we're the first in the queue
+	if (first(sem^.queue) == thread_self()) {
+		lt_sem_deq(sem^.queue);
+	}
+	# release the semaphore
+	atomic_increment(sem^.value);
+	# signal the first waiting thread
+	kill(SIGCONT, first(sem^.queue));
+	# done
+}
+
+Note: SUSv3 doesn't specify what happens if we sigsuspend() waiting for a signal
+that is ignored. It would be silly to ignore SIGCONT, but it can be done. Doing
+so will cause unspecified behaviour in this implementation.
+
+The lt_sem_enq and lt_sem_deq algorithms above are derived from the lock-free
+queue algorithm used for libcontain's queue implementation, with an
+optimization for the fact that lt_sem_deq can only be called from one thread
+at a time - namely the one that is at the head of the queue.
+

@@ -1,0 +1,295 @@
+2005-04-23	blytkerchan
+	* module.mk: add support for INSTALL_HEADERS
+
+2004-12-23	blytkerchan	add POSIX-compliant rwlock implementation
+	* how_rwlocks_work.txt: new file
+	* rwlock.c: ditto
+	* rwlock.h: ditto
+	* module.mk: reflect above
+
+2004-12-14	blytkerchan
+	* rw_lock.c: make comments easier to read on a 80*25 screen
+	* thread_list.c: ditto
+
+2004-10-28	blytkerchan
+	* barrier.c: canonicalize arch includes
+	* critical_section.c: ditto
+	* rw_lock.c: ditto
+	* rw_spinlock.c: ditto
+	* semaphore.c: ditto
+	* thread_list.c: ditto
+	* thread_queue.c: ditto
+
+2004-10-19	blytkerchan
+	* rw_spinlock.c (rw_spinlock_downgrade): new function
+	* rw_spinlock.h: ditto
+
+2004-09-13	blytkerchan
+	* semaphore.c (lt_sem_init): use atomic_set_int in stead of atomic_set
+	(lt_sem_deq): use atomic_set_ptr in stead of atomic_set
+
+2004-09-01	blytkerchan
+	* rw_lock.c: include arch/include/swap.h
+	remove static declarations of functions we don't define
+	* rw_lock.h: include thread_queue.h
+	* thread.h (lt_thread_wake): new function
+	(lt_thread_suspend): new function
+	* thread_list.c: include libmemory/smr.h
+	include libmemory/hptr.h
+	include arch/include/compare_and_exchange.h
+	[lt_thread_list_state_t]: rename field cmarl to cmark
+	(lt_thread_list_remove): fix compile errors
+	(lt_thread_list_insert): return int
+	fix compile errors
+	(lt_thread_list_find): ditto (latter)
+	* thread_list.h: include thread.h
+	(lt_thread_list_move): fix declaration
+	(lt_thread_list_insert): ditto
+	(lt_thread_list_find): ditto
+	* thread_queue.c: include stdlib.h
+	include libmemory/smr.h
+	include libmemory/hptr.h
+	include arch/include/compare_and_exchange.h
+	(lt_thread_queue_new): remove n_node declaration
+	fix compile errors
+	* thread_queue.h (lt_thread_queue_free): rename from lt_thread_free
+  
+	* Makefile: remove
+
+2004-08-23	blytkerchan
+	* thread_list.c (_lt_thread_list_find): rename from
+	lt_thread_list_find
+	(lt_thread_list_remove): use lt_thread_list_state_t in stead of
+	list_state_t
+	call _lt_thread_list_find in stead of list_find
+	(lt_thread_list_for_each): implement
+	(lt_thread_list_insert): ditto
+	(lt_thread_list_find): ditto
+
+2004-08-22	blytkerchan
+	* thread.c (lt_thread_new): set mark field to 0
+	* thread.h [lt_thread_t]: new field: mark
+	* thread_list.c [DUMMY_MAGIC]: new macro
+	[lt_thread_list_state_t]: new typedef
+	(lt_thread_list_find): new function
+	(lt_thread_list_new): initialize retval members
+	(lt_thread_list_free): free head member
+	(lt_thread_list_remove): implement
+	(lt_thread_list_empty): ditto
+	(lt_thread_list_move): ditto
+	* thread_list.h [lt_thread_list_t]: new field: head
+
+2004-08-20	blytkerchan
+	* how_thread_queues_work.txt: update
+	* thread_queue.c: include arch/include/increment.h
+	[DUMMY_MAGIC]: define
+	(lt_thread_queue_new): allocate a dummy node
+	(lt_thread_queue_free): rename from lt_thread_free
+	free the dummy node
+	(lt_thread_queue_empty): add a describing comment
+	implement
+	(lt_thread_queue_first): ditto - both
+	(lt_thread_queue_deq): ditto - latter
+	(lt_thread_queue_enq): ditto
+	* thread_queue.h [lt_thread_queue_t]: remove field dummy
+
+2004-08-19	blytkerchan
+	* how_thread_queues_work.txt: new file
+	* thread_queue.c (lt_thread_queue_deq): remove dead code
+	(lt_thread_queue_enq): ditto
+	* thread_queue.h [lt_thread_queue_t]: new dummy field
+	make tail field an lt_thread_t again
+
+2004-08-18	blytkerchan
+	* thread_list.c: new file
+	* thread_queue.c: ditto
+	* module.mk [libthread_SRC]: add thread_list.c and thread_queue.c
+	* thread_queue.h [lt_thread_queue_t]: new fields head and tail
+	(lt_thread_queue_empty): change type of queue parameter to
+	lt_thread_queue_t
+	(lt_thread_queue_first): ditto
+	(lt_thread_queue_deq): ditto
+	(lt_thread_queue_enq): ditto
+
+2004-08-17	blytkerchan	continue translation to C
+	* thread_queue.h: new file
+	* thread_list.h: ditto
+	* rw_lock.c: move lt_thread_queue_* declarations to thread_queue.h
+	move lt_thread_list_* declarations to thread_list.h
+	include stdlib
+	(lt_rwlock_new): new function
+	(lt_rwlock_free): ditto
+	(lt_rwlock_write_unlock) [place_holder]: make a lt_thread_list_t
+	* rw_lock.h: include thread_list.h
+	include thread_queue.h
+	[lt_rwlock_t]: make readers field an array of lt_thread_list_t's
+	make writers and general fields lt_thread_queue_t's
+
+	* rw_lock.c: %s/lt_rwlock_queue/lt_thread_queue/g
+	%s/lt_rwlock_list/lt_thread_list/g
+
+	* module.mk [libthread_SRC]: add rw_lock.c
+	* rw_lock.c: include assert.h
+	include compare_and_exchange.h
+	declare static functions for all undefined functions used
+	(lt_rwlock_write_unlock) <place_holder>: new variable
+	use atomic_swap_ptr in stead of atomic_swap
+	use lt_thread_wake in stead of awake
+	(lt_rwlock_scheule): fix type-os and missing semicolons
+	use compare_and_exchange_ptr in stead of compare_and_exchange
+	use READER in stead of reader and WRITER in stead of writer
+	use lt_rwlock_queue_first in stead of first
+	* rw_lock.h: include thread.h
+	[lt_rwlock_t]: translate to C
+	* thread.h [lt_thread_t]: add flag field
+
+2004-08-16	blytkerchan	continue translation to C
+	* rw_lock.c (lt_rwlock_read_unlock): use lt_rwlock_queue_empty on
+	writers - not lt_rwlock_list_empty
+	use lt_rwlock_list_empty on readers[1]
+	use lt_thread_wake in stead of awake
+	(lt_rwlock_write_unlock): use lt_rwlock_queue_deq, not
+	lt_wrlock_queue_deq
+	use lt_rwlock_list_move in stead of move
+	use lt_rwlock_list_for_each in stead of for_each
+	(lt_rwlock_schedule): use lt_rwlock_queue_enq in stead of enq
+	use lt_rwlock_queue_first in stead of first
+	use lt_thread_suspend in stead of suspend
+	fix comments - make them C comments
+	use compare_and_exchange in stead of CAS
+	use lt_rwlock_queue_empty in stead of empty
+	use lt_rwlock_queue_deq in stead of deq
+	use lt_thread_wake in stead of awake
+	use lt_rwlock_list_insert in stead of insert
+	use lt_rwlock_queue_enq in stead of enq
+	use lt_rwlock_list_empty in stead of empty, where applicable
+	ditto for lt_rwlock_queue_empty
+	use lt_thread_suspend in stead of suspend
+
+2004-08-15	blytkerchan	start translating how_rwlocks_work into C
+	* rw_lock.c: new file
+	* rw_lock.h: ditto
+
+2004-08-11	blytkerchan
+	* rw_spinlock.h [rw_spinlock_t]: remove excl and shar fields
+
+	* barrier.h: use uint32_t in stead of unsigned int throughout
+	* barrier.c: ditto
+	(barrier_wait): use compare_and_exchange_int in stead of obsolete
+	compare_and_exchange
+	* critical_section.c (critical_section_enter): use 
+	compare_and_exchange_ptr in stead of obsolete compare_and_exchange
+	(critical_section_leave): ditto
+	* semaphore.c (lt_sem_wait): use compare_and_exchange_int in stead of
+	obsolete compare_and_exchange
+	(lt_sem_enq): use compare_and_exchange_ptr in stead of obsolete
+	compare_and_exchange
+
+2004-08-10	blytkerchan	compile with gcc-2.95.4
+	* rw_spinlock.c: move includes up
+	include stdlib.h for calloc
+	* rw_spinlock.h: include stdint.h
+
+	* rw_spinlock.h (rw_spinlock_upgrade): new function
+	* rw_spinlock.c: ditto
+
+2004-08-03	blytkerchan
+	* module.mk: add rw_spinlock.c to sources
+
+	* rw_spinlock.c: new file
+	* rw_spinlock.h: ditto
+
+2004-07-27	blytkerchan
+	* barrier.c (barrier_wait): replace thread_interrupt with lt_thread_interrupt
+
+	* how_semaphores_work: update
+	* semaphore.c (lt_sem_new): rename from lt_sem_create
+	include thread.h
+	(lt_sem_release): invert arguments to lt_thread_kill
+	* semaphore.h [lt_sem_t]: let queue and tail be void*
+	(lt_sem_new): rename from lt_sem_create
+	* thread.c: include pthread.h
+	include semaphore.h
+	re-order includes
+	[key]: new statis global
+	(lt_thread_create_helper): store handle in a thread-local variable
+	(lt_thread_init): new function
+	(lt_thread_term): ditto
+	(lt_thread_new): rename from lt_thread_create
+	re-factor
+	(lt_thread_self): new function
+	(lt_thread_eq): ditto
+	(lt_thread_kill): ditto
+	* thread.h: include *local* semaphore.h
+	remove duplicate definition of lt_thread_self
+	[lt_thread_t]: let priv_sem member be an lt_sem_t*
+	(lt_thread_new): rename from lt_thread_create and return the handle
+	(lt_thread_kill): swap parameters
+
+	* how_rw_locks_work.txt: update
+
+2004-07-26	blytkerchan
+	* how_rw_locks_work.txt: new file
+
+	* how_semaphores_work.txt: update
+
+	* semaphore.c: fix spelling errors and type-os
+	prefix all calls to libthread functions with lt_
+	fix all compiler warnings and errors
+	* semaphore.h: include stdint.h
+	* thread.h (lt_thread_self): new function (decl only)
+	(lt_thread_kill): ditto
+	(lt_thread_interrupt): rename from thread_interrupt
+
+2004-07-23	blytkerchan
+	* semaphore.c (lt_sem_wait): change logic to FIFO
+
+	* module.mk: don't compile semaphores if we don't have pthread_sigmask
+	* barrier.c (barrier_wait): cast atomic_increment parameter to uint32_t*
+	* semaphore.c: include necessary headers
+	s/thread_t/lt_thread_t/g
+	(lt_sem_init): cast second arg of atomic_set to void*
+	(lt_sem_wait): repair calls to sigemptyset, sigaddset and
+	pthread_sigmask
+	* semaphore.h: include thread.h
+	[lt_sem_t]: add tail member
+	s/thread_t/lt_thread_t/g
+
+	* semaphore.c (lt_sem_create): take new member tail into account
+	(lt_sem_enq): implement
+	(lt_sem_deq): re-implement and assume only one caller at a time
+	* semaphore.h [lt_sem_t]: add member tail
+	* module.mk: remove erroneous backslash
+
+2004-07-22	blytkerchan
+	* how_semaphores_work: undefine behaviour of lt_sem_init if semaphore is in use
+	* semaphore.c (lt_sem_first): new function
+	(lt_sem_enq): ditto (empty for the moment)
+	(lt_sem_deq): ditto
+	(lt_sem_init): implement
+	(lt_sem_create): ditto
+	(lt_sem_free): ditto
+	(lt_sem_wait): ditto
+	(lt_sem_release): ditto
+	* semaphore.h: change prototype of lt_sem_init
+
+	* version: new file
+
+	* semaphore.c: new file
+	* semaphore.h: ditto
+	* module.mk: ditto
+
+2004-07-19	blytkerchan
+	* how_semaphores_work.txt: new file
+
+2004-07-17	blytkerchan
+	* ChangeLog: new file
+	* Makefile: ditto
+	* barrier.c: ditto
+	* barrier.h: ditto
+	* critical_section.c: ditto
+	* critical_section.h: ditto
+	* how_critical_sections_work.txt: ditto
+	* thread.c: ditto
+	* thread.h: ditto
+
