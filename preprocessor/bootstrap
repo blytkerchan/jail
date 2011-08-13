@@ -1,0 +1,12 @@
+#! /bin/bash -x
+export top_srcdir=`pwd` && \
+libtoolize && \
+aclocal && \
+autoheader && \
+autoconf && \
+automake --add-missing && \
+cd libcontain && \
+sh bootstrap && \
+cd ../libmemory && \
+sh bootstrap
+

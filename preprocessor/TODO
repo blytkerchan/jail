@@ -1,0 +1,31 @@
+The preprocessor must:
+- replace all comments with spaces
+- read the input file as a series of "logical lines"
+  meaning a logical line ends at an EOL unless the EOL is escaped
+- keep track of all macros, including multi-line macros
+- be able to do some simple arithmatic, NOT only integer arithmatic, but also
+  * floating-point math
+  * string comparison
+- replace code that should not be copied with spaces
+  i.e. between a negative `#if' and its `#else', `#elif' or `#endif'
+- output logical lines as actual lines, so the compiler doesn't have to worry 
+  about escaped EOLs
+- keep only the comments that denote the filename and position, and generate
+  them for included files etc.
+- as the compiler may generate "header" (declaration) files for `use' 
+  directives, be able to translate `use' to `#include', perhaps by using a 
+  database common with the compiler
+- replace the macro's names with their contents in the code
+- be able to handle each of the preprocessor directives and tokens
+  (especially those that concatenate strings and/or their contents may be 
+  interesting)
+
+The preprocessor might:
+- pre-compile some headers and/or keep some information on what was already 
+  found in a header it has seen before, so as to speed up preprocessing
+
+The preprocessor will need:
+- a ready-to-use associative container to stock macros
+- a lexical scanner
+- some kind of shared database (shared with the compiler)
+

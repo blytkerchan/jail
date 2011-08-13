@@ -1,0 +1,116 @@
+2004-10-28	blytkerchan
+	* preproc.c: include license
+	* preproc.h: ditto
+
+2004-10-20	blytkerchan
+	* preprocp.y: include hash_helpers.h
+	prefer local includes to installed ones for libcontain'
+	(macro_def): update calls to hash_new
+
+2004-10-19	blytkerchan
+	* preproc.c: include stdlib.h
+	include string.h
+	include libgen.h if we have it
+	(new_preproc_inputfile): return retval
+	(new_preproc_token_def): ditto
+	* preproc.h (preprocl_putc): remove
+	(preprocl_puts): new function
+	(preprocl_putf): ditto
+	(preprocl_getc): ditto
+	* preprocl.l: include preprocessor/preprocp.h in stead of preprocp.h
+	include preprocessor/preproc.h in stead of preproc.h
+	(dummy): new function
+	* preprocp.y: include stdlib.h
+	(main): return a value
+
+	* module.mk: remove unnecessary make rules
+
+	* preproc.c: don't include libgen.h
+
+2004-10-18	blytkerchan
+	* module.mk: new file
+
+	* version: new file
+
+2004-07-17	blytkerchan
+	* Makefile.am [SUBDIRS]: add libmemory
+	[jailpp_LDADD]: ditto
+	* preprocp.y: normalize use of hash API
+
+2004-04-02	blytkerchan
+	* tests/macros_within_macros2.jh: new file
+
+2004-03-25	blytkerchan	finish !include directive support
+	* tests/include.jh: new file
+	* preproc.c: include libgen
+	[include_search_path]: new global variable
+	(resolve_abs_filename): (re)write
+	(resolve_rel_filename): ditto
+	* preproc.h: be more verbose about contents
+	add variables defined in preprocl.l and preprocp.y
+	(resolve_abs_filename): constify return value
+	(resolve_rel_filename): ditto
+	* preprocl.l: move variable declarations not defined here to preproc.h
+	(incl_state1): don't change state on >
+	(incl_state2): rectify regex state
+	don't change state on <
+	return a token if not ignoring the block
+	(preprocl_puts): return an integer
+	(preprocl_putf): new function
+	* preprocp.y: move declarations not defined here to preproc.h
+	(abs_filename): constify filename
+	call preprocl_putf
+	(rel_filename): ditto (both)
+
+2004-03-24	blytkerchan
+	* preprocl.l: add default rule to return unmatched characters to the parser
+
+	* preprocp.y: implement !else directive
+	lay the groundworks for a better !include implementation
+	* preprocl.l: ditto (both)
+	* preproc.c: ditto
+	* preproc.h: ditto
+	* tests/else.jh: new file
+	* tests/error_in_ignored.jh: ditto
+
+2004-03-23	blytkerchan
+	* preprocl.l: implement the !undef directive
+	* preprocp.u: ditto
+	* tests/undef.jh: new file
+
+	* preproc.h: new file
+	* preproc.c: ditto
+	* preprocp.y: solve the macro redefinition problem
+	solve the macros within macros problem
+	* preprocl.l: ditto (both)
+	fix empty macro definitions
+	solve the conditional block problem for the !include directive
+	* tests/conditional_block.jh: new file
+	* tests/macro_redef.jh: ditto
+	* tests/macros_within_macros.jh: ditto
+	* ChangeLog: fix type-o
+	* Makefile.am [jailpp_SOURCES]: add preproc.c
+	[noinst_HEADERS]: new variable
+
+	* preprocp.y: solve the conditional block problem
+
+2004-03-22	blytkerchan
+	* preprocl.l: define def_state2
+	use def_state2 for macro definition contents
+	return T_DEFINED token for macro definition contents
+	* preprocp.y [T_DEFINED]: new terminal
+	[macro_def]: expect T_DEFINED in stead of T_TOKEN
+
+2004-03-19	blytkerchan
+	* preprocl.l: new file
+	* preprocp.y: ditto
+	* configure.ac: ditto
+	* Makefile.am: ditto
+	* bootstrap: ditto
+	* NEWS: ditto
+	* README: ditto
+
+2003-09-10	blytkerchan
+	* AUTHORS: new file
+	* TODO: ditto
+	
