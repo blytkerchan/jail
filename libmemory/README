@@ -1,0 +1,57 @@
+Introduction
+============
+This is an implementation of the algorithm described by M.M. Micheal in his 
+article "Safe memory Reclamation for Dynamic Lock-Free Objects Using Atomic
+Reads and Writes".
+
+Some notes should be made about the algorithm and its implementation, which may
+be important when using the library.
+
+Global Constants
+================
+The algorithm describes two global constants, P and K, on which most of the
+sizes of internal arrays etc. depend. P is the number of participating threads,
+K is the number of hazard pointers per thread.
+
+This assumes that you know the number of participating threads before your 
+program starts - i.e. at compile time. I have found it quite impossible to 
+predict the number of participating threads on a varierty of occasions, so 
+I wouldn't want to impose any constant of my divising. Therefore, I have made 
+the P constant a global variable which is updated each time a new thread is 
+launched or terminated.
+
+It is also assumed that the number of hazard pointers per thread is known in
+advance. This can only be known in the cases where your algorithm was designed
+to use hazard pointers from the beginning (as is the case with M.M. Micheal's
+own container algorithms) but, again, there is no way for me to predict the
+number of hazard pointers you will need. Hence, this is a global parameter
+passed at the initialization of the library. Any library that uses this 
+library should provide you with the minimal number of hazard pointers it 
+requires.
+
+The "Optimized" Version
+=======================
+The algorithm described by M.M. Micheal includes an optimized version which
+has not been implemented here, as I can't make any assumptions on the 
+structure of anything you might be using, nor its size.
+
+Required System Features
+========================
+You need POSIX threads, because the algorithm uses thread-local data and I've
+used the pthread API for that. Other than that, nothing special is required.
+
+Note, though, that setting and unsetting hazard pointers is up to you and 
+should be atomic operations.
+
+Further Documentation
+=====================
+See the libmemory(3) manual page for detailed documentation on how to use this
+library. The sources also come with a file called libmemory.sgml which is the
+source for a file named libmemory.pdf, the general documentation of this 
+library.
+
+Author
+======
+That would be me, Ronald Landheer-Cieslak. You can contact me at 
+<ronald@landheer.com>
+

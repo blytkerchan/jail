@@ -1,0 +1,275 @@
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V4.0//EN">
+<book>
+
+<bookinfo>
+<title>General documentation for the libmemory SMR implementation</title>
+</bookinfo>
+
+<chapter>
+<title>Introduction</title>
+<para>This document briefly describes how to use the libmemory SMR 
+implementation, what it is meant for, what it is based on and what changes it
+has undergone since the beginning.</para>
+<para>The libmemory library is an implementation of M.M. Micheal's SMR 
+algorithm. As such, it provides replacement functions for malloc(3) and 
+free(3). Other memory management functions are not currently provided - i.e.
+realloc(3) and calloc(3) have not been implemented yet.</para>
+<para>SMR stands for Safe Memory Reclamation. It is intended for use by 
+multi-threaded container objects to prevent de-allocation of nodes of those
+objects while they are still in use. The way this is prevented is by keeping
+track of all "hazardous references" of every thread and making sure no node
+is ever freed while there is still a hazardous reference to it.</para>
+<para>The principles of using hazardous references and of using SMR for 
+memory management are described in the following chapters. A reference to the
+API functions is provided in the libmemory manual page, libmemory(3).</para>
+<para>The libmemory library is written for POSIX-compliant platforms. The most
+notable exception to POSIX compliance (among often-used systems) is Windows.
+A Woe32-native port of this implementation is currently not available, but 
+this library should work if you use either Cygwin or a pthreads library ported
+to Woe32 (using MinGW's gcc as a compiler). As some of the code is specific to
+the GNU C compiler, the library will not currently compile with any other 
+compiler</para>
+</chapter>
+
+<chapter>
+<title>Hazard Pointers and hazardous references</title>
+<para>A "hazardous" reference to a node is defined as a reference that is used
+for a non-atomic operation. The node must be valid from the beginning to the
+end of the operation and must therefore reside in memory that can still be 
+reached by the application. Such memory cannot be safely reclaimed by the 
+memory pool for reuse until the last (hazardous) reference expires.</para>
+<para>In the model on which SMR is based, hazardous references are indicated
+by so-called "hazard pointers". These pointers are local to each thread but are
+readable by all threads. The SMR implementation must guarantee that as long as
+one of the hazard pointers points to a block that is queued for deletion, the
+block will remain accessible by the thread that has a reference to the block.
+</para>
+<para>In order to use this feature, you should register a referenced pointer as 
+"hazardous" before using it, and verify that the pointer is still valid after
+having registered it. This last step is crucial: if between the time you read
+a pointer and the moment the registration function reads it to register it as
+"hazardous" the pointer changes, it may be too late for the registration to 
+have an effect. This means that the sequence of calls should look like this:
+<programlisting>
+void * my_pointer;
+do
+{
+	my_pointer = some_global_pointer;
+	hptr_register(0, my_pointer);
+} while (my_pointer != some_global_pointer);
+</programlisting>
+After that, the pointer can be used normally. Once no longer used, the hazard
+pointer should be freed with hptr_free(). Below is a (more or less) complete
+example:
+<programlisting>
+void * my_pointer;
+
+/* register the pointer as containing a hazardous reference */
+do {
+	my_pointer = some_global_pointer;
+	hptr_register(0, my_pointer);
+} while (my_pointer != some_global_pointer)
+
+/* do things with my_pointer */
+use_the_pointer(my_pointer);
+
+/* done with the pointer */
+hptr_free(0);
+</programlisting>
+</para>
+<para>The first argument of hptr_register() and the only argument of hptr_free()
+is the index number of the hazard pointer to be used. Every thread has a fixed 
+number of hazard pointers which is set by initializing the SMR library with
+smr_init(). The number of hazard pointers per thread is the same for all threads
+and is invariable. If different threads require a different number of hazard
+pointers, set the number of hazard pointers to the maximum amount required per
+thread.</para>
+</chapter>
+
+<chapter>
+<title>Safe Memory Reclamation</title>
+<para>This implementation does not actually manage the memory allocated through
+it: the implementation of smr_malloc only fixes a common bug in malloc(3) 
+implementations (i.e. an allocation of size 0 should still allocate something
+useful). Hence, this implementation only really manages the 
+<emphasis>liberation</emphasis> of memory to make sure it is done safely.
+</para>
+<para>There are different methods to assure that a block of memory is no longer
+referenced at the moment it is freed. Once of those methods is keeping a counter
+of references to the block of memory (or rather the object contained in it).
+Though that undoubtedly works, it is not always the best way that is available
+to the programmer. Another method is to clearly and carefully define "who" owns
+the memory, delegating the liberation of memory to its unique owner. That, also,
+is a good way of handling the problem but it requires very careful programming
+which is, alas, not always the strong point of the development team.</para>
+<para>In terms of performance, careful programming is undoubtedly the best
+solution and should be chosen if possible. The next best thing is keeping
+a set of hazard pointers. The reason why hazard pointers are probably faster
+than reference counters is difficult to give without detailed analysis of the
+algorithm. Suffice it to say that reference counting can be a costly business
+and that emperical data supports the premis that hazard pointers are faster.
+(If someone would be kind enough to do the algorithm analysis, I will of course
+include it here).</para>
+<para>In the chosen model, every thread has a fixed number of hazard pointers.
+That is one of the things that needs to be defined at the initialisation of
+the library, but is not the only one. Another thing to be decided is the size
+of the batch of deleted blocks. The batch is a per-thread queue of pointers
+to be deleted. Once full, the pointers are scanned for presence in the list
+of hazard pointers. For each pointer for which a hazard pointer with the same
+value does not exist, the block of memory it points to is freed. All other
+pointers are re-queued for deletion.</para>
+<para>The size of the batch is calculated according to the number of hazard 
+pointers per thread and the number of active threads, and is equal to the total
+number of hazard pointers plus one.</para>
+<para>Another caveat of the algorithm is that the number of participating 
+threads (or rather: the maximum number of participating threads) is a fixed
+constant as well. In this implementation, however, the number of active threads
+is updated by the <function>smr_thread_init()</function> and 
+<function>smr_thread_fini()</function> functions, so it doesn't need to know the
+maximum number of participating threads.</para>
+</chapter>
+
+<chapter>
+<title>Using the library</title>
+<para>There are two distinct parts to the library: the part that simply handles
+memory management and the part that handles the hazard pointers. Though it may
+seem a bit useless to use the one without the other, the part for managing 
+hazard pointers does require the memory management part, but the memory 
+management does not require the hazard pointers.</para>
+<para>As a result of this, the two parts of the library are initialized 
+separately. The main reason for this is that a future version of the library
+will provide some more "developed" ways of managing memory, which makes the 
+hazard pointers a bit less significant.</para>
+
+<section>
+<title>Initializing the library: SMR</title>
+<para>The first function to call, from the main thread, before any other thread
+calls one of the library's functions, is smr_init(). This function takes one 
+parameter, the number of hazard pointers per thread. This value depends only on the algorithms and libraries you use that use hazard pointers (typically 
+container algorithms such as lists, heaps, etc.) and is equal to the maximum
+number of global pointers they manipulate concurrently. It is impossible for you
+not to know this number if you know the algorithm you're using. However, if you
+are writing a library that implements an algorithm using hazard pointers, I 
+(rlc) recommend storing this number in a macro definitions available through 
+any of your API header files, named for the library, suffixed by 
+<function>MIN_HPTRS</function> (i.e.: libcontain contains a macro called
+<function>LIBCONTAIN_MIN_HPTRS</function> for this purpose). Someone that 
+uses your library and libmemory can then initialize libmemory with an integer
+that is at least as large as your library needs it to be.</para>
+</section>
+
+<section>
+<title>Initializing the library: HPTR</title>
+<para>The second function to call, if you're going to use the hazard pointers,
+is hptr_init(). It is declared in hptr.h and takes no parameters.</para>
+<para>This function should be called before using any of the hptr functions,
+as it initializes the global data of the hptr implementation.</para>
+</section>
+
+<section>
+<title>Per-thread initialization and finalization</title>
+<para>Every thread must start by calling smr_thread_init() and finish by calling
+smr_thread_fini() (unless the thread is cancelled or exited through 
+pthread_exit()).</para>
+<para>The fist of these two functions updates the number of active threads used
+to allocate the batches.</para>
+<para>The second function will do a sweep if all pointers queued for deletion,
+and will keep sweeping until all memory has been freed. The function does not
+currently clear hazardous references in the current thread (even though they
+should not exist at the point smr_thread_fini() is called). Keeping hazardous
+references around for nothing is a bug and should be fixed in your program.
+</para>
+</section>
+
+<section>
+<title>Allocating and freeing memory</title>
+<para>The library provides replacement functions for malloc(3) and free(3), but
+<emphasis>not</emphasis> for realloc(3) and calloc(3) (at least not for the time
+being). This means that you can safely use malloc(3), calloc(3) and free(3) but
+not realloc(3) unless you know what you're doing. The reason for this is that
+malloc(3) and calloc(3) only allocate memory, whereas realloc(3) may also free
+memory and will not use the free(3) provided by this library to do so. That 
+means that you can only use realloc(3) on memory of which you are certain that
+you will be the only one manipulating it at the time of the realloc(3).</para>
+<para>Note that making sure that you're the only one <emphasis>manipulating</emphasis> the memory does not mean you're the only one to call realloc(3): it means
+that no references to the pointer passed to realloc(3) should exist at the time
+realloc(3) is called, other than the one used to call realloc(3). There is no
+way to be sure of this other than by design, or by using mutexes around the 
+sections of code where the pointer in question may be used.</para>
+<para>The only purpose of the malloc(3) replacement (at the moment) is to fix
+a common bug in the implementation of malloc(3) in many CRTs: calling malloc(3)
+to allocate a block of size 0 should return a valid, non-NULL, unique pointer.
+Though in most situations it is a bug to try to allocate a block of zero bytes,
+that is not the case in all situations, so malloc(3) should suport it.</para>
+<para>The smr.h header file provides macros to replace the free(3) and malloc(3)
+functions. If you define SMR_NO_REPLACE before you include this file, the macros
+will not be defined and malloc(3) and free(3) will point to their CRT 
+equivalents. In that case, to use the library's implementations you should call
+them explicitly as smr_malloc and smr_free.</para>
+<para>The prototypes of the replacement functions are exactly the same as those
+of the ANSI-C (C89) equivalents. Note, though, that calling smr_free() on NULL
+does occupy a place in the queue for pointers to be deleted. You can use this
+side-effect to force the scan/sweep to take place earlier - but it is 
+ill-advised to do so (i.e. if you find yourself needing to call smr_free(NULL)
+you're likely to have a problem with the way you use this library)</para>
+<para>Also note that some implementations of free(3) exhibit undefined 
+behaviour if passed NULL. This implementation implicitly fixes that behaviour,
+though it is not one of its goals.</para>
+</section>
+
+<section>
+<title>When to use this library</title>
+<para>The primary goal of this library is to be used with the Container library
+of the Jail-ust project (http://jail-ust.sourceforge.net) but, as with the 
+container library, this library is available separately for the use you see
+fit for it. It is intended to be used with thread-safe non-blocking container
+objects to allow the container objects to free their nodes safely, aftet use, 
+when the nodes are no longer needed. Other reasons for using it include any
+situation in which you may have a global pointer used by different threads,
+accessible by those threads at any time (but only if there's something 
+valid pointing to it), pointing to a block of memory that may need to be 
+freed at some time during the program's execution, while other threads may 
+still be accessing it.</para>
+<para>The goal is to change the value of the storage location holding the 
+pointer so that subsequent read operations will read a different pointer
+value, and allow the threads still working with the old value to run
+normally, exhibiting well-defined behaviour, while using the memory now
+queued for liberation.</para>
+<para>In short, if you ever come across the situation where you tell yourself: 
+"I'd like to free this memory but someone might be using it"; that's when you
+need this library.</para>
+</section>
+</chapter>
+
+<chapter>
+<title>History</title>
+<para>A first draft of this document was finished on Wednesday, February 25,
+in my spare time. I happen o have a lot of spare time at the moment because we
+just moved to Canada and I'm staying at home to take care of our four-month-old
+baby. Hence, while one computer is compiling 
+<ulink url="http://cygwin.com">Cygwin</ulink>, I'm finishing the libmemory
+implementation and documentation on my <ulink url="http://gentoo.org">Gentoo
+</ulink> box, on which I do most of my development.</para>
+<para>On Tuesday, April 27, I started integrating this library into the 
+libcontain library. Some changes have been made to the library to make it
+somewhat easier to use (i.e. you no longer need to provide the maximum number
+of participating threads and the batch size) but most of the implementation
+has remaine the same. The manpage was written and this documentation was
+duely updated two days later, on Thursday, April 29.</para>
+<para>The reason I wrote this library is primarily for fun. The reason I made
+it available to you is in the hopes that it will be of some use to you. If not,
+don't use it.</para>
+</chapter>
+
+<chapter>
+<title>Acknowledgements and references</title>
+<para>The library is an implementation of M.M. Micheal's Safe Memory 
+Reclamation algorithm, described in detail in his article "Safe Memory 
+Reclamation for Dynamic Lock-Free Objects Using Atomic Reads and Writes", 
+publised in PODC 2002, July 21-24, 2002, Monterey California, USA. Some 
+modifications were made to the algorithm to allow it to be used without knowing
+the maximum number of participating threads, but those changes are rather 
+minor in the scope of the entire algorithm.</para>
+</chapter>
+
+</book>

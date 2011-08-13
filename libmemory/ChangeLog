@@ -1,0 +1,206 @@
+2006-03-01	blytkerchan
+	* smr.h [smr_alloc_func_t]: new type
+	[smr_dealloc_func_t]: ditto
+	[smr_dlist_entry_t]: ditto
+	[struct _smr_global_data_t]: add fields alloc_func and dealloc_func
+	[struct _smr_private_data_t]: change type of dlist field to an array of smr_dlist_entry_t
+	(smr_init): two new parameters: alloc_func and dealloc_func
+	(smr_register): new function
+	(smr_dealloc): ditto
+	* smr.c: reflect above
+	* hptr.c (smr_hptr_free_list_deq): handle emptry free lists
+
+2006-02-28	blytkerchan
+	* hptr.c: modify to build on WOE32 with MSVC7
+	* hptr.h: ditto
+	* smr.c: ditto
+	* smr.h: ditto
+
+2005-04-23	blytkerchan
+	* module.mk: add support for INSTALL_HEADERS
+
+2005-03-01	blytkerchan
+	* hptr.c (smr_hptr_free_list_enq): explicitly set exp to NULL before
+	each CAS where the value is expected to be NULL
+
+2005-02-25	blytkerchan
+	* hptr.c (smr_hptr_free_list_enq): revive more complicated version
+	fix simplified version
+
+2005-02-24	blytkerchan
+	* hptr.c (smr_hptr_free_list_enq): simplified
+
+2004-10-28	blytkerchan
+	* hptr.c: canonicalize arch includes
+	* smr.c: ditto
+
+2004-10-18	blytkerchan
+	* hptr.h: include stdint.h
+
+	* hptr.h [hptr_local_data_t]: change type of flag member from int to
+	int32_t
+
+2004-10-14	blytkerchan
+	* version: new file
+
+2004-09-13	blytkerchan
+	* hptr.c (smr_hptr_free_list_enq): use compare_and_exchange_ptr in
+	stead of compare_and_exchange
+	(smr_hptr_free_list_deq): ditto
+
+2004-09-12	blytkerchan	repair issue 1014458
+	* hptr.c (smr_hptr_free_list_enq): new function
+	(smr_hptr_free_list_deq): ditto
+	(hptr_get_local_data): call smr_hptr_free_list_deq to try to get a
+	node from the free list of nodes before allocating a new one
+	(hptr_cleanup_local_data): enqueue the local data in the free list in
+	stead of freeing it
+	* hptr.h [hptr_local_data_t]: new field: flag
+	* smr.c (smr_scan_worker): use realloc in stead of alloca to allocate
+	plist
+	check the flag field in hptr_data before using its next pointer
+	* smr.h [smr_global_data_t]: new field: free
+
+2004-08-11	blytkerchan
+	* hptr.c (hptr_register_local_data): use compare_and_exchange_ptr in
+	stead of obsolete compare_and_exchange
+	(hptr_get_local_data): ditto
+	(hptr_register): ditto
+	(hptr_free): ditto
+
+2004-07-22	blytkerchan
+	* hptr.c: remove all void** casts for compare_and_exchange calls
+	* module.mk: update
+	* smr.c: include <string.h>, and arch-dependant headers
+	cast parameters to atmoic_increment and atomic_decrement calls to
+	uint32_t*
+
+2004-07-20	blytkerchan
+	* module.mk: new file
+
+2004-05-07	blytkerchan
+	* Makefile.am [libmemory_la_SOURCES]: add increment.c and decrement.c
+	[TESTS]: new variable
+	[noinst_PROGRAMS]: ditto
+	[test1_LDADD]: ditto
+	[test2_LDADD]: ditto
+	[man_MANS]: ditto
+	[EXTRA_DITS]: add manpages and sources
+	<%.3>: new target
+	* NEWS: add contents
+	* README: update words on P variable and words on K variable
+	add Further Documentation and Author sections
+	* libmemory.3.sgml: correct spelling
+	* test1.c (main): update use of smr_init
+	* test2.c (main): ditto
+	[N_THREADS]: lower to 10
+	[BATCH_SIZE]: remove
+
+2004-05-04	blytkerchan
+	* hptr.c (hptr_get): new function
+	* hptr.h (hptr_get): ditto
+
+2004-05-03	blytkerchan	debug session
+	* Makefile.am [AM_CFLAGS]: new variable
+	* hptr.c (hptr_register_local_data): make it possible to register local data if none is registered yet..
+	(hptr_get_local_data): use calloc for allocations
+	(hptr_init): ditto
+	* smr.c (smr_get_private_data): ditto
+	(smr_init): ditto
+	(smr_binary_search_worker): compare the pointers, not what they point to
+	handle the case that mid == lower (or mid == upper)
+	(smr_scan_worker): handle the case that new hazard pointers are allocated and set during phase 1
+
+2004-04-30	blytkerchan	repair compilation
+	* configure.ac: find pthread_setspecific function in pthread library
+
+2004-04-29	blytkerchan
+	* AUTHORS: new file
+	* NEWS: ditto
+	* libmemory.sgml: update text throughout
+	* smr.h (smr_init): take unsigned integer as parameter
+	remove old comments
+
+	* ChangeLog: update date of yesterday's changes (from apr 27 to apr 28)
+	fix type-o in feb 25 entry
+	* smr.c (smr_get_private_data): use dsize attribute of private data
+	(smr_scan_worker): add FIXME note
+	calculate and use new_dsize - the size of the new dlist
+	use privately stored dsize in stead of calculating new one for the old dlist
+	(smr_free): use privately stored dsize in stead of calculating new one
+	* smr.h [smr_private_data_t]: dsize: new attribute
+
+2004-04-28	blytkerchan
+	* libmemory.3.sgml: new file
+	* hptr.c: provide full path to compare_and_exchange.h in include
+	(hptr_get_local_data): allocate K hazard pointers per thread, not N
+	* smr.c (smr_get_private_data): calculate size of dlist - no of threads may change en-route
+	(smr_scan_worker): ditto
+	(smr_cleanup_private_data): add FIXME note
+	(smr_init): only take number of hazard pointers per thread as parameter
+	(smr_thread_init): increment number of active threads
+	(smr_thread_fini): decrement number of active threads
+	* smr.h [smr_global_data_t]: remove N and R fields - calculated on the fly
+
+2004-03-19	blytkerchan
+	* Makefile: remove
+	* configure.ac: new file
+	* Makefile.am: ditto
+	* bootstrap: ditto
+
+2004-03-03	blytkerchan
+	* README: remove mention of the bug in the algorithm as it is invalid:
+	a short discussion with mr Micheal has shown this..
+
+2004-02-25	blytkerchan
+	* hptr.c: don't include increment.h and decrement.h
+	(hptr_register): remove unnecessary call to atomic_increment
+	(hptr_free): remove unnecessary call to atomic_decrement
+	(hptr_get_local_data): don't use the hpcount field in hptr_local_data_t
+	* hptr.h <hptr_local_data_t>: remove hpcount field
+	* Makefile: don't build increment and decrement
+
+	* *: import into Jail repository and apply Jail license
+
+	* libmemory.sgml: finalize
+	* Makefile: split up the doc target
+	* smr.c (smr_scan_worker): handle NULL pointers in the dlist correctly
+
+2004-02-24	blytkerchan
+	* libmemory.sgml: new file
+	* Makefile <doc>: new target
+	* smr.c (smr_thread_cleanup): take no parameters
+	(smr_thread_init): do nothing
+	(smr_thread_fini): new function - call smr_thread_cleanup
+	* smr.h: reflect above
+
+	* ChangeLog: fixed the previous entry.
+	* smr.c (smr_thread_cleanup): new function
+	(smr_thread_init): ditto
+	* smr.h: reflect above
+	
+	* NOTES: moved log tag to the end of file as it tends to get verbose
+	update the text to reflect results with test2
+	* smr.c (smr_free): half fixed the algorithm's design flaw - scan is now called if dcount >= R
+	* test2.c: implement a useful test :)
+
+	* NOTES: new file
+	* test2.c: ditto - copy of test1.c for now
+
+	* Makefile: centralize gcc parameters
+	[test2]: new target
+	* smr.c (smr_scan_worker): new function
+	(smr_cleanup_private_data): ditto
+	(smr_init): call smr_cleanup_private_data on key destruction
+	(smr_scan): call smr_scan_worker with private data
+
+2004-02-23	blytkerchan
+	* smr.c: new file
+	* smr.h: ditto
+	* README: ditto
+	* ChangeLog: ditto
+	* hptr.c: ditto
+	* hptr.h: ditto
+	* Makefile: ditto
+
+
