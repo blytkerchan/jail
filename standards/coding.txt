@@ -1,0 +1,280 @@
+The GNU coding standards apply to all code in the project, with the following
+exceptions/additions:
+
+Choice of language
+==================
+The project source is mainly written in C. Any code written in any other
+language must be accompanied by an interface for C, and there must be a (very)
+good reason for using the other language.
+
+Scripts used as a building/portability framework can be written in Bourne
+(Again) Shell or Perl, but neither language can be used for the project source
+code itself.
+
+Compatibility with other implementations
+========================================
+This is not a concern: except for the standard options `--help' and
+`--version' there are no compatibility options to take into account.
+
+Using non-standard features
+===========================
+The features we can use in the development of the project consist of the
+smallers common denominator of all target platforms. This means that,
+normally, the compiler-specific keywords (GNU extentions etc.) should be
+avoided as much as possible; platform-specific functions should be avoided
+unless a free implementation of those functions can be supplied with the
+project, as part of a replacement library; etc.
+
+In general, POSIX compliance should be taken for granted for all target
+platforms, and most target platforms may be expected to support the GNU C and
+C++ compilers.
+
+Standard and pre-standard C
+===========================
+Pre-standard C is banned. Function prototypes should include the type and name
+of all parameters.
+
+Conditional compilation
+=======================
+We apply the inverse of the GNU coding standards in this case: *do not* use 
+	if (HAS_FEATURE)
+	{
+	}
+	else
+	{
+	}
+use
+	#if HAS_FEATURE
+	#else
+	#endif
+in stead.
+
+Avoid conditional compilation in the bodies of functions and in the middle of
+source and header files: try to regroup them as much as possible.
+
+Formatting
+==========
+A function should look like this:
+return_type function_name(parameters)
+{
+   /* body */
+}
+This is not in accordance with the GNU coding standards, but makes it easier
+to decypher the function's return type and parameter types, as all are on the
+same line.
+
+The braces around a statement block should start at the level of the
+surrounding block. Within the block, everything should be indented by a single
+tab or three spaces (the tabsize of your editor should be set at three for
+convenience). This makes a typical while block look like this:
+	while (condition)
+	{
+	   /* body */
+	}
+
+The return at the end of a function is preferred like this:
+	return(return_value);
+in stead of this:
+	return return_value;
+
+A for loop should look like this:
+	for (i = 0; i < 10; i++)
+	{
+	   /* body */
+	}
+so there are no spaces right of the `(', nor left of the `)'
+
+A function call should look like this:
+	function();
+and not like this:
+	function ();
+
+Avoid very long lines - generally a line should not exceed 78 characters.
+
+Try to make the code as readible as possible: insert empty lines after
+declaration blocks, function bodies, etc. but avoid too much white space.
+
+Commenting your code
+====================
+For complicated functions (or functions using complicated algorithms) explain
+the algorithm used in a comment before the function itself.
+
+If the function is of importance outside of the file itself (library interface
+functions, etc.) explain their functionality in the header file that declares
+the function, as well as in the source file. Do so in a way that a
+documentation generator like Doxygen can use it to generate comprehensive
+documentation. Any other function should either be completely self-explaining
+or have a comment that accompanies it.
+
+Every header file should start with the copyright statement, followed by the
+inclusion guards, followed by a general description of the functionality of
+the functions and data types described in the header. Every source file should
+start with the copyright statement, followed by a separate comment describing
+the functionality of the contents of the file.
+
+The *only* admissible language used in the context of the project is english.
+Even though most developers on the project will have a native language
+different than english, english is the most common language among developers.
+Do not worry too much about spelling and grammar mistakes: as long as the text
+is unambiguous and clear, spelling errors should not be a problem (and another
+developer can always correct the mistakes).
+
+Making the compiler work for you
+================================
+Turn all warnings on when compiling. If it is impossible to compile without
+causing any warnings, explain why that is so in the source code that causes
+the warning.
+
+Type declarations
+=================
+Avoid using unions: they are difficult to understand (especially for beginning
+programmers). In general, you shouldn't count on every developer on the
+project to have your level: though you should not hesitate to write optimal
+and well-devised code, you should also make the code easy enough to understand
+for a second-year intern that will temporarily work on the project.
+
+A struct type definition should look like this:
+typedef struct _mytype_t
+{
+} mytype_t;
+
+Functions that are well-known to return a value that should be checked may be
+checked within the brackets of an if-statement, like this:
+	if ((file = fopen(filename, "rb")) == NULL)
+	{
+		printf("Failed to open file: %s\n", filename);
+	}
+
+Do not assume NULL == 0 - in any language: 0 is an integer; NULL is a pointer.
+
+Naming variables, functions, types and files
+============================================
+Hungarian coding is banned.
+
+The name of a variable, function or type should be a terse but clear
+description of what it does. If the entity (variable, function or type) is a
+global identifier in a library, the entity's name should start with the
+project's or library's name to avoid namespace collissions.
+
+In multi-threaded programs, avoid global variables and static variables: they
+may well become a maintenance nightmare.
+
+When using abbreviations, use only abbreviations that are either in a commonly
+used english dictionary or are well-known acronyms.
+
+For local variables and static functions, you can use shorter and less
+explicit names.
+
+When writing "a spiffy new hat" write a_spiffy_new_hat, not aSpiffyNewHat or
+ASpiffyNewHat.
+
+When naming files, avoid names like "aux", "com", "nul" etc. as they
+correspond to names that are reserved in Windows. as of version 1.5.x of
+Cygwin, this can be worked around using managed mounts, but to avoid is better
+than to heal.
+
+Portability
+===========
+As for Windows, we should not go out of our way to accomodate this system:
+where possible, the project should be coded in a way that is as portable as
+possible and hooks for abstractions of other systems than those supported
+(including Windows) should be allowed, but that is all. Windows applications
+are often inherently different by design and implementation that UNIX
+programs, which makes Windows a platform that is difficult to support if one
+also wants to support POSIX platforms.
+
+As for UNIX and its derivatives: POSIX compliance is the goal: we should avoid
+depending on third-party libraries and do as much as possible in a POSIXly
+correct way.
+
+All GNU systems (GNU/Hurd and GNU/Linux) should be supported, though we may
+make certain demands as to the versions of the software used (e.g. nobody
+still uses version 1 of linux, of anything older than version 2.95 of gcc, so
+we don't have to support it). *BSD systems should be supported as well.
+
+We should avoid using GNU (and other) extentions: they are not as portable as
+we might like.
+
+Internationalisation
+====================
+The project is written in an international context and will probably have
+users from many different contries. This implies that its executables should
+"speak" many different languages: not just english (or dutch, or french, or
+german). This means that, from the start, the messages the executables of the
+project produce must be prepared for translation. where available, the GNU
+gettext library (and tools) will be used to that effect.
+
+The messages in the source code should be in english, which should also be the
+standard language in case no other language is available (e.g. because the
+gettext library is not available on the build system).
+
+The documentation should also be written in a format that is easy to
+translate. This goes both for the documentation intended for developers
+working in the project, and documentation intended for end-users of the
+project.
+
+Documentation
+=============
+The preferred documentation format for the project is DocBook because it is
+portable and convertible to many other formats. Other than this detail, the
+GNU coding standards apply for documentation.
+
+The code should be documented in a way that Doxygen can generate
+comprehensible documentation directly from the code. This documentation should
+at the very least be available for all interface functions in english.
+
+Change logs
+===========
+A ChangeLog entry looks like this:
+
+<date in ISO format>[TAB]<author ID as in AUTHORS file>
+[TAB]* <filename> (<function>): <description>
+[TAB]* \[MACRO\]: <description>
+[TAB]* \<<label or type of code>\>: <description>
+
+These are valid examples:
+
+2002-09-30	blytkerchan
+	* obfuscate.c (main): added the -o option to specify an output file
+	* uuencode.c (main): ditto
+	added -i option to specify an input file
+	* uudecode.c (main): ditto (both)
+
+	* obfuscate.h [VERSION]: bumped the version number
+	* version.c (version) <version parsing code>: fixed a bug to get the
+	minor version number - it got it wrong is smaller than the major one
+
+Related changes should be grouped. Functions with similar changes should *not*
+be listed together - in stead, they should have "ditto" entries. Conditional
+changes should be put in like this:
+
+	* version.c <HAVE_WINDOWS> (APIversion): use Windows-style versioning
+	in stead of Libtool-style.
+
+Naming macros and constants
+===========================
+Macros that can be replaced by equivalent functions should be. Those that can
+not but should in some near future should be named in all-uppercase.
+Macros that evaluate their parameters more than once should be avoided. Those
+that do should be named in all-uppercase.
+Macros and constants that can be used in constant expressions should be named
+in all-uppercase.
+All other macros and constants follow the same naming rules as other
+identifiers.
+
+What is encoded in names
+========================
+We *do not* encode scope or type information in the names of identifiers: we 
+encode *functionality* only. Exceptions to this are to me avoided like the
+plague and are only admissible if there are name clashes, in which case:
+* member variables get an extra underscore at the end (appended)
+* parameters get an extra underscore at the front (prepended)
+* local variables do not change name.
+Avoid hiding identifiers from surrounding scopes - it's confusing.
+
+Final remarks
+=============
+Parts not mentioned here follow the GNU coding standards, except for the
+release process, which is outside the scope of this document.
+
+

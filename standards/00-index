@@ -1,0 +1,11 @@
+This directory contains all the standards that apply to the Jail language
+project (jail-ust). Below is a list of the files and their one-line 
+descriptions.
+
+00-index	this file
+AUTHORS		the authors of the files in this directory
+ChangeLog	the ChangeLog for this directory
+coding.txt	a file describing the general standards pertaining to code and 
+		development
+directory.txt	a file describing the minimal contents of a directory
+
