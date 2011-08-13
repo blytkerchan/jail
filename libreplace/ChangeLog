@@ -1,0 +1,82 @@
+2005-04-23	blytkerchan
+	* module.mk: don't install these headers by default
+
+	* module.mk: add support for INSTALL_HEADERS
+
+2004-10-22	blytkerchan
+	* dirname.c: new file
+	* dirname.h: ditto
+
+2004-07-23	blytkerchan
+	* binary.c: move here from libcontain
+	* binary.h: ditto
+	* module.mk: update
+
+2004-07-22	blytkerchan
+	* module.mk: update
+	* ltrim.c: include <string.h>
+	* rtrim.h: ditto
+
+2004-07-20	blytkerchan
+	* module.mk: new file
+
+2004-04-12	blytkerchan
+	* ltrim.c: new file
+	* rtrim.c: ditto
+	* Makefile.am [libreplace_la_SOURCES]: add ltrim.c
+	add rtrim.c
+	* macros.h (trim): new macro
+	(ltrim): new function
+	(rtrim): ditto
+
+	* catstr.c: include string.h
+	* Makefile.am: add fexist.c to sources
+	add fexist.h to headers
+	* fexist.c: new file
+	* fexist.h: ditto
+
+2004-04-08	blytkerchan
+	* catstr.c: apply license
+	* catstr.h: ditto
+	* macros.h: ditto
+	* malloc.c: ditto
+	* memdup.c: ditto
+	* memdup.h: ditto
+	* memset.c: ditto
+	* realloc.c: ditto
+	* strchr.c: ditto
+	* strdup.c: ditto
+	* memcmp.c: add 2004 to the license years
+	* strlwr.c: ditto
+	* strlwr.h: ditto
+
+2004-04-01	blytkerchan
+	* memset.c: new file
+	* realloc.c: ditto
+	* strdup.c: ditto
+	* malloc.c: ditto
+	* strchr.c: ditto
+
+2004-03-30	blytkerchan
+	* catstr.c: new file
+	* catstr.h: ditto
+	* Makefile.am [libreplace_la_SOURCES]: add catstr.c and memdup.c
+	[noinst_HEADERS]: new variable
+
+2004-03-25	blytkerchan
+	* memdup.c: new file
+	* memdup.h: ditto
+	* macros.h: new file
+
+2004-02-10	blytkerchan
+	* strlwr.c (strlwr): fix endless loop
+
+2004-02-03	blytkerchan
+	* strlwr.h: new file
+
+	* Makefile.am: new file
+	* memcmp.c: ditto
+
+	* strlwr.c: new file
+	* AUTHORS: ditto
+
